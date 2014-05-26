@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="waterloofx" default="all">
+  
+  
+  <property file="waterloofx.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
+  <property name="skip.tests" value="true"/>
+   -->
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/.pyc/**"/>
+    <exclude name="**/.pyo/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/*.lib/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/.bundle/**"/>
+    <exclude name="**/*.rbc/**"/>
+    <exclude name="**/*.orig/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.ear"/>
+    <include name="*.apk"/>
+    <include name="*.zip"/>
+    <include name="*.swc"/>
+    <include name="*.ane"/>
+    <include name="*.egg"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <include name="**/?*.properties"/>
+    <include name="**/?*.xml"/>
+    <include name="**/?*.gif"/>
+    <include name="**/?*.png"/>
+    <include name="**/?*.jpeg"/>
+    <include name="**/?*.jpg"/>
+    <include name="**/?*.html"/>
+    <include name="**/?*.dtd"/>
+    <include name="**/?*.tld"/>
+    <include name="**/?*.ftl"/>
+  </patternset>
+  
+  <!-- JDK definitions -->
+  
+  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
+  <path id="jdk.classpath.1.8">
+    <fileset dir="${jdk.home.1.8}">
+      <include name="lib/ant-javafx.jar"/>
+      <include name="lib/dt.jar"/>
+      <include name="lib/javafx-mx.jar"/>
+      <include name="lib/jconsole.jar"/>
+      <include name="lib/sa-jdi.jar"/>
+      <include name="lib/tools.jar"/>
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jfr.jar"/>
+      <include name="jre/lib/jfxswt.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/management-agent.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/resources.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/cldrdata.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/jfxrt.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/nashorn.jar"/>
+      <include name="jre/lib/ext/sunec.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+      <include name="jre/lib/ext/zipfs.jar"/>
+    </fileset>
+  </path>
+  
+  <property name="project.jdk.home" value="${jdk.home.1.8}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
+  <!-- Register Custom Compiler Taskdefs -->
+  <property name="javac2.home" value="${idea.home}/lib"/>
+  <path id="javac2.classpath">
+    <pathelement location="${javac2.home}/javac2.jar"/>
+    <pathelement location="${javac2.home}/jdom.jar"/>
+    <pathelement location="${javac2.home}/asm4-all.jar"/>
+    <pathelement location="${javac2.home}/jgoodies-forms.jar"/>
+  </path>
+  <target name="register.custom.compilers">
+    <taskdef name="javac2" classname="com.intellij.ant.Javac2" classpathref="javac2.classpath"/>
+    <taskdef name="instrumentIdeaExtensions" classname="com.intellij.ant.InstrumentIdeaExtensions" classpathref="javac2.classpath"/>
+  </target>
+  
+  <!-- Modules -->
+  
+  
+  <!-- Module waterlooFX -->
+  
+  <dirname property="module.waterloofx.basedir" file="${ant.file}"/>
+  
+  
+  <property name="module.jdk.home.waterloofx" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.waterloofx" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.waterloofx" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.waterloofx" value="-encoding UTF-8 -source 8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="waterloofx.output.dir" value="${module.waterloofx.basedir}/target/classes"/>
+  <property name="waterloofx.testoutput.dir" value="${module.waterloofx.basedir}/target/test-classes"/>
+  
+  <path id="waterloofx.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="waterloofx.module.production.classpath">
+    <path refid="${module.jdk.classpath.waterloofx}"/>
+  </path>
+  
+  <path id="waterloofx.runtime.production.module.classpath">
+    <pathelement location="${waterloofx.output.dir}"/>
+  </path>
+  
+  <path id="waterloofx.module.classpath">
+    <path refid="${module.jdk.classpath.waterloofx}"/>
+    <pathelement location="${waterloofx.output.dir}"/>
+  </path>
+  
+  <path id="waterloofx.runtime.module.classpath">
+    <pathelement location="${waterloofx.testoutput.dir}"/>
+    <pathelement location="${waterloofx.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.waterloofx">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.waterloofx">
+    <patternset refid="excluded.from.module.waterloofx"/>
+  </patternset>
+  
+  <path id="waterloofx.module.sourcepath">
+    <dirset dir="${module.waterloofx.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.waterloofx" depends="compile.module.waterloofx.production,compile.module.waterloofx.tests" description="Compile module waterlooFX"/>
+  
+  <target name="compile.module.waterloofx.production" depends="register.custom.compilers" description="Compile module waterlooFX; production classes">
+    <mkdir dir="${waterloofx.output.dir}"/>
+    <javac2 destdir="${waterloofx.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.waterloofx}/javac">
+      <compilerarg line="${compiler.args.waterloofx}"/>
+      <bootclasspath refid="waterloofx.module.bootclasspath"/>
+      <classpath refid="waterloofx.module.production.classpath"/>
+      <src refid="waterloofx.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.waterloofx"/>
+    </javac2>
+    
+    <copy todir="${waterloofx.output.dir}">
+      <fileset dir="${module.waterloofx.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.waterloofx.tests" depends="register.custom.compilers,compile.module.waterloofx.production" description="compile module waterlooFX; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.waterloofx" description="cleanup module">
+    <delete dir="${waterloofx.output.dir}"/>
+    <delete dir="${waterloofx.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.waterloofx" description="cleanup all"/>
+  
+  <target name="build.modules" depends="init, clean, compile.module.waterloofx" description="build all modules"/>
+  
+  <target name="all" depends="build.modules" description="build all"/>
+</project>
