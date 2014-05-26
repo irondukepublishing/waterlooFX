@@ -90,6 +90,7 @@ import waterloo.fx.util.GJCyclicArrayList;
  */
 public abstract class AbstractPlot<T extends List<? extends Node>> extends StackPane implements ListChangeListener<Number> {
 
+    private final static Point2D zeroPoint = new Point2D(0,0);
     BooleanProperty dataPolar = new StyleableBooleanProperty(false) {
         @Override
         public boolean get() {
@@ -706,7 +707,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
             y = Math.sin(x) * y;
             return chart.getAxisSet().getInverse(x, y);
         } else {
-            return Point2D.ZERO;//new Point2D(0,0);
+            return zeroPoint;//Point2D.ZERO;//Not implemented until 8u20
         }
     }
 
