@@ -1,0 +1,124 @@
+/* 
+ * This code is part of Project Waterloo from King's College London
+ * <http://waterloo.sourceforge.net/>
+ *
+ * Copyright King's College London  2014-
+ * 
+ * @author Malcolm Lidierth, King's College London <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * 
+ * Project Waterloo is free software:  you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Project Waterloo is distributed in the hope that it will  be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+.root{
+    -fx-background-color: white;
+}
+
+.view {
+    -fx-background-color: transparent;
+}
+
+.axis {
+    -fx-background-color: transparent;
+}
+
+.gjchart {
+    -fx-background-color: white;
+    -w-font-size: 14;
+    -w-font-family: "Arial";
+/*    -w-font-style: italic;
+    -w-xleft: -1.1;                    //Left limit of the x-axis
+    -w-xright: 1.1;                    //Right limit of the x-axis
+    -w-ytop: 1.1;                      //Top limit of the y-axis
+    -w-ybottom: -1.1;                  //Bottom limit of the y-axis
+    -w-xtransformtype: LINEAR;            //Sets the x-axis tranform type
+    -w-ytransformtype: LINEAR;            //Sets the y-axis tranform type*/
+}
+
+
+
+/**
+* Defines default properties for any plot type
+*/
+
+
+.scatterplot {
+    -w-plot-marker-style: CIRCLE;
+    -w-plot-marker-radius: 5;
+    -w-plot-marker-fill: orange;
+    -w-plot-marker-edgecolor: blue;
+    -w-plot-marker-edgewidth: 1;
+}
+
+.errorbarplot {
+    -w-plot-line-color: blue;
+    -w-plot-line-width: 2;
+}
+
+.barplot {
+    -w-plot-marker-fill: linear-gradient(#2A5058, #61a2b1);
+}
+
+/*.scatter .scatter {
+    -w-plot-marker-style: SQUARE;
+    -w-plot-marker-radius: 5;
+    -w-plot-marker-fill: blue;
+    -w-plot-marker-edgecolor: red;
+    -w-plot-marker-edgewidth: 1;
+}
+
+.scatter .scatter .scatter {
+    -w-plot-marker-style: TRIANGLE;
+    -w-plot-marker-radius: 5;
+    -w-plot-marker-fill: yellow;
+    -w-plot-marker-edgecolor: blue;
+    -w-plot-marker-edgewidth: 1;
+}*/
+/*
+.plot-0 {    
+    -w-plot-marker-style: CIRCLE;
+    -w-plot-marker-radius: 5;
+    -w-plot-marker-fill: slategray;
+    -w-plot-marker-edgecolor: gray;
+    -w-plot-marker-edgewidth: 1.5;
+    -w-plot-line-color: red;
+    -w-plot-line-width: 1;
+}
+
+.plot-1 {    
+    -w-plot-marker-style: SQUARE;
+    -w-plot-marker-radius: 5;
+    -w-plot-marker-fill: slategray;
+    -w-plot-marker-edgecolor: gray;
+    -w-plot-marker-edgewidth: 1.5;
+    -w-plot-line-color: blue;
+    -w-plot-line-width: 1.5;
+}
+
+
+.plot-2 {    
+    -w-plot-marker-style: TRIANGLE;
+    -w-plot-marker-radius: 5;
+    -w-plot-marker-fill: slategray;
+    -w-plot-marker-edgecolor: gray;
+    -w-plot-marker-edgewidth: 1.5;
+    -w-plot-line-color: green;
+    -w-plot-line-width: 1;
+}*/
+
+
+
+
+
+
+
