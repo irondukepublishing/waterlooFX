@@ -12,9 +12,9 @@ This is a JavaFX-based scientific charting library for Java 8+
 For the latest code, use the git repo.*
 
 
-**waterlooFXDemo.jar**
-    This includes waterlooFX.jar in the /lib folder and is a FXML-based demo of the waterlooFX code.
-    It is a self-executing jar that requires an existing Java 8.
+**waterlooFXDemo.zip** waterlooFXDemo.jar is a self-executing jar that requires an existing Java 8 installation.It runs an FXML-based demo of the waterlooFX code.
+The zip includes waterlooFX.jar in the /lib folder.
+    
 
 **waterlooFXDemo.msi and waterlooFXDemo.dmg**
     These are Windows and Mac installers for the demo that have an embedded copy of the Java 8 JRE.

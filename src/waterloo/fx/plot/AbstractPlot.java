@@ -90,7 +90,7 @@ import waterloo.fx.util.GJCyclicArrayList;
  */
 public abstract class AbstractPlot<T extends List<? extends Node>> extends StackPane implements ListChangeListener<Number> {
 
-    private final static Point2D zeroPoint = new Point2D(0,0);
+    
     BooleanProperty dataPolar = new StyleableBooleanProperty(false) {
         @Override
         public boolean get() {
@@ -697,6 +697,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 //        return xy;
 //    }
 
+    //private final static Point2D zeroPoint = new Point2D(0,0);
     public final Point2D getInverse(Chart chart, double x, double y) {
         if (!chart.isPolar() && !dataModel.isDataPolar()) {
             // All cartesian so return the data from the axisSet
@@ -706,9 +707,8 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
             x = Math.cos(x) * y;
             y = Math.sin(x) * y;
             return chart.getAxisSet().getInverse(x, y);
-        } else {
-            return zeroPoint;//Point2D.ZERO;//Not implemented until 8u20
-        }
+        } 
+        return Point2D.ZERO;//zeroPoint;//Point2D.ZERO;//Not recognized by javac in Java 8eas?
     }
 
     /**
