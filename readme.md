@@ -1,14 +1,18 @@
-This is a JavaFX-based scientific charting library for Java 8+
+This is a JavaFX-based scientific charting library for Java 8+.
+
+It has now been configured for Maven and the Git repo has the pom files etc included.
 
 
 **Files**
 
 **waterlooFX.jar**
-    The core library is available as waterlooFX.jar.
+***OR*** 
+**waterlooFX-0.8-SNAPSHOT.jar**
+    The core library is available as waterlooFX.jar (or waterlooFX-0.8-SNAPSHOT.jar when built with Maven).
 
 *This is the file needed by Java developers and can be imported into Oracle's Scene Builder 2.*
 
-*NB The "stand-alone" copy of waterlooFX.jar will be updated more often in the pre-release phase than the copy bundled in the demos so should be preferred by developers.
+*NB The "stand-alone" copy of the jar will be updated more often in the pre-release phase than the copy bundled in the demos so should be preferred by developers.
 For the latest code, use the git repo.*
 
 
@@ -16,7 +20,7 @@ For the latest code, use the git repo.*
 The zip includes waterlooFX.jar in the /lib folder.
     
 
-**waterlooFXDemo.msi and waterlooFXDemo.dmg**
-    These are Windows and Mac installers for the demo that have an embedded copy of the Java 8 JRE.
+**waterlooFXDemo_Windows__64_bit.msi and waterlooFXDemo.dmg**
+    These are Windows 64 and Mac installers for the demo that have an embedded copy of the Java 8 JRE.
 
 *Windows users: the installer places an icon on the desktop - click that to run it.*
