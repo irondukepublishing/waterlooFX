@@ -57,8 +57,6 @@ import javafx.scene.canvas.GraphicsContext;
 //import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -1201,21 +1199,21 @@ public class Chart extends Pane {
         return StyleableProperties.STYLEABLES;
     }
 
-    /**
-     * NB. To use other panes, e.g. a GridPane or TitledPane, add the chart to
-     * one of the supported pane's then add that to the target.
-     *
-     * @param node the node the chart is to be added to
-     * @return true if the node is supported as a parent of a chart
-     */
-    private boolean isSupportedAsParent(Node node) {
-        Class clzz = node.getClass();
-        return clzz.equals(Pane.class)
-                || clzz.equals(Chart.class)
-                || clzz.equals(AnchorPane.class)
-                || clzz.equals(FlowPane.class)
-                || clzz.equals(StackPane.class);
-    }
+//    /**
+//     * NB. To use other panes, e.g. a GridPane or TitledPane, add the chart to
+//     * one of the supported pane's then add that to the target.
+//     *
+//     * @param node the node the chart is to be added to
+//     * @return true if the node is supported as a parent of a chart
+//     */
+//    private boolean isSupportedAsParent(Node node) {
+//        Class clzz = node.getClass();
+//        return clzz.equals(Pane.class)
+//                || clzz.equals(Chart.class)
+//                || clzz.equals(AnchorPane.class)
+//                || clzz.equals(FlowPane.class)
+//                || clzz.equals(StackPane.class);
+//    }
 
     public ObjectProperty<Paint> innerAxisColorProperty() {
         return innerAxisColor;
@@ -1231,7 +1229,7 @@ public class Chart extends Pane {
 
     /**
      * The viewAlignment positions the display of the view on the longest axis
-     * of the graph when the viewAspectRatio is a non-zero, non-NaN value.
+     * of the chart when the viewAspectRatio is a non-zero, non-NaN value.
      *
      * Available settings are:
      * <ol>
@@ -3717,10 +3715,12 @@ public class Chart extends Pane {
                     });
                 }
                 addAxisLabel();
-                axisLabel.setFont(getFont());
-                axisLabel.setLayoutY(getTickLabels().get(0).getBoundsInParent().getMinY());
-                axisLabel.setLayoutX(getLayer().getView().prefWidth(0d) / 2d
-                        - axisLabel.prefWidth(0d) / 2d);
+                if (getTickLabels().size() > 0) {
+                    axisLabel.setFont(getFont());
+                    axisLabel.setLayoutY(getTickLabels().get(0).getBoundsInParent().getMinY());
+                    axisLabel.setLayoutX(getLayer().getView().prefWidth(0d) / 2d
+                            - axisLabel.prefWidth(0d) / 2d);
+                }
             } else {
                 getTickLabels().stream().forEach(x -> getChildren().remove(x));
                 removeAxisLabel();
@@ -3801,10 +3801,12 @@ public class Chart extends Pane {
                     });
                 }
                 addAxisLabel();
-                axisLabel.setFont(getFont());
-                axisLabel.setLayoutY(getTickLabels().get(0).getBoundsInParent().getMaxY());
-                axisLabel.setLayoutX(getLayer().getView().getWidth() / 2d
-                        - axisLabel.getBoundsInParent().getWidth() / 2d);
+                if (getTickLabels().size() > 0) {
+                    axisLabel.setFont(getFont());
+                    axisLabel.setLayoutY(getTickLabels().get(0).getBoundsInParent().getMaxY());
+                    axisLabel.setLayoutX(getLayer().getView().getWidth() / 2d
+                            - axisLabel.getBoundsInParent().getWidth() / 2d);
+                }
             } else {
                 getTickLabels().stream().forEach(x -> getChildren().remove(x));
                 removeAxisLabel();

@@ -111,7 +111,7 @@ public class Demo extends Application {
         Scene scene = new Scene(root, 500, 500);
         //scene.getStylesheets().add(StyleSheetManager.getCss());
 
-        primaryStage.setTitle("WaterooFX Demo: Scientific charting for JavaFX8+");
+        primaryStage.setTitle("WaterooFX Demo: Scientific charting for JavaFX 8+");
         primaryStage.setScene(scene);
 
         primaryStage.show();
