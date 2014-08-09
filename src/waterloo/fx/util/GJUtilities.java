@@ -1,10 +1,10 @@
  /* 
- * This code is part of Project Waterloo from King's College London
+*
  * <http://waterloo.sourceforge.net/>
  *
  * Copyright King's College London 2011-, 2014
  * 
- * @author Malcolm Lidierth, King's College London <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  * 
  * Project Waterloo is free software:  you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,7 +31,7 @@ import javafx.scene.paint.Color;
  * College London {@literal http://waterloo.sourceforge.net/}
  * </p>
  *
- * @author Malcolm Lidierth, King's College London <a
+ * @author Malcolm Lidierth <a
  * href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  */
 public final class GJUtilities {
