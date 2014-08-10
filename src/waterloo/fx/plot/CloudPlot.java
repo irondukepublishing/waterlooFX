@@ -102,7 +102,7 @@ public class CloudPlot extends AbstractPlot<ArrayList<Path>> {
             // Adding new data points
             int start = elements.size();
             for (int k = start; k < dataModel.size(); k++) {
-                Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+                Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
                 p0 = chart.toPixel(p0);
                 if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                     elements.add(new MoveTo(0, 0));
@@ -126,7 +126,7 @@ public class CloudPlot extends AbstractPlot<ArrayList<Path>> {
 //            System.err.println("Cloud plot out of synch");
 //        }
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 ((MoveTo) elements.get(k * 2)).setX(p0.getX());

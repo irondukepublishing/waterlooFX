@@ -1,5 +1,5 @@
 /*
-*
+ *
  * <http://waterloo.sourceforge.net/>
  *
  * Copyright King's College London  2014-
@@ -80,7 +80,7 @@ import waterloo.fx.markers.Plus;
 import waterloo.fx.markers.RightTriangle;
 import waterloo.fx.markers.Square;
 import waterloo.fx.markers.Triangle;
-import waterloo.fx.plot.model.GJDataModel;
+import waterloo.fx.plot.model.DataModel;
 import waterloo.fx.util.GJCyclicArrayList;
 
 /**
@@ -90,7 +90,6 @@ import waterloo.fx.util.GJCyclicArrayList;
  */
 public abstract class AbstractPlot<T extends List<? extends Node>> extends StackPane implements ListChangeListener<Number> {
 
-    
     BooleanProperty dataPolar = new StyleableBooleanProperty(false) {
         @Override
         public boolean get() {
@@ -179,7 +178,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
     /**
      * Data model for this plot.
      */
-    final GJDataModel dataModel = new GJDataModel();
+    final DataModel dataModel = new DataModel();
     /**
      * Visual model for this plot.
      */
@@ -194,16 +193,16 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public void set(String s) {
-            dataModel.xData.clear();
+            dataModel.getXData().clear();
             if (!s.isEmpty()) {
                 List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
-                items.forEach(x -> dataModel.xData.add(Double.valueOf(x)));
+                items.forEach(x -> dataModel.getXData().add(Double.valueOf(x)));
             }
         }
 
         @Override
         public String get() {
-            return dataModel.xData.stream().map(x -> x.toString()).collect(Collectors.joining(", "));
+            return dataModel.getXData().stream().map(x -> x.toString()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -226,16 +225,16 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public void set(String s) {
-            dataModel.yData.clear();
+            dataModel.getYData().clear();
             if (!s.isEmpty()) {
                 List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
-                items.forEach(y -> dataModel.yData.add(Double.valueOf(y)));
+                items.forEach(y -> dataModel.getYData().add(Double.valueOf(y)));
             }
         }
 
         @Override
         public String get() {
-            return dataModel.yData.stream().map(x -> x.toString()).collect(Collectors.joining(", "));
+            return dataModel.getYData().stream().map(x -> x.toString()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -258,16 +257,16 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public void set(String s) {
-            dataModel.extraData0.clear();
+            dataModel.getExtraData0().clear();
             if (!s.isEmpty()) {
                 List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
-                items.forEach(x -> dataModel.extraData0.add(Double.valueOf(x)));
+                items.forEach(x -> dataModel.getExtraData0().add(Double.valueOf(x)));
             }
         }
 
         @Override
         public String get() {
-            return dataModel.extraData0.stream().map(x -> x.toString()).collect(Collectors.joining(", "));
+            return dataModel.getExtraData0().stream().map(x -> x.toString()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -290,16 +289,16 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public void set(String s) {
-            dataModel.extraData1.clear();
+            dataModel.getExtraData1().clear();
             if (!s.isEmpty()) {
                 List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
-                items.forEach(x -> dataModel.extraData1.add(Double.valueOf(x)));
+                items.forEach(x -> dataModel.getExtraData1().add(Double.valueOf(x)));
             }
         }
 
         @Override
         public String get() {
-            return dataModel.extraData1.stream().map(x -> x.toString()).collect(Collectors.joining(", "));
+            return dataModel.getExtraData1().stream().map(x -> x.toString()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -322,16 +321,16 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public void set(String s) {
-            dataModel.extraData2.clear();
+            dataModel.getExtraData2().clear();
             if (!s.isEmpty()) {
                 List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
-                items.forEach(x -> dataModel.extraData2.add(Double.valueOf(x)));
+                items.forEach(x -> dataModel.getExtraData2().add(Double.valueOf(x)));
             }
         }
 
         @Override
         public String get() {
-            return dataModel.extraData2.stream().map(x -> x.toString()).collect(Collectors.joining(", "));
+            return dataModel.getExtraData2().stream().map(x -> x.toString()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -354,16 +353,16 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public void set(String s) {
-            dataModel.extraData3.clear();
+            dataModel.getExtraData3().clear();
             if (!s.isEmpty()) {
                 List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
-                items.forEach(x -> dataModel.extraData3.add(Double.valueOf(x)));
+                items.forEach(x -> dataModel.getExtraData3().add(Double.valueOf(x)));
             }
         }
 
         @Override
         public String get() {
-            return dataModel.extraData3.stream().map(x -> x.toString()).collect(Collectors.joining(", "));
+            return dataModel.getExtraData3().stream().map(x -> x.toString()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -484,9 +483,9 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         getChildren().add(annotationPane);
         annotationPane.getStyleClass().add("annotationpane");
 
-        dataModel.xData.addListener(this);
+        dataModel.getXData().addListener(this);
 
-        dataModel.yData.addListener(this);
+        dataModel.getYData().addListener(this);
 
         graphicsPane.getChildren().addListener((ListChangeListener.Change<? extends Node> c) -> {
             while (c.next()) {
@@ -585,11 +584,11 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return visualModel;
     }
 
-    public GJDataModel getDataModel() {
+    public DataModel getDataModel() {
         return dataModel;
     }
 
-//    public void setDataModel(GJDataModel model) {
+//    public void setDataModel(DataModel model) {
 //        this.dataModel = model;
 //    }
     public String getXData() {
@@ -696,7 +695,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 //        double[] xy = new double[]{Math.cos(x) * y, Math.sin(x) * y};
 //        return xy;
 //    }
-
     //private final static Point2D zeroPoint = new Point2D(0,0);
     public final Point2D getInverse(Chart chart, double x, double y) {
         if (!chart.isPolar() && !dataModel.isDataPolar()) {
@@ -707,7 +705,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
             x = Math.cos(x) * y;
             y = Math.sin(x) * y;
             return chart.getAxisSet().getInverse(x, y);
-        } 
+        }
         return Point2D.ZERO;//zeroPoint;//Point2D.ZERO;//Not recognized by javac in Java 8eas?
     }
 
@@ -1040,7 +1038,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                 };
         private static final CssMetaData<AbstractPlot, String> YDATA
                 = new CssMetaData<AbstractPlot, String>("-w-plot-ydata",
-                        StyleConverter.getStringConverter(),"") {
+                        StyleConverter.getStringConverter(), "") {
 
                     @Override
                     public boolean isSettable(AbstractPlot n) {
@@ -1743,5 +1741,5 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
             return markerRadius;
         }
 
-    };
+    }
 }

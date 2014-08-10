@@ -84,7 +84,7 @@ public class StemPlot extends AbstractPlot<ArrayList<Shape>> implements LineInte
     @Override
     protected final void updateElements(Chart chart) {
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 // If this is the first entry for a new line, add that line to
@@ -105,9 +105,9 @@ public class StemPlot extends AbstractPlot<ArrayList<Shape>> implements LineInte
         // Call the super method to do house-keeping common to all plots
         super.arrangePlot(chart);
 
-        for (int k = 0; k < dataModel.xData.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.getBaseValue());
-            Point2D p1 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+        for (int k = 0; k < dataModel.getXData().size(); k++) {
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getBaseValue());
+            Point2D p1 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             p1 = chart.toPixel(p1);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {

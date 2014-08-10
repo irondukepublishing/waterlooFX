@@ -79,13 +79,13 @@ public class BoxPlot extends AbstractBox<Rectangle> {
         for (int k = 0; k < dataModel.size(); k++) {
             // Upper-left Limits
             Point2D p0 = getData(chart,
-                    dataModel.xData.get(k) - dataModel.extraData2.get(k),
-                    dataModel.yData.get(k) + dataModel.extraData1.get(k));
+                    dataModel.getXData().get(k) - dataModel.getExtraData2().get(k),
+                    dataModel.getYData().get(k) + dataModel.getExtraData1().get(k));
             p0 = chart.toPixel(p0);
             // Lower-right limits
             Point2D p1 = getData(chart,
-                    dataModel.xData.get(k) + dataModel.extraData0.get(k),
-                    dataModel.yData.get(k) - dataModel.extraData3.get(k));
+                    dataModel.getXData().get(k) + dataModel.getExtraData0().get(k),
+                    dataModel.getYData().get(k) - dataModel.getExtraData3().get(k));
             p1 = chart.toPixel(p1);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY()) && Double.isFinite(p1.getX()) && Double.isFinite(p1.getY())) {
                 visualElement.add(new Rectangle());
@@ -102,13 +102,13 @@ public class BoxPlot extends AbstractBox<Rectangle> {
         for (int k = 0; k < dataModel.size(); k++) {
             // Upper-left Limits
             Point2D p0 = getData(chart,
-                    dataModel.xData.get(k) - dataModel.extraData2.get(k),
-                    dataModel.yData.get(k) + dataModel.extraData1.get(k));
+                    dataModel.getXData().get(k) - dataModel.getExtraData2().get(k),
+                    dataModel.getYData().get(k) + dataModel.getExtraData1().get(k));
             p0 = chart.toPixel(p0);
             // Lower-right limits
             Point2D p1 = getData(chart,
-                    dataModel.xData.get(k) + dataModel.extraData0.get(k),
-                    dataModel.yData.get(k) - dataModel.extraData3.get(k));
+                    dataModel.getXData().get(k) + dataModel.getExtraData0().get(k),
+                    dataModel.getYData().get(k) - dataModel.getExtraData3().get(k));
             p1 = chart.toPixel(p1);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY()) && Double.isFinite(p1.getX()) && Double.isFinite(p1.getY())) {
                 Rectangle marker = (Rectangle) visualElement.get(k);

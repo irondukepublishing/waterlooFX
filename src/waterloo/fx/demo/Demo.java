@@ -59,19 +59,19 @@ public class Demo extends Application {
         
         
         BarPlot bar0=new BarPlot();
-        ((BarExtra)bar0.getDataModel().extraObject).setJustification(BarExtra.JUSTIFICATION.CENTERED);
-        ((BarExtra)bar0.getDataModel().extraObject).setMode(BarExtra.MODE.STACKED);
-        ((BarExtra)bar0.getDataModel().extraObject).setOrientation(BarExtra.ORIENTATION.HORIZONTAL);
+        ((BarExtra)bar0.getDataModel().getExtraObject()).setJustification(BarExtra.JUSTIFICATION.CENTERED);
+        ((BarExtra)bar0.getDataModel().getExtraObject()).setMode(BarExtra.MODE.STACKED);
+        ((BarExtra)bar0.getDataModel().getExtraObject()).setOrientation(BarExtra.ORIENTATION.HORIZONTAL);
         //collection.getChildren().add(bar0);
         BarPlot bar1=new BarPlot();
-        ((BarExtra)bar1.getDataModel().extraObject).setJustification(BarExtra.JUSTIFICATION.CENTERED);
-        ((BarExtra)bar1.getDataModel().extraObject).setMode(BarExtra.MODE.STACKED);
-        ((BarExtra)bar1.getDataModel().extraObject).setOrientation(BarExtra.ORIENTATION.HORIZONTAL);
+        ((BarExtra)bar1.getDataModel().getExtraObject()).setJustification(BarExtra.JUSTIFICATION.CENTERED);
+        ((BarExtra)bar1.getDataModel().getExtraObject()).setMode(BarExtra.MODE.STACKED);
+        ((BarExtra)bar1.getDataModel().getExtraObject()).setOrientation(BarExtra.ORIENTATION.HORIZONTAL);
         //collection.getChildren().add(bar1);
         BarPlot bar2=new BarPlot();
-        ((BarExtra)bar2.getDataModel().extraObject).setJustification(BarExtra.JUSTIFICATION.CENTERED);
-        ((BarExtra)bar2.getDataModel().extraObject).setMode(BarExtra.MODE.STACKED);
-        ((BarExtra)bar2.getDataModel().extraObject).setOrientation(BarExtra.ORIENTATION.HORIZONTAL);
+        ((BarExtra)bar2.getDataModel().getExtraObject()).setJustification(BarExtra.JUSTIFICATION.CENTERED);
+        ((BarExtra)bar2.getDataModel().getExtraObject()).setMode(BarExtra.MODE.STACKED);
+        ((BarExtra)bar2.getDataModel().getExtraObject()).setOrientation(BarExtra.ORIENTATION.HORIZONTAL);
         //collection.getChildren().add(bar2);
         
         PlotCollection<BarPlot> collection = new PlotCollection<>(bar0, bar1, bar2);

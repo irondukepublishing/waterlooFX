@@ -46,13 +46,13 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
 
         @Override
         public void set(BarExtra.MODE val) {
-            ((BarExtra) dataModel.extraObject).setMode(val);
+            ((BarExtra) dataModel.getExtraObject()).setMode(val);
             update();
         }
 
         @Override
         public BarExtra.MODE get() {
-            return ((BarExtra) dataModel.extraObject).getMode();
+            return ((BarExtra) dataModel.getExtraObject()).getMode();
         }
 
         @Override
@@ -74,13 +74,13 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
     private final ObjectProperty<BarExtra.JUSTIFICATION> justification = new StyleableObjectProperty<BarExtra.JUSTIFICATION>(BarExtra.JUSTIFICATION.LEFT) {
         @Override
         public void set(BarExtra.JUSTIFICATION val) {
-            ((BarExtra) dataModel.extraObject).setJustification(val);
+            ((BarExtra) dataModel.getExtraObject()).setJustification(val);
             update();
         }
 
         @Override
         public BarExtra.JUSTIFICATION get() {
-            return ((BarExtra) dataModel.extraObject).getJustification();
+            return ((BarExtra) dataModel.getExtraObject()).getJustification();
         }
 
         @Override
@@ -102,13 +102,13 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
 
         @Override
         public void set(double val){
-            ((BarExtra) dataModel.extraObject).setBarWidth(val);
+            ((BarExtra) dataModel.getExtraObject()).setBarWidth(val);
             update();
         }
 
         @Override
         public double get(){
-            return ((BarExtra) dataModel.extraObject).getBarWidth();
+            return ((BarExtra) dataModel.getExtraObject()).getBarWidth();
         }
 
         @Override
@@ -131,13 +131,13 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
 
         @Override
         public void set(BarExtra.ORIENTATION val) {
-            ((BarExtra) dataModel.extraObject).setOrientation(val);
+            ((BarExtra) dataModel.getExtraObject()).setOrientation(val);
             update();
         }
 
         @Override
         public BarExtra.ORIENTATION get() {
-            return ((BarExtra) dataModel.extraObject).getOrientation();
+            return ((BarExtra) dataModel.getExtraObject()).getOrientation();
         }
 
         @Override
@@ -205,18 +205,18 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
 
     @Override
     protected void updateElements(Chart chart) {
-        BarExtra barExtra = (BarExtra) dataModel.extraObject;
+        BarExtra barExtra = (BarExtra) dataModel.getExtraObject();
         barExtra.dYneg.clear();
         barExtra.dYpos.clear();
         for (int k = 0; k < dataModel.size(); k++) {
             // Upper-left Limits
             Point2D p0 = getData(chart,
-                    dataModel.xData.get(k),
-                    dataModel.yData.get(k));
+                    dataModel.getXData().get(k),
+                    dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             // Lower-right limits
             Point2D p1 = getData(chart,
-                    dataModel.xData.get(k),
+                    dataModel.getXData().get(k),
                     barExtra.getBaseValue());
             p1 = chart.toPixel(p1);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())
@@ -238,7 +238,7 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
 
         super.arrangePlot(chart);
 
-        BarExtra barExtra = (BarExtra) dataModel.extraObject;
+        BarExtra barExtra = (BarExtra) dataModel.getExtraObject();
 
         // Retrieve the baseline value.
         // Note that this is not required to be the same for all plots in a GROUPED
@@ -250,19 +250,19 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
             Point2D p0, p1;
 
             // x-data value
-            double x0 = dataModel.xData.get(k);
+            double x0 = dataModel.getXData().get(k);
             // x-data value for next bin - need to extrapolate at end of data series
             double x1 = k < (dataModel.size() - 1)
-                    ? dataModel.xData.get(k + 1)
-                    : dataModel.xData.get(k) + (dataModel.xData.get(k) - dataModel.xData.get(k - 1));
+                    ? dataModel.getXData().get(k + 1)
+                    : dataModel.getXData().get(k) + (dataModel.getXData().get(k) - dataModel.getXData().get(k - 1));
 
             if (barExtra.getOrientation() == BarExtra.ORIENTATION.VERTICAL) {
 
                 // Coordinates of the corners for the rectangle to represent these data.
                 // Plotting relative to the baseline, not zero, so need to accommodate that
-                if (bv <= dataModel.yData.get(k)) {
+                if (bv <= dataModel.getYData().get(k)) {
                     //Upper-left
-                    p0 = getData(chart,x0, dataModel.yData.get(k));
+                    p0 = getData(chart,x0, dataModel.getYData().get(k));
                     p0 = chart.toPixel(p0);
                     //Lower right
                     p1 = getData(chart,x1, bv);
@@ -272,7 +272,7 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
                     p0 = getData(chart,x0, bv);
                     p0 = chart.toPixel(p0);
                     //Lower right
-                    p1 = getData(chart,x1, dataModel.yData.get(k));
+                    p1 = getData(chart,x1, dataModel.getYData().get(k));
                     p1 = chart.toPixel(p1);
                 }
 
@@ -308,7 +308,7 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
                         if (index == 0) {
                             // Initialise the extent of the used y-axis range on
                             // the first plot...
-                            if (bv <= dataModel.yData.get(k)) {
+                            if (bv <= dataModel.getYData().get(k)) {
                                 barExtra.dYneg.set(k, p0.getY() - p1.getY());
                                 barExtra.dYpos.set(k, 0d);
                             } else {
@@ -318,12 +318,12 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
                             yoffset = 0d;
                         } else {
                             //... and update the values for subsequent plots
-                            if (bv <= dataModel.yData.get(k)) {
-                                yoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYneg.get(k);
-                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYneg.set(k, p0.getY() - p1.getY() + yoffset);
+                            if (bv <= dataModel.getYData().get(k)) {
+                                yoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYneg.get(k);
+                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYneg.set(k, p0.getY() - p1.getY() + yoffset);
                             } else {
-                                yoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYpos.get(k);
-                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYpos.set(k, p1.getY() - p0.getY() + yoffset);
+                                yoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYpos.get(k);
+                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYpos.set(k, p1.getY() - p0.getY() + yoffset);
                             }
                         }
                     }
@@ -354,16 +354,16 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
             } else if (barExtra.getOrientation() == BarExtra.ORIENTATION.HORIZONTAL) {
                 // Coordinates of the corners for the rectangle to represent these data.
                 // Plotting releative to the baseline, not zero, so need to accommodate that
-                if (bv <= dataModel.yData.get(k)) {
+                if (bv <= dataModel.getYData().get(k)) {
                     //Upper-left
                     p0 = getData(chart,bv, x0);
                     p0 = chart.toPixel(p0);
                     //Lower right
-                    p1 = getData(chart,dataModel.yData.get(k), x1);;
+                    p1 = getData(chart,dataModel.getYData().get(k), x1);;
                     p1 = chart.toPixel(p1);
                 } else {
                     //Upper-left
-                    p0 = getData(chart,dataModel.yData.get(k), x0);
+                    p0 = getData(chart,dataModel.getYData().get(k), x0);
                     p0 = chart.toPixel(p0);
                     //Lower right
                     p1 = getData(chart,bv, x1);
@@ -401,7 +401,7 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
                         if (index == 0) {
                             // Initialise the extent of the used y-axis range on
                             // the first plot...
-                            if (bv <= dataModel.yData.get(k)) {
+                            if (bv <= dataModel.getYData().get(k)) {
                                 barExtra.dYneg.set(k, p1.getX() - p0.getX());
                                 barExtra.dYpos.set(k, 0d);
                             } else {
@@ -411,12 +411,12 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
                             xoffset = 0d;
                         } else {
                             //... and update the values for subsequent plots
-                            if (bv <= dataModel.yData.get(k)) {
-                                xoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYneg.get(k);
-                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYneg.set(k, p1.getX() - p0.getX() + xoffset);
+                            if (bv <= dataModel.getYData().get(k)) {
+                                xoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYneg.get(k);
+                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYneg.set(k, p1.getX() - p0.getX() + xoffset);
                             } else {
-                                xoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYpos.get(k);
-                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.extraObject).dYpos.set(k, p0.getX() - p1.getX() + xoffset);
+                                xoffset = ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYpos.get(k);
+                                ((BarExtra) ((BarPlot) parent.getChildren().get(0)).dataModel.getExtraObject()).dYpos.set(k, p0.getX() - p1.getX() + xoffset);
                             }
                         }
                     }

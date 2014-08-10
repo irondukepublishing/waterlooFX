@@ -168,7 +168,7 @@ public class QuiverPlot extends AbstractPlot<ArrayList<Shape>> implements LineIn
     @Override
     protected final void updateElements(Chart chart) {
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 // If this is the first entry for a new line, add that line to
@@ -195,9 +195,9 @@ public class QuiverPlot extends AbstractPlot<ArrayList<Shape>> implements LineIn
         super.arrangePlot(chart);
 
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
-            Point2D p1 = getData(chart,dataModel.xData.get(k) + dataModel.extraData0.get(k) * scaleFactor,
-                    dataModel.yData.get(k) + dataModel.extraData1.get(k) * scaleFactor);
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
+            Point2D p1 = getData(chart,dataModel.getXData().get(k) + dataModel.getExtraData0().get(k) * scaleFactor,
+                    dataModel.getYData().get(k) + dataModel.getExtraData1().get(k) * scaleFactor);
             p0 = chart.toPixel(p0);
             p1 = chart.toPixel(p1);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
@@ -246,18 +246,18 @@ public class QuiverPlot extends AbstractPlot<ArrayList<Shape>> implements LineIn
     private double getFinalScaleFactor() {
 
         double spacingX = Double.NEGATIVE_INFINITY;
-        for (int k = 0; k < dataModel.xData.size() - 1; k++) {
-            spacingX = Math.max(spacingX, Math.abs(dataModel.xData.get(k + 1) - dataModel.xData.get(k)));
+        for (int k = 0; k < dataModel.getXData().size() - 1; k++) {
+            spacingX = Math.max(spacingX, Math.abs(dataModel.getXData().get(k + 1) - dataModel.getXData().get(k)));
         }
 
         double spacingY = Double.NEGATIVE_INFINITY;
-        for (int k = 0; k < dataModel.yData.size() - 1; k++) {
-            spacingY = Math.max(spacingY, Math.abs(dataModel.yData.get(k + 1) - dataModel.yData.get(k)));
+        for (int k = 0; k < dataModel.getYData().size() - 1; k++) {
+            spacingY = Math.max(spacingY, Math.abs(dataModel.getYData().get(k + 1) - dataModel.getYData().get(k)));
         }
 
         // Maximum distance for vectors along X and Y axes
-        double dU = dataModel.extraData0.stream().max(Comparator.naturalOrder()).get();
-        double dV = dataModel.extraData1.stream().max(Comparator.naturalOrder()).get();
+        double dU = dataModel.getExtraData0().stream().max(Comparator.naturalOrder()).get();
+        double dV = dataModel.getExtraData1().stream().max(Comparator.naturalOrder()).get();
 
         // Scale factor required for vectors to just fill the available x,y
         // spacing

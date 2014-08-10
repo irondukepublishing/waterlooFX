@@ -84,7 +84,7 @@ public class LinePlot extends AbstractPlot<ArrayList<Polyline>> implements LineI
 
         Polyline line = new Polyline();
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 // If this is the first entry for a new line, add that line to
@@ -118,7 +118,7 @@ public class LinePlot extends AbstractPlot<ArrayList<Polyline>> implements LineI
         line.setStroke(visualModel.getLineColor());
 
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 line.getPoints().addAll(p0.getX(), p0.getY());

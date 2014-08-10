@@ -83,7 +83,7 @@ public class StairPlot extends AbstractPlot<ArrayList<Polyline>> implements Line
     protected final void updateElements(Chart chart) {
         Polyline line = new Polyline();
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 // If this is the first entry for a new line, add that line to
@@ -116,8 +116,8 @@ public class StairPlot extends AbstractPlot<ArrayList<Polyline>> implements Line
         line.setStrokeWidth(visualModel.getLineWidth());
         line.setStroke(visualModel.getLineColor());
 
-        Point2D p0 = getData(chart,dataModel.xData.get(0), dataModel.yData.get(0));
-        Point2D p1 = getData(chart,dataModel.xData.get(1), dataModel.yData.get(1));
+        Point2D p0 = getData(chart,dataModel.getXData().get(0), dataModel.getYData().get(0));
+        Point2D p1 = getData(chart,dataModel.getXData().get(1), dataModel.getYData().get(1));
         for (int k = 0; k < dataModel.size() - 2; k++) {
             p0 = chart.toPixel(p0);
             p1 = chart.toPixel(p1);
@@ -130,12 +130,12 @@ public class StairPlot extends AbstractPlot<ArrayList<Polyline>> implements Line
                     line.getPoints().clear();
                 }
             }
-            p0 = getData(chart,dataModel.xData.get(k + 1), dataModel.yData.get(k + 1));
-            p1 = getData(chart,dataModel.xData.get(k + 2), dataModel.yData.get(k + 2));
+            p0 = getData(chart,dataModel.getXData().get(k + 1), dataModel.getYData().get(k + 1));
+            p1 = getData(chart,dataModel.getXData().get(k + 2), dataModel.getYData().get(k + 2));
         }
-        int idx = dataModel.xData.size() - 2;
-        p0 = getData(chart,dataModel.xData.get(idx), dataModel.yData.get(idx));
-        p1 = getData(chart,dataModel.xData.get(idx + 1), dataModel.yData.get(idx + 1));
+        int idx = dataModel.getXData().size() - 2;
+        p0 = getData(chart,dataModel.getXData().get(idx), dataModel.getYData().get(idx));
+        p1 = getData(chart,dataModel.getXData().get(idx + 1), dataModel.getYData().get(idx + 1));
         p0 = chart.toPixel(p0);
         p1 = chart.toPixel(p1);
         line.getPoints().addAll(p0.getX(), p0.getY());

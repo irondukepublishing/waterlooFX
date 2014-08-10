@@ -128,10 +128,10 @@ public class ErrorBarPlot extends AbstractPlot<ArrayList<Path>> implements Marke
         visualElement = new ArrayList<>();
         getStyleClass().add("errorbarplot");
 
-        dataModel.extraData0.addListener(this);
-        dataModel.extraData1.addListener(this);
-        dataModel.extraData2.addListener(this);
-        dataModel.extraData3.addListener(this);
+        dataModel.getExtraData0().addListener(this);
+        dataModel.getExtraData1().addListener(this);
+        dataModel.getExtraData2().addListener(this);
+        dataModel.getExtraData3().addListener(this);
 
 
     }
@@ -202,35 +202,35 @@ public class ErrorBarPlot extends AbstractPlot<ArrayList<Path>> implements Marke
         for (int k = 0; k < dataModel.size(); k++) {
 
             ErrorBarSet set = new ErrorBarSet();
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
 
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
 
-                if (k < dataModel.extraData1.size()) {
-                    double y = dataModel.yData.get(k) - dataModel.extraData1.get(k);
-                    Point2D p1 = getData(chart,dataModel.xData.get(k), y);
+                if (k < dataModel.getExtraData1().size()) {
+                    double y = dataModel.getYData().get(k) - dataModel.getExtraData1().get(k);
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k), y);
                     p1 = chart.toPixel(p1);
                     set.top = new TopErrorBar(visualModel.getEdgeWidth() * 5d, p1.getY() - p0.getY());
                 }
 
-                if (k < dataModel.extraData3.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k),
-                            dataModel.yData.get(k) + dataModel.extraData3.get(k));
+                if (k < dataModel.getExtraData3().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k),
+                            dataModel.getYData().get(k) + dataModel.getExtraData3().get(k));
                     p1 = chart.toPixel(p1);
                     set.bottom = new BottomErrorBar(visualModel.getEdgeWidth() * 5d, p0.getY() - p1.getY());
                 }
 
-                if (k < dataModel.extraData0.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k) + dataModel.extraData0.get(k),
-                            dataModel.yData.get(k));
+                if (k < dataModel.getExtraData0().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k) + dataModel.getExtraData0().get(k),
+                            dataModel.getYData().get(k));
                     p1 = chart.toPixel(p1);
                     set.right = new RightErrorBar(p1.getX() - p0.getX(), visualModel.getEdgeWidth() * 5d);
                 }
 
-                if (k < dataModel.extraData2.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k) - dataModel.extraData2.get(k),
-                            dataModel.yData.get(k));
+                if (k < dataModel.getExtraData2().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k) - dataModel.getExtraData2().get(k),
+                            dataModel.getYData().get(k));
                     p1 = chart.toPixel(p1);
                     set.left = new LeftErrorBar(p0.getX() - p1.getX(), visualModel.getEdgeWidth() * 5d);
                 }
@@ -262,46 +262,46 @@ public class ErrorBarPlot extends AbstractPlot<ArrayList<Path>> implements Marke
         
         for (int k = 0; k < dataModel.size(); k++) {
 
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
 
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
 
-                if (k < dataModel.extraData1.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k),
-                            dataModel.yData.get(k) - dataModel.extraData1.get(k));
+                if (k < dataModel.getExtraData1().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k),
+                            dataModel.getYData().get(k) - dataModel.getExtraData1().get(k));
                     p1 = chart.toPixel(p1);
                     ((TopErrorBar) bars.get(k).top).setExtent(p1.getY() - p0.getY());
                     setProperties(bars.get(k).top, p0);
                     ((TopErrorBar) bars.get(k).top).getTransforms().clear();
-                    if (isAutoDirect() && dataModel.yData.get(k) < bv) {
+                    if (isAutoDirect() && dataModel.getYData().get(k) < bv) {
                         ((TopErrorBar) bars.get(k).top).getTransforms().add(new Rotate(180));
                     }
                 }
 
-                if (k < dataModel.extraData3.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k),
-                            dataModel.yData.get(k) + dataModel.extraData3.get(k));
+                if (k < dataModel.getExtraData3().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k),
+                            dataModel.getYData().get(k) + dataModel.getExtraData3().get(k));
                     p1 = chart.toPixel(p1);
                     ((BottomErrorBar) bars.get(k).bottom).setExtent(p0.getY() - p1.getY());
                     setProperties(bars.get(k).bottom, p0);
                 }
 
-                if (k < dataModel.extraData0.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k) + dataModel.extraData0.get(k),
-                            dataModel.yData.get(k));
+                if (k < dataModel.getExtraData0().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k) + dataModel.getExtraData0().get(k),
+                            dataModel.getYData().get(k));
                     p1 = chart.toPixel(p1);
                     ((RightErrorBar) bars.get(k).right).setExtent(p1.getX() - p0.getX());
                     setProperties(bars.get(k).right, p0);
                     ((RightErrorBar) bars.get(k).right).getTransforms().clear();
-                    if (isAutoDirect() && dataModel.xData.get(k) < bv) {
+                    if (isAutoDirect() && dataModel.getXData().get(k) < bv) {
                         ((RightErrorBar) bars.get(k).right).getTransforms().add(new Rotate(180));
                     }
                 }
 
-                if (k < dataModel.extraData2.size()) {
-                    Point2D p1 = getData(chart,dataModel.xData.get(k) - dataModel.extraData2.get(k),
-                            dataModel.yData.get(k));
+                if (k < dataModel.getExtraData2().size()) {
+                    Point2D p1 = getData(chart,dataModel.getXData().get(k) - dataModel.getExtraData2().get(k),
+                            dataModel.getYData().get(k));
                     p1 = chart.toPixel(p1);
                     ((LeftErrorBar) bars.get(k).left).setExtent(p0.getX() - p1.getX());
                     setProperties(bars.get(k).left, p0);
@@ -312,12 +312,12 @@ public class ErrorBarPlot extends AbstractPlot<ArrayList<Path>> implements Marke
 
     @Override
     public boolean isValid() {
-        return dataModel.yData.size() > 0
-                && (dataModel.xData.size() == dataModel.yData.size())
-                && ((dataModel.xData.size() == dataModel.extraData0.size() || dataModel.extraData0.isEmpty())
-                && (dataModel.xData.size() == dataModel.extraData1.size() || dataModel.extraData1.isEmpty())
-                && (dataModel.xData.size() == dataModel.extraData2.size() || dataModel.extraData2.isEmpty())
-                && (dataModel.xData.size() == dataModel.extraData3.size() || dataModel.extraData3.isEmpty()));
+        return dataModel.getYData().size() > 0
+                && (dataModel.getXData().size() == dataModel.getYData().size())
+                && ((dataModel.getXData().size() == dataModel.getExtraData0().size() || dataModel.getExtraData0().isEmpty())
+                && (dataModel.getXData().size() == dataModel.getExtraData1().size() || dataModel.getExtraData1().isEmpty())
+                && (dataModel.getXData().size() == dataModel.getExtraData2().size() || dataModel.getExtraData2().isEmpty())
+                && (dataModel.getXData().size() == dataModel.getExtraData3().size() || dataModel.getExtraData3().isEmpty()));
     }
 
     private void setProperties(Path marker, Point2D p0) {

@@ -76,11 +76,11 @@ abstract public class AbstractBox<T extends Shape> extends AbstractPlot<ArrayLis
 
     @Override
     public boolean isValid() {
-        return dataModel.yData.size() > 0
-                && dataModel.xData.size() == dataModel.yData.size()
-                && dataModel.xData.size() == dataModel.extraData0.size() || dataModel.extraData0.isEmpty()
-                && dataModel.xData.size() == dataModel.extraData1.size() || dataModel.extraData1.isEmpty()
-                && dataModel.xData.size() == dataModel.extraData2.size() || dataModel.extraData2.isEmpty()
-                && dataModel.xData.size() == dataModel.extraData3.size() || dataModel.extraData3.isEmpty();
+        return dataModel.getYData().size() > 0
+                && dataModel.getXData().size() == dataModel.getYData().size()
+                && dataModel.getXData().size() == dataModel.getExtraData0().size() || dataModel.getExtraData0().isEmpty()
+                && dataModel.getXData().size() == dataModel.getExtraData1().size() || dataModel.getExtraData1().isEmpty()
+                && dataModel.getXData().size() == dataModel.getExtraData2().size() || dataModel.getExtraData2().isEmpty()
+                && dataModel.getXData().size() == dataModel.getExtraData3().size() || dataModel.getExtraData3().isEmpty();
     }
 }

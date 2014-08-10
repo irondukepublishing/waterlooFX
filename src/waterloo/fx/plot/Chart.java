@@ -25,13 +25,11 @@ package waterloo.fx.plot;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -54,7 +52,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-//import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
@@ -63,12 +60,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import waterloo.fx.axis.AbstractAxisRegion;
+import waterloo.fx.axis.AxisBottom;
+import waterloo.fx.axis.AxisLeft;
+import waterloo.fx.axis.AxisRight;
+import waterloo.fx.axis.AxisSet;
+import waterloo.fx.axis.AxisTop;
+import waterloo.fx.axis.TickLabel;
 import waterloo.fx.transforms.AbstractTransform;
 import waterloo.fx.transforms.Log10Transform;
 import waterloo.fx.transforms.LogTransform;
@@ -107,7 +109,7 @@ public class Chart extends Pane {
      * calculated.
      */
     private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
-    private final AxisTop axisTop;
+    protected final AxisTop axisTop;
     private final AxisBottom axisBottom;
     private final AxisLeft axisLeft;
     private final AxisRight axisRight;
@@ -806,7 +808,7 @@ public class Chart extends Pane {
     public double xLeftTickLength = 5;
     public String xRightLabel = "Axis Label";
     public Paint xRightColor = Color.BLACK;
-    public double xRightTickLength = 5;
+    private double xRightTickLength = 5;
     /**
      * Base font to use. This is styleable via the "-w-font-" settings.
      */
@@ -910,23 +912,23 @@ public class Chart extends Pane {
         }
     };
     private boolean clipping = true;
-    private ObjectBinding<Rectangle2D> axesBounds = new AxesBounds();
+    private final ObjectBinding<Rectangle2D> axesBounds = new AxesBounds();
     /**
      * Sets the interval between major xpos-axis ticks and grids.
      */
-    private MajorXInterval majorXInterval = new MajorXInterval();
+    private final MajorXInterval majorXInterval = new MajorXInterval();
     /**
      * Number of minor ticks/grids in the majorTickInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
     private int minorCountXHint = 4;
-    private MajorYInterval majorYInterval = new MajorYInterval();
+    private final MajorYInterval majorYInterval = new MajorYInterval();
     private int minorCountYHint = 4;
     private double dragXStart = Double.NaN;
     private double dragYStart = Double.NaN;
     private double deltaX, deltaY;
-    private Tolerance xTol = new Tolerance("X");
-    private Tolerance yTol = new Tolerance("Y");
+    private final Tolerance xTol = new Tolerance("X");
+    private final Tolerance yTol = new Tolerance("Y");
 
     // MAIN CODE
     public Chart(Chart layer) {
@@ -1296,10 +1298,10 @@ public class Chart extends Pane {
             layer.xLeftOffset += xLeftOffset + axisLeft.computePrefWidth(-1d);
         }
         if (layer.isRightAxisPainted()) {
-            layer.xRightOffset += xRightOffset + axisRight.computePrefWidth(-1d);
+            layer.setxRightOffset(layer.getxRightOffset() + getxRightOffset() + axisRight.computePrefWidth(-1d));
         }
         if (layer.isTopAxisPainted()) {
-            layer.yTopOffset += yTopOffset + axisTop.computePrefHeight(-1d);
+            layer.yTopOffset += yTopOffset + getAxisTop().computePrefHeight(-1d);
         }
         if (layer.isBottomAxisPainted()) {
             layer.yBottomOffset += yBottomOffset + axisBottom.computePrefHeight(-1d);
@@ -1320,10 +1322,10 @@ public class Chart extends Pane {
                     sumxl += getLayers().get(k).axisLeft.computePrefWidth(-1d);
                 }
             }
-            sumxl = getFirstLayer().xRightOffset;
+            sumxl = getFirstLayer().getxRightOffset();
             for (int k = 1; k < getLayers().size(); k++) {
                 if (getLayers().get(k).isRightAxisPainted()) {
-                    getLayers().get(k).xRightOffset = sumxl;
+                    getLayers().get(k).setxRightOffset(sumxl);
                     sumxl += getLayers().get(k).axisRight.computePrefWidth(-1d);
                 }
             }
@@ -1334,11 +1336,11 @@ public class Chart extends Pane {
                     sumxl += getLayers().get(k).axisBottom.computePrefHeight(-1d);
                 }
             }
-            sumxl = getFirstLayer().yTopOffset + getFirstLayer().axisTop.computePrefHeight(-1d);
+            sumxl = getFirstLayer().yTopOffset + getFirstLayer().getAxisTop().computePrefHeight(-1d);
             for (int k = 1; k < getLayers().size(); k++) {
                 if (getLayers().get(k).isTopAxisPainted()) {
                     getLayers().get(k).yTopOffset = sumxl;
-                    sumxl += getLayers().get(k).axisTop.computePrefHeight(-1d);
+                    sumxl += getLayers().get(k).getAxisTop().computePrefHeight(-1d);
                 }
             }
         }
@@ -1391,21 +1393,21 @@ public class Chart extends Pane {
                 return defaultInsets;
             } else {
                 double xl = axisLeft.computePrefWidth(-1d) + xLeftOffset;
-                double xr = axisRight.computePrefWidth(-1d) + xRightOffset;
-                double yb = axisTop.computePrefHeight(-1d) + yBottomOffset;
+                double xr = axisRight.computePrefWidth(-1d) + getxRightOffset();
+                double yb = getAxisTop().computePrefHeight(-1d) + yBottomOffset;
                 double yt = axisBottom.computePrefHeight(-1d) + yTopOffset;
                 for (Chart g : getLayers()) {
                     if (g.isLeftAxisPainted()) {
                         xl = Math.max(xl, g.axisLeft.computePrefWidth(-1d) + g.xLeftOffset);
                     }
                     if (g.isRightAxisPainted()) {
-                        xr = Math.max(xr, g.axisRight.computePrefWidth(-1d) + g.xRightOffset);
+                        xr = Math.max(xr, g.axisRight.computePrefWidth(-1d) + g.getxRightOffset());
                     }
                     if (g.isBottomAxisPainted()) {
                         yb = Math.max(yb, g.axisBottom.computePrefHeight(-1d) + g.yBottomOffset);
                     }
                     if (g.isTopAxisPainted()) {
-                        yt = Math.max(yt, g.axisTop.computePrefHeight(-1d) + g.yTopOffset);
+                        yt = Math.max(yt, g.getAxisTop().computePrefHeight(-1d) + g.yTopOffset);
                     }
                 }
                 return new Insets(yt + 5, xr + 5, yb + 5, xl + 5);
@@ -1783,9 +1785,9 @@ public class Chart extends Pane {
 //            node.getNode().relocate(p.getX(), p.getY());
 //        });
         // Layout the axes
-        axisTop.setLayoutX(view.getLayoutX());
-        axisTop.setLayoutY(view.getLayoutY() - yTopOffset - axisTop.computePrefHeight(-1d));
-        axisTop.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        getAxisTop().setLayoutX(view.getLayoutX());
+        getAxisTop().setLayoutY(view.getLayoutY() - yTopOffset - getAxisTop().computePrefHeight(-1d));
+        getAxisTop().setPrefHeight(Region.USE_COMPUTED_SIZE);
 
         axisBottom.setLayoutX(view.getLayoutX());
         axisBottom.setLayoutY(view.getLayoutY() + view.getPrefHeight() + yBottomOffset);
@@ -1796,7 +1798,7 @@ public class Chart extends Pane {
         axisLeft.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
         axisRight.setLayoutX(view.getLayoutX() + view.getPrefWidth()
-                + xRightOffset);
+                + getxRightOffset());
         axisRight.setLayoutY(view.getLayoutY());
         axisRight.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
@@ -2300,35 +2302,35 @@ public class Chart extends Pane {
     }
 
     public String getLeftAxisTitle() {
-        return axisLeft.axisLabel.getText();
+        return axisLeft.getAxisLabel().getText();
     }
 
     public void setLeftAxisTitle(String s) {
-        axisLeft.axisLabel.setText(s);
+        axisLeft.getAxisLabel().setText(s);
     }
 
     public String getBottomAxisTitle() {
-        return axisBottom.axisLabel.getText();
+        return axisBottom.getAxisLabel().getText();
     }
 
     public void setBottomAxisTitle(String s) {
-        axisBottom.axisLabel.setText(s);
+        axisBottom.getAxisLabel().setText(s);
     }
 
     public String getRightAxisTitle() {
-        return axisRight.axisLabel.getText();
+        return axisRight.getAxisLabel().getText();
     }
 
     public void setRightAxisTitle(String s) {
-        axisRight.axisLabel.setText(s);
+        axisRight.getAxisLabel().setText(s);
     }
 
     public String getTopAxisTitle() {
-        return axisTop.axisLabel.getText();
+        return getAxisTop().getAxisLabel().getText();
     }
 
     public void setTopAxisTitle(String s) {
-        axisTop.axisLabel.setText(s);
+        getAxisTop().getAxisLabel().setText(s);
     }
 
     /**
@@ -2613,6 +2615,41 @@ public class Chart extends Pane {
 
     }
 
+    /**
+     * @return the axisTop
+     */
+    public AxisTop getAxisTop() {
+        return axisTop;
+    }
+
+    /**
+     * @return the xRightOffset
+     */
+    public double getxRightOffset() {
+        return xRightOffset;
+    }
+
+    /**
+     * @param xRightOffset the xRightOffset to set
+     */
+    public void setxRightOffset(double xRightOffset) {
+        this.xRightOffset = xRightOffset;
+    }
+
+    /**
+     * @return the xRightTickLength
+     */
+    public double getxRightTickLength() {
+        return xRightTickLength;
+    }
+
+    /**
+     * @param xRightTickLength the xRightTickLength to set
+     */
+    public void setxRightTickLength(double xRightTickLength) {
+        this.xRightTickLength = xRightTickLength;
+    }
+
     public static enum TRANSFORMTYPE {
 
         LINEAR,
@@ -2637,10 +2674,7 @@ public class Chart extends Pane {
     }
 
 // -------------- STYLESHEET HANDLING ------------------------------------------------------------------------------
-    private enum AXISPOSITION {
 
-        LEFT, TOP, RIGHT, BOTTOM
-    }
 
 //    private static final class Tooltips {
 //
@@ -3200,347 +3234,8 @@ public class Chart extends Pane {
         }
     }
 
-    public class TickLabel extends Text {
+ 
 
-        public double xpos;
-        public double ypos;
-
-        public TickLabel(String string) {
-            super(string);
-            this.setTextOrigin(VPos.CENTER);
-        }
-    }
-
-    /**
-     * {@code AbstractAxisRegion} provides the base class for axes drawn outside
-     * of the view area.
-     * <p/>
-     * These extend {@code javafx.scene.layout.Region} and use standard JavaFX
-     * components rather than painting to the view.
-     * <p/>
-     * Separate subclasses are used for the axes to the left and right and at
-     * the top and bottom of the view area.
-     *
-     * @author Malcolm Lidierth
-     */
-    private class AbstractAxisRegion extends Region {
-
-        public final LineClass line;
-        protected final Chart layer;
-        /**
-         * Text instance for the axis label
-         */
-        protected final Text axisLabel = new Text("Axis Label");
-        /**
-         * A {@code LinkedHashMap} containing Integer keys and String values.
-         * When an axis tick position coincides with the Integer key, the
-         * corresponding String value will be used for the tick label.
-         */
-        protected final LinkedHashMap<Integer, String> categories = new LinkedHashMap<>();
-        /**
-         * Boolean indicating whether to use categorical labels for the tick
-         * marks
-         */
-        protected BooleanProperty categorical = new SimpleBooleanProperty(Boolean.FALSE);
-        /**
-         * Internally generated list of labels corresponding to the numerical
-         * position of each tick.
-         */
-        //private final ArrayList<TickLabel> tickLabels = new ArrayList<>();
-
-        private double dragXStart = Double.NaN;
-        private double dragYStart = Double.NaN;
-        private double deltaX;
-        private double deltaY;
-
-        public AbstractAxisRegion(Chart layer) {
-            this.layer = layer;
-            getStyleClass().add("axis");
-            //setBackground(Background.EMPTY);
-            //layer.getChildren().add(this);
-            line = new LineClass(layer);
-
-            axisLabel.fillProperty().bind(layer.axisColor());
-
-//            if (Chart.toolTipFlag && Platform.isFxApplicationThread()) {
-//                Tooltip.install(this, new Tooltip(Tooltips.axisTooltip));
-//            }
-            ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
-                setOnMousePressed((MouseEvent m0) -> {
-                    switch (getAxisPosition()) {
-                        case TOP:
-                        case BOTTOM:
-                            setCursor(Cursor.E_RESIZE);
-                            break;
-                        default:
-                            setCursor(Cursor.N_RESIZE);
-                    }
-                    dragXStart = m0.getX();
-                    dragYStart = m0.getY();
-
-                });
-                setOnMouseReleased((MouseEvent m1) -> {
-                    setCursor(Cursor.DEFAULT);
-                });
-                setOnMouseDragged((MouseEvent m2) -> {
-                    switch (getAxisPosition()) {
-                        case TOP:
-                        case BOTTOM:
-                            deltaX = dragXStart - m2.getX();
-                            if (deltaX != 0) {
-                                deltaX = deltaX * this.layer.getPixelWidth();
-                                if (layer.toPositionX(m2.getX()) >= layer.getXOrigin()) {
-                                    this.layer.setXRight(this.layer.getXRight() + deltaX);
-                                } else {
-                                    this.layer.setXLeft(this.layer.getXLeft() + deltaX);
-                                }
-                            }
-                            break;
-                        case LEFT:
-                        case RIGHT:
-                            deltaY = dragYStart - m2.getY();
-                            if (deltaY != 0) {
-                                deltaY = deltaY * this.layer.getPixelHeight();
-                                if (layer.toPositionY(m2.getY()) >= layer.getYOrigin()) {
-                                    this.layer.setYTop(this.layer.getYTop() - deltaY);
-                                } else {
-                                    this.layer.setYBottom(this.layer.getYBottom() - deltaY);
-                                }
-                            }
-                    }
-                    dragXStart = m2.getX();
-                    dragYStart = m2.getY();
-                    this.layer.requestLayout();
-                });
-            };
-            sceneProperty().addListener(addedToScene);
-        }
-
-        public final Chart getLayer() {
-            return layer;
-        }
-
-        /**
-         * @return the categorical
-         */
-        public boolean isCategorical() {
-            return categorical.get();
-        }
-
-        public void setCategorial(boolean categorical) {
-            this.categorical.set(categorical);
-        }
-
-        public BooleanProperty categoricalProperty() {
-            return categorical;
-        }
-
-        public Font getFont() {
-            return Font.font(layer.fontProperty().get().getFamily(),
-                    FontPosture.valueOf(layer.fontProperty().get().getStyle().toUpperCase()),
-                    layer.getAxisFontSize());
-        }
-
-        /**
-         * @return the categories
-         */
-        public LinkedHashMap<Integer, String> getCategories() {
-            return categories;
-        }
-
-        /**
-         * @return the tickLabels
-         */
-        public ArrayList<TickLabel> getTickLabels() {
-            ArrayList<TickLabel> arr = new ArrayList<>();
-            getChildren().filtered(x -> x instanceof TickLabel).forEach((x) -> {
-                arr.add((TickLabel) x);
-            });
-            return arr;
-        }
-
-        protected double calcTickLabelWidth() {
-            double w = 0d;
-            for (TickLabel t : getTickLabels()) {
-                w = Math.max(w, t.getText().length());
-            }
-            return w;
-        }
-
-        /**
-         * @return the axisPosition
-         */
-        public final AXISPOSITION getAxisPosition() {
-            if (this instanceof AxisRight) {
-                return AXISPOSITION.RIGHT;
-            } else if (this instanceof AxisTop) {
-                return AXISPOSITION.TOP;
-            } else if (this instanceof AxisLeft) {
-                return AXISPOSITION.LEFT;
-            } else {
-                return AXISPOSITION.BOTTOM;
-            }
-        }
-
-        void removeAxisLabel() {
-            if (getChildren().contains(axisLabel)) {
-                getChildren().remove(axisLabel);
-            }
-        }
-
-        void addAxisLabel() {
-            if (!getChildren().contains(axisLabel)) {
-                getChildren().add(axisLabel);
-            }
-        }
-
-        /**
-         * Line used to represent the axis and tickmarks
-         */
-        public final class LineClass extends ObjectBinding<Polyline> {
-
-            private final Chart layer;
-
-            private final Polyline value = new Polyline();
-
-            public LineClass(Chart layer) {
-                super();
-                this.layer = layer;
-
-                value.strokeProperty().bind(layer.axisColor);
-                value.strokeWidthProperty().bind(layer.axisStrokeWidth);
-
-                bind();
-//                if (Chart.toolTipFlag && Platform.isFxApplicationThread()) {
-//                    Tooltip.install(value, new Tooltip(Tooltips.axisLineTooltip));
-//                }
-
-                ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
-                    value.setOnMouseEntered((MouseEvent m0) -> {
-                        setCursor(Cursor.E_RESIZE);
-                    });
-                    value.setOnMouseExited((MouseEvent m1) -> {
-                        setCursor(Cursor.DEFAULT);
-                    });
-                };
-                sceneProperty().addListener(addedToScene);
-            }
-
-            public void bind() {
-                bind(layer.widthProperty());
-                bind(layer.heightProperty());
-                switch (getAxisPosition()) {
-                    case TOP:
-                    case BOTTOM:
-                        bind(layer.xLeftProperty());
-                        bind(layer.xRightProperty());
-                        bind(prefWidthProperty());
-                        break;
-                    case LEFT:
-                    case RIGHT:
-                        bind(layer.yTopProperty());
-                        bind(layer.yBottomProperty());
-                        bind(prefHeightProperty());
-                }
-            }
-
-            @Override
-            public Polyline computeValue() {
-                if (getAxisSet() != null) {
-                    value.getPoints().clear();
-
-                    switch (getAxisPosition()) {
-                        case TOP:
-                            if (layer.isTopAxisPainted()) {
-                                double h = layer.axisTop.computePrefHeight(-1d);
-                                value.getPoints().addAll(new Double[]{0d, h});
-                                value.getPoints().addAll(new Double[]{getWidth(), h});
-                                layer.getAxisSet().getXTransform().get().stream().filter((Double x) -> x >= layer.getXMin() && x <= layer.getXMax()).forEach((Double x) -> {
-                                    Point2D p1 = layer.toPixel(x, 0);
-                                    value.getPoints().addAll(new Double[]{p1.getX(), h});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), h - layer.yTopTickLength});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), h});
-                                });
-                                layer.getAxisSet().getXTransform().getMinorTicks().stream().filter((Double x) -> x >= layer.getXMin() && x <= layer.getXMax()).forEach((Double x) -> {
-                                    Point2D p1 = layer.toPixel(x, 0);
-                                    value.getPoints().addAll(new Double[]{p1.getX(), h});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), h - layer.yTopTickLength * 0.7});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), h});
-                                });
-                            }
-                            break;
-                        case BOTTOM:
-                            if (layer.getLayers().size() == 1) {
-
-                            }
-                            if (layer.isBottomAxisPainted()) {
-                                value.getPoints().addAll(new Double[]{0d, 0d});
-                                value.getPoints().addAll(new Double[]{getWidth(), 0d});
-                                layer.getAxisSet().getXTransform().get().stream().filter((Double x) -> x >= layer.getXMin() && x <= layer.getXMax()).forEach((Double x) -> {
-                                    Point2D p1 = layer.toPixel(x, 0d);
-                                    value.getPoints().addAll(new Double[]{p1.getX(), 0d});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), layer.yBottomTickLength});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), 0d});
-                                });
-                                layer.getAxisSet().getXTransform().getMinorTicks().stream().filter((Double x) -> x >= layer.getXMin() && x <= layer.getXMax()).forEach((Double x) -> {
-                                    Point2D p1 = layer.toPixel(x, 0d);
-                                    value.getPoints().addAll(new Double[]{p1.getX(), 0d});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), layer.yBottomTickLength * 0.7});
-                                    value.getPoints().addAll(new Double[]{p1.getX(), 0d});
-                                });
-                            }
-                            break;
-                        case LEFT:
-                            if (layer.getLayers().size() == 1) {
-
-                            }
-                            if (layer.isLeftAxisPainted()) {
-                                Point2D p0 = layer.toPixel(0, layer.getYBottom());
-                                double w = computePrefWidth(-1d);
-                                value.getPoints().addAll(new Double[]{w, p0.getY()});
-                                p0 = layer.toPixel(0, layer.getYTop());
-                                value.getPoints().addAll(new Double[]{w, p0.getY()});
-                                layer.getAxisSet().getYTransform().get().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
-                                    Point2D p1 = layer.toPixel(0, y);
-                                    value.getPoints().addAll(new Double[]{w, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{w - layer.xLeftTickLength, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{w, p1.getY()});
-                                });
-                                layer.getAxisSet().getYTransform().getMinorTicks().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
-                                    Point2D p1 = layer.toPixel(0, y);
-                                    value.getPoints().addAll(new Double[]{w, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{w - layer.xLeftTickLength * 0.7, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{w, p1.getY()});
-                                });
-                            }
-                            break;
-                        case RIGHT:
-                            if (layer.isRightAxisPainted()) {
-                                Point2D p0 = layer.toPixel(layer.getXLeft(), layer.getYBottom());
-                                value.getPoints().addAll(new Double[]{p0.getX() + layer.xRightOffset + layer.xRightOffset, p0.getY()});
-                                p0 = layer.toPixel(layer.getXLeft(), layer.getYTop());
-                                value.getPoints().addAll(new Double[]{p0.getX() - layer.xRightOffset + layer.xRightOffset, p0.getY()});
-                                layer.getAxisSet().getYTransform().get().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
-                                    Point2D p1 = layer.toPixel(layer.getXLeft(), y);
-                                    value.getPoints().addAll(new Double[]{p1.getX() + layer.xRightOffset, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{p1.getX() + layer.xRightOffset + layer.xRightTickLength, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{p1.getX() + layer.xRightOffset, p1.getY()});
-                                });
-                                layer.getAxisSet().getYTransform().getMinorTicks().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
-                                    Point2D p1 = layer.toPixel(layer.getXLeft(), y);
-                                    value.getPoints().addAll(new Double[]{p1.getX() - layer.xRightOffset, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{p1.getX() - layer.xRightOffset + layer.xRightTickLength * 0.7, p1.getY()});
-                                    value.getPoints().addAll(new Double[]{p1.getX() - layer.xRightOffset, p1.getY()});
-                                });
-                            }
-                            break;
-                    }
-                }
-                return value;
-            }
-        }
-
-    }
 
     /**
      * Represents a Rectangle2D describing the present limits of the coordinate
@@ -3676,706 +3371,9 @@ public class Chart extends Pane {
 
     }
 
-    public class AxisTop extends AbstractAxisRegion {
 
-        public AxisTop(Chart layer) {
-            super(layer);
-            getChildren().add(line.get());
-            axisLabel.setTextAlignment(TextAlignment.CENTER);
-            axisLabel.setTextOrigin(VPos.BOTTOM);
-            setCursor(Cursor.DEFAULT);
-            getChildren().add(axisLabel);
-            prefWidthProperty().bind(layer.getFirstLayer().view.prefWidthProperty());
-            requestLayout();
-        }
 
-        @Override
-        public double computePrefHeight(double w) {
-            if (getTickLabels().size() > 0) {
-                return axisLabel.prefHeight(-1d) * 3d;
-            } else {
-                return 50d;
-            }
-        }
 
-        @Override
-        public void layoutChildren() {
-            line.get();
-            computeValue();
-            if (getLayer().isTopAxisLabelled()) {
-                double p = getLayer().isTopAxisPainted()
-                        ? line.get().getBoundsInParent().getMinY()
-                        : getHeight() - 2d;
-                if (getTickLabels().size() > 0) {
-                    getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
-                        TickLabel text = (TickLabel) x;
-                        //text.setFont(getLayer().fontProperty.get());
-                        text.setLayoutX(text.xpos);
-                        text.setLayoutY(p);
-                    });
-                }
-                addAxisLabel();
-                if (getTickLabels().size() > 0) {
-                    axisLabel.setFont(getFont());
-                    axisLabel.setLayoutY(getTickLabels().get(0).getBoundsInParent().getMinY());
-                    axisLabel.setLayoutX(getLayer().getView().prefWidth(0d) / 2d
-                            - axisLabel.prefWidth(0d) / 2d);
-                }
-            } else {
-                getTickLabels().stream().forEach(x -> getChildren().remove(x));
-                removeAxisLabel();
-            }
-            super.layoutChildren();
-        }
 
-        private void computeValue() {
-            /**
-             * Add or remove text as per the present settings
-             */
-            getTickLabels().stream().forEach((TickLabel x) -> {
-                getChildren().remove(x);
-            });
-
-            if (getLayer().isTopAxisLabelled()) {
-                getLayer().axisSet.xTransform.get().stream()
-                        .filter(x -> x >= getLayer().getXMin() && x <= getLayer().getXMax())
-                        .forEach((Double x) -> {
-                            TickLabel text = null;
-                            if (isCategorical()) {
-                                if (getCategories().containsKey(x.intValue())) {
-                                    text = new TickLabel(getCategories().get(x.intValue()));
-                                }
-                            } else {
-                                text = new TickLabel(getLayer().axisSet.xTransform.getTickLabel(x));
-                            }
-                            if (text != null) {
-                                Point2D p1 = getLayer().toPixel(x, getLayer().getYTop());
-                                p1 = getLayer().getView().localToParent(p1);
-                                p1 = parentToLocal(p1);
-                                text.setFont(getFont());
-                                text.setFill(layer.getAxisColor());
-                                text.xpos = p1.getX() - text.prefWidth(0) / 2d;
-                                text.setTextOrigin(VPos.BOTTOM);
-                                getChildren().add(text);
-                            }
-                        });
-            }
-        }
-    }
-
-    public class AxisBottom extends AbstractAxisRegion {
-
-        public AxisBottom(Chart layer) {
-            super(layer);
-            getChildren().add(line.get());
-            axisLabel.setTextAlignment(TextAlignment.CENTER);
-            setCursor(Cursor.DEFAULT);
-            axisLabel.setFont(getFont());
-            axisLabel.setTextOrigin(VPos.TOP);
-            getChildren().add(axisLabel);
-            prefWidthProperty().bind(layer.getFirstLayer().view.prefWidthProperty());
-            requestLayout();
-        }
-
-        @Override
-        public double computePrefHeight(double w) {
-            if (getTickLabels().size() > 0) {
-                return getTickLabels().get(0).getBoundsInParent().getMaxY() + axisLabel.prefHeight(-1);
-            } else {
-                return 50d;
-            }
-        }
-
-        @Override
-        public void layoutChildren() {
-            line.get();
-            computeValue();
-            double p = line.get().getBoundsInParent().getMaxY();
-            if (getLayer().isBottomAxisLabelled()) {
-                if (getTickLabels().size() > 0) {
-                    getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
-                        TickLabel text = (TickLabel) x;
-                        //text.setFont(getFont());
-                        text.setLayoutX(text.xpos);
-                        text.setLayoutY(p);
-                    });
-                }
-                addAxisLabel();
-                if (getTickLabels().size() > 0) {
-                    axisLabel.setFont(getFont());
-                    axisLabel.setLayoutY(getTickLabels().get(0).getBoundsInParent().getMaxY());
-                    axisLabel.setLayoutX(getLayer().getView().getWidth() / 2d
-                            - axisLabel.getBoundsInParent().getWidth() / 2d);
-                }
-            } else {
-                getTickLabels().stream().forEach(x -> getChildren().remove(x));
-                removeAxisLabel();
-            }
-            super.layoutChildren();
-        }
-
-        private void computeValue() {
-            getTickLabels().stream().forEach((TickLabel x) -> {
-                getChildren().remove(x);
-            });
-
-            if (getLayer().isBottomAxisLabelled()) {
-                final double w = this.calcTickLabelWidth();
-                getLayer().axisSet.xTransform.get().stream()
-                        .filter(x -> x >= getLayer().getXMin() && x <= getLayer().getXMax())
-                        .forEach((Double x) -> {
-                            Point2D p1;
-                            TickLabel text = null;
-                            if (isCategorical()) {
-                                if (getCategories().containsKey(x.intValue())) {
-                                    text = new TickLabel(getCategories().get(x.intValue()));
-                                }
-                            } else {
-                                text = new TickLabel(getLayer().axisSet.xTransform.getTickLabel(x));
-                            }
-                            if (text != null) {
-                                p1 = getLayer().toPixel(x, getLayer().getYBottom());
-                                p1 = getLayer().getView().localToParent(p1);
-                                p1 = parentToLocal(p1);
-                                text.setFont(getFont());
-                                text.setFill(layer.getAxisColor());
-                                text.xpos = p1.getX() - text.prefWidth(0) / 2d;
-                                text.setTextOrigin(VPos.TOP);
-                                getChildren().add(text);
-
-                            }
-                        });
-            }
-        }
-    }
-
-    public class AxisLeft extends AbstractAxisRegion {
-
-        public AxisLeft(Chart layer) {
-            super(layer);
-            getChildren().add(line.get());
-            axisLabel.setRotate(-90d);
-            axisLabel.setTextOrigin(VPos.CENTER);
-            getChildren().add(axisLabel);
-            setCursor(Cursor.DEFAULT);
-            prefHeightProperty().bind(layer.getFirstLayer().view.prefHeightProperty());
-            requestLayout();
-        }
-
-        @Override
-        public final double computePrefWidth(double h) {
-            double w = Double.NEGATIVE_INFINITY;
-            if (getTickLabels().size() > 0) {
-                for (TickLabel text : getTickLabels()) {
-                    w = Math.max(w, text.getBoundsInParent().getWidth());
-                }
-            } else {
-                Text t = new Text("000");
-                t.setFont(getFont());
-                w = t.prefWidth(-1d);
-            }
-            w += axisLabel.prefHeight(-1d) + 5d;
-            return Math.max(w, 20);
-        }
-
-        @Override
-        public void layoutChildren() {
-            line.get();
-            computeValue();
-            if (getLayer().isLeftAxisLabelled()) {
-                if (getTickLabels().size() > 0) {
-                    double p = line.get().getBoundsInParent().getMinX();
-                    getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
-                        TickLabel text = (TickLabel) x;
-                        //text.setFont(getFont());
-                        text.setLayoutX(p - text.getBoundsInParent().getWidth());
-                        text.setLayoutY(text.ypos);
-                    });
-                }
-                addAxisLabel();
-                axisLabel.setFont(getFont());
-                axisLabel.setLayoutY(getHeight() / 2d);
-                axisLabel.setLayoutX(findMinX() - (axisLabel.prefWidth(0) / 2d) - 5d);
-            } else {
-                getTickLabels().stream().forEach(x -> getChildren().remove(x));
-                removeAxisLabel();
-            }
-            super.layoutChildren();
-        }
-
-        private double findMinX() {
-            double minx = Double.POSITIVE_INFINITY;
-            for (Text text : getTickLabels()) {
-                minx = Math.min(minx, text.prefWidth(-1d));
-            }
-            return minx;
-        }
-
-        private void computeValue() {
-            getTickLabels().stream().forEach((TickLabel x) -> {
-                getChildren().remove(x);
-            });
-
-            if (getLayer().isBottomAxisLabelled()) {
-                getLayer().axisSet.yTransform.get().stream()
-                        .filter(y -> y >= getLayer().getYMin() && y <= getLayer().getYMax())
-                        .forEach((Double y) -> {
-                            TickLabel text = null;
-                            if (isCategorical()) {
-                                if (getCategories().containsKey(y.intValue())) {
-                                    text = new TickLabel(getCategories().get(y.intValue()));
-                                }
-                            } else {
-                                text = new TickLabel(getLayer().axisSet.yTransform.getTickLabel(y));
-                            }
-                            if (text != null) {
-                                Point2D p1;
-                                p1 = getLayer().toPixel(getLayer().getXLeft(), y);
-                                p1 = getLayer().getView().localToParent(p1);
-                                p1 = parentToLocal(p1);
-                                text.setFont(getFont());
-                                text.setFill(layer.getAxisColor());
-                                text.ypos = p1.getY();
-                                getChildren().add(text);
-                            }
-                        });
-            }
-        }
-
-    }
-
-    public class AxisRight extends AbstractAxisRegion {
-
-        public AxisRight(Chart layer) {
-            super(layer);
-            getChildren().add(line.get());
-            axisLabel.setRotate(90d);
-            setCursor(Cursor.DEFAULT);
-            axisLabel.setFont(getFont());
-            getChildren().add(axisLabel);
-            prefHeightProperty().bind(layer.getFirstLayer().view.prefHeightProperty());
-            requestLayout();
-        }
-
-        @Override
-        public final double computePrefWidth(double h) {
-            double p = findMaxX();
-            p += axisLabel.prefHeight(-1d) + 5d;
-            return Math.max(p, 20);
-        }
-
-        @Override
-        public void layoutChildren() {
-            line.get();
-            computeValue();
-            if (getLayer().isRightAxisLabelled()) {
-                double p = line.get().getBoundsInParent().getMaxX();
-                if (getTickLabels().size() > 0) {
-                    getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
-                        TickLabel text = (TickLabel) x;
-                        //text.setFont(getFont());
-                        text.setLayoutX(p);
-                        text.setLayoutY(text.ypos);
-                    });
-                    addAxisLabel();
-                    axisLabel.setFont(getFont());
-                    axisLabel.setLayoutX(5d + findMaxX() - axisLabel.prefWidth(-1d) / 2d + axisLabel.prefHeight(-1d));
-                    axisLabel.setLayoutY(getHeight() / 2d);
-                }
-            } else {
-                getTickLabels().stream().forEach(x -> getChildren().remove(x));
-                removeAxisLabel();
-            }
-            super.layoutChildren();
-        }
-
-        private double findMaxX() {
-            double maxx = Double.NEGATIVE_INFINITY;
-            for (Text text : getTickLabels()) {
-                maxx = Math.max(maxx, text.prefWidth(-1d));
-            }
-            if (Double.isFinite(maxx)) {
-                return maxx;
-            } else {
-                Text t = new Text("000");
-                t.setFont(getFont());
-                return t.prefWidth(-1d);
-            }
-        }
-
-        private void computeValue() {
-            getTickLabels().stream().forEach((TickLabel x) -> {
-                getChildren().remove(x);
-            });
-            if (getLayer().isRightAxisLabelled()) {
-                getLayer().axisSet.yTransform.get().stream()
-                        .filter(y -> y >= getLayer().getYMin() && y <= getLayer().getYMax())
-                        .forEach((Double y) -> {
-                            TickLabel text = null;
-                            if (isCategorical()) {
-                                if (getCategories().containsKey(y.intValue())) {
-                                    text = new TickLabel(getCategories().get(y.intValue()));
-                                }
-                            } else {
-                                text = new TickLabel(getLayer().axisSet.yTransform.getTickLabel(y));
-                            }
-                            if (text != null) {
-                                Point2D p1;
-                                p1 = getLayer().toPixel(getLayer().getXLeft(), y);
-                                p1 = getLayer().getView().localToParent(p1);
-                                p1 = parentToLocal(p1);
-                                getChildren().add(text);
-                                text.setFont(getFont());
-                                text.setFill(layer.getAxisColor());
-                                text.setX(0d);
-                                text.ypos = p1.getY();
-                            }
-                        });
-
-            }
-        }
-    }
-
-    /**
-     * AxisSet class.
-     *
-     */
-    public class AxisSet {
-
-        private final AxisTop axisTop;
-        private final AxisBottom axisBottom;
-        private final AxisLeft axisLeft;
-        private final AxisRight axisRight;
-        protected Chart layer;
-        private AbstractTransform xTransform = new NOPTransform();
-        private AbstractTransform yTransform = new NOPTransform();
-
-        /**
-         * Constructs the axis set.
-         *
-         * @param axisRight - right axis instance.
-         * @param axisTop - top axis instance.
-         * @param axisLeft - left axis instance.
-         * @param axisBottom - bottom axis instance.
-         */
-        private AxisSet(AxisRight axisRight, AxisTop axisTop, AxisLeft axisLeft, AxisBottom axisBottom) {
-            this.axisRight = axisRight;
-            this.axisTop = axisTop;
-            this.axisLeft = axisLeft;
-            this.axisBottom = axisBottom;
-            layer = (Chart) axisRight.getParent();
-            xTransform.bind(layer, AbstractTransform.AXIS.HORIZONTAL);
-            yTransform.bind(layer, AbstractTransform.AXIS.VERTICAL);
-        }
-
-        /**
-         * @return the left axis instance
-         */
-        public AxisLeft getLeftAxis() {
-            return axisLeft;
-        }
-
-        /**
-         *
-         * @return the top axis instance
-         */
-        public AxisTop getTopAxis() {
-            return axisTop;
-        }
-
-        /**
-         *
-         * @return the bottom axis instance
-         */
-        public AxisBottom getBottomAxis() {
-            return axisBottom;
-        }
-
-        /**
-         *
-         * @return the right axis instance
-         */
-        public AxisRight getRightAxis() {
-            return axisRight;
-        }
-
-        /**
-         * Returns a Point2D instance containing the inverse transform for the
-         * data point represented by the supplied [x,y] pair (in axis
-         * co-oordinate space).
-         *
-         * @param x the x coordinate
-         * @param y the y coordinate
-         * @return the inverse transformed values as a Point2D instance.
-         */
-        Point2D getInverse(double x, double y) {
-            return new Point2D(xTransform.getInverse(x, Double.NaN).getX(), yTransform.getInverse(Double.NaN, y).getY());
-        }
-
-        /**
-         * Returns a Point2D instance containing the transform for the data
-         * point represented by the supplied [x,y] pair (in axis co-oordinate
-         * space).
-         *
-         * @param x the x coordinate
-         * @param y the y coordinate
-         * @return the transformed values as a Point2D instance.
-         */
-        Point2D getData(double x, double y) {
-            return new Point2D(xTransform.getData(x, Double.NaN).getX(), yTransform.getData(Double.NaN, y).getY());
-        }
-
-        /**
-         * @return the xTransform
-         */
-        public AbstractTransform getXTransform() {
-            return xTransform;
-        }
-
-        /**
-         * @param xTransform the xTransform to set
-         */
-        private void setXTransform(AbstractTransform xTransform) {
-            xTransform.bind(layer, AbstractTransform.AXIS.HORIZONTAL);
-            this.xTransform = xTransform;
-        }
-
-        /**
-         * @return the yTransform
-         */
-        public AbstractTransform getYTransform() {
-            return yTransform;
-        }
-
-        /**
-         * @param yTransform the yTransform to set
-         */
-        private void setYTransform(AbstractTransform yTransform) {
-            yTransform.bind(layer, AbstractTransform.AXIS.VERTICAL);
-            this.yTransform = yTransform;
-        }
-
-        /**
-         * Renders the canvas for this chart view. This includes the grid,
-         * internal axes etc.
-         *
-         * @param g the GraphicsContext retrieved from the canvas instance.
-         */
-        private void paintGrid(GraphicsContext g) {
-
-            axisTop.requestLayout();
-            axisBottom.requestLayout();
-            axisLeft.requestLayout();
-            axisRight.requestLayout();
-
-            if (layer.getParent() instanceof Chart) {
-                g.clearRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
-            } else {
-                g.setFill(Color.WHITE);
-                g.fillRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
-            }
-
-            if (layer.isPolar()) {
-                final Point2D p0 = layer.toPixel(0, 0);
-                if (layer.isMajorGridPainted()) {
-                    g.setStroke(layer.getMajorGridColor());
-                    g.setLineWidth(layer.getMajorGridStrokeWidth());
-
-                    //Set the clipping axisRegion
-                    g.save();
-                    g.beginPath();
-                    g.arc(layer.getView().getWidth() / 2d, layer.getView().getHeight() / 2d,
-                            layer.getView().getWidth() / 2d + 2d, layer.getView().getHeight() / 2d + 2d, 0, 360);
-                    g.clip();
-
-                    /**
-                     * Paints the rays of the grid.
-                     */
-                    g.beginPath();
-                    g.arc(layer.getView().getWidth() / 2d, layer.getView().getHeight() / 2d,
-                            layer.getView().getWidth() / 2d, layer.getView().getHeight() / 2d, 0, 360);
-
-                    for (double theta = 0; theta < 2 * Math.PI; theta += Math.PI / 6) {
-                        Point2D p1 = layer.toPixel(Math.cos(theta) * layer.getView().getWidth() / 2d,
-                                Math.sin(theta) * layer.getView().getHeight() / 2d);
-                        g.moveTo(p0.getX(), p0.getY());
-                        g.lineTo(p1.getX(), p1.getY());
-                    }
-                    g.stroke();
-
-                    /**
-                     * This paints the concentric rings of the grid. Note that
-                     * this is done for both x and y (which may have different
-                     * ranges). It will generally make sense for the interval on
-                     * the two axes to be the same.
-                     */
-                    g.beginPath();
-                    for (int k = 0; k < xTransform.get().size(); k++) {
-                        double x = xTransform.get().get(k);
-                        g.arc(p0.getX(), p0.getY(), x / layer.getPixelWidth(), x / layer.getPixelHeight(), 0d, 360d);
-                    }
-                    for (int k = 0; k < yTransform.get().size(); k++) {
-                        double y = yTransform.get().get(k);
-                        g.arc(p0.getX(), p0.getY(), y / layer.getPixelWidth(), y / layer.getPixelHeight(), 0d, 360d);
-                    }
-                    g.stroke();
-                }
-
-                if (layer.isInnerAxisLabelled()) {
-
-                    g.setFont(Font.font(layer.fontProperty().get().getFamily(), layer.getInnerAxisFontSize()));
-                    g.setTextAlign(TextAlignment.CENTER);
-                    g.setTextBaseline(VPos.CENTER);
-                    g.setFill(layer.getInnerAxisColor());
-
-                    /**
-                     * Labels for the rays
-                     */
-                    double rx = layer.getView().getWidth() / 2d;
-                    rx -= layer.fontProperty().get().getSize();
-                    double ry = layer.getView().getHeight() / 2d;
-                    ry -= layer.fontProperty().get().getSize();
-                    // Unit circle
-                    Ellipse e0 = new Ellipse(0, 0, rx, ry);
-                    for (double theta = 0; theta < 2 * Math.PI; theta += Math.PI / 6) {
-                        Point2D p2 = layer.toPixel(Math.cos(theta) * rx, Math.sin(theta) * ry);
-                        Point2D p = getIntersection(e0, p2.getX(), p2.getY());
-                        if (p != null) {
-                            g.fillText(String.format("%3.0f\u00b0", theta * 180 / Math.PI),
-                                    p0.getX() + p.getX(),
-                                    p0.getY() + p.getY());
-                        }
-                    }
-
-                    g.restore();
-                }
-
-            } else {
-
-                if (layer.getAltFillVertical() != Color.TRANSPARENT) {
-                    g.setFill(layer.getAltFillVertical());
-                    Point2D p2;
-                    Point2D p3;
-                    for (int k = 0; k < xTransform.get().size() - 1; k += 2) {
-                        if (layer.isReverseX()) {
-                            p2 = layer.toPixel(xTransform.get().get(k + 1), layer.getYTop());
-                            p3 = layer.toPixel(xTransform.get().get(k), layer.getYBottom());
-                        } else {
-                            p2 = layer.toPixel(xTransform.get().get(k), layer.getYTop());
-                            p3 = layer.toPixel(xTransform.get().get(k + 1), layer.getYBottom());
-                        }
-                        g.fillRect(p2.getX(), p2.getY(), p3.getX() - p2.getX(), p3.getY() - p2.getY());
-                    }
-                }
-
-                if (layer.getAltFillHorizontal() != Color.TRANSPARENT) {
-                    g.setFill(layer.getAltFillHorizontal());
-                    Point2D p2;
-                    Point2D p3;
-                    for (int k = yTransform.get().size() - 1; k > 0; k -= 2) {
-                        if (layer.isReverseY()) {
-                            p2 = layer.toPixel(layer.getXLeft(), yTransform.get().get(k - 1));
-                            p3 = layer.toPixel(layer.getXRight(), yTransform.get().get(k));
-                        } else {
-                            p2 = layer.toPixel(layer.getXLeft(), yTransform.get().get(k));
-                            p3 = layer.toPixel(layer.getXRight(), yTransform.get().get(k - 1));
-                        }
-                        g.fillRect(p2.getX(), p2.getY(), p3.getX() - p2.getX(), p3.getY() - p2.getY());
-                    }
-                }
-                // MAJOR GRID 
-                if (layer.isMajorGridPainted()) {
-                    g.setStroke(layer.getMajorGridColor());
-                    g.setLineWidth(layer.getMajorGridStrokeWidth());
-                    xTransform.get().stream().forEach((Double x) -> {
-                        Point2D p0 = layer.toPixel(x, layer.getYBottom());
-                        Point2D p1 = layer.toPixel(x, layer.getYTop());
-                        g.strokeLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-                    });
-
-                    yTransform.get().stream().forEach((Double y) -> {
-                        Point2D p0 = layer.toPixel(layer.getXMin(), y);
-                        Point2D p1 = layer.toPixel(layer.getXMax(), y);
-                        g.strokeLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-                    });
-
-                }
-
-                //MINOR GRID
-                if (layer.isMinorGridPainted()) {
-                    g.setStroke(layer.getMinorGridColor());
-                    g.setLineWidth(layer.minorGridStrokeWidth());
-                    xTransform.getMinorTicks().stream().forEach((Double x) -> {
-                        Point2D p0 = layer.toPixel(x, layer.getYBottom());
-                        Point2D p1 = layer.toPixel(x, layer.getYTop());
-                        g.strokeLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-                    });
-
-                    yTransform.getMinorTicks().stream().forEach((Double y) -> {
-                        Point2D p0 = layer.toPixel(layer.getXMin(), y);
-                        Point2D p1 = layer.toPixel(layer.getXMax(), y);
-                        g.strokeLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-                    });
-
-                }
-
-                if (layer.isInnerAxisPainted()) {
-                    g.setStroke(layer.getInnerAxisColor());
-                    g.setLineWidth(layer.getInnerAxisStrokeWidth());
-                    Point2D p0 = layer.toPixel(layer.getXLeft(), layer.getYOrigin());
-                    Point2D p1 = layer.toPixel(layer.getXRight(), layer.getYOrigin());
-                    g.strokeLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-                    p0 = layer.toPixel(layer.getXOrigin(), layer.getYTop());
-                    p1 = layer.toPixel(layer.getXOrigin(), layer.getYBottom());
-                    g.strokeLine(p0.getX(), p0.getY(), p1.getX(), p1.getY());
-
-                    xTransform.get().stream().forEach((Double x) -> {
-                        Point2D p2 = layer.toPixel(x, layer.getYOrigin());
-                        Point2D p3 = layer.toPixel(x, layer.getYOrigin());
-                        g.strokeLine(p2.getX(), p2.getY() - 4, p3.getX(), p3.getY() + 4);
-                    });
-
-                    yTransform.get().stream().forEach((Double y) -> {
-                        Point2D p4 = layer.toPixel(layer.getXOrigin(), y);
-                        Point2D p5 = layer.toPixel(layer.getXOrigin(), y);
-                        g.strokeLine(p4.getX() - 4, p4.getY(), p5.getX() + 4, p5.getY());
-                    });
-                }
-
-                if (layer.isInnerAxisLabelled()) {
-                    g.setTextAlign(TextAlignment.CENTER);
-                    g.setFill(layer.getInnerAxisColor());
-                    g.setTextBaseline(VPos.TOP);
-                    g.setFont(Font.font(layer.fontProperty().get().getFamily(), layer.getInnerAxisFontSize()));
-                    xTransform.get().stream().forEach((Double x) -> {
-                        Point2D p2 = layer.toPixel(x, layer.getYOrigin());
-                        Point2D p3 = layer.toPixel(x, layer.getYOrigin());
-                        if (Math.abs(x - layer.getXOrigin()) > layer.getMajorXInterval() / 4d) {
-                            g.fillText(xTransform.getTickLabel(x), p2.getX(), p3.getY() + 5);
-                        }
-                    });
-                    g.setTextAlign(TextAlignment.RIGHT);
-                    g.setTextBaseline(VPos.CENTER);
-                    yTransform.get().stream().forEach((Double y) -> {
-                        Point2D p4 = layer.toPixel(layer.getXOrigin(), y);
-                        Point2D p5 = layer.toPixel(layer.getXOrigin(), y);
-                        if (Math.abs(y - layer.getYOrigin()) > layer.getMajorYInterval() / 4d) {
-                            g.fillText(yTransform.getTickLabel(y), p4.getX() - 7, p5.getY());
-                        }
-                    });
-                }
-            }
-
-        }
-    }
-
-    private static Point2D getIntersection(Ellipse e0, double x0, double y0) {
-        //See: http://mathworld.wolfram.com/Ellipse-LineIntersection.html
-        double a = e0.getRadiusX();
-        double b = e0.getRadiusY();
-        double x = a * b * x0 / (Math.sqrt(a * a * y0 * y0 + b * b * x0 * x0));
-        double y = a * b * y0 / (Math.sqrt(a * a * y0 * y0 + b * b * x0 * x0));
-        return new Point2D(x, y);
-    }
 
 }

@@ -83,8 +83,8 @@ public class ScatterPlot extends AbstractPlot<ArrayList<Node>> implements Marker
     protected final void updateElements(Chart chart) {
 
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k),
-                    dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k),
+                    dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 Node marker = (Node) visualModel.getMarker(k);
@@ -104,7 +104,7 @@ public class ScatterPlot extends AbstractPlot<ArrayList<Node>> implements Marker
         super.arrangePlot(chart);
         
         for (int k = 0; k < dataModel.size(); k++) {
-            Point2D p0 = getData(chart,dataModel.xData.get(k), dataModel.yData.get(k));
+            Point2D p0 = getData(chart,dataModel.getXData().get(k), dataModel.getYData().get(k));
             p0 = chart.toPixel(p0);
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 Node marker = visualElement.get(k);
