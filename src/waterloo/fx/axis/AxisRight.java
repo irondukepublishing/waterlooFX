@@ -41,6 +41,9 @@ public class AxisRight extends AbstractAxisRegion {
         getAxisLabel().setFont(getFont());
         getChildren().add(getAxisLabel());
         prefHeightProperty().bind(layer.getFirstLayer().getView().prefHeightProperty());
+        // Bind mouse sensitivity to the layer painted poperty for this axis
+        mouseTransparentProperty().set(!layer.isRightAxisPainted());
+        mouseTransparentProperty().bind(layer.rightAxisPaintedProperty().not());
         requestLayout();
     }
 
@@ -48,11 +51,10 @@ public class AxisRight extends AbstractAxisRegion {
     public final double computePrefWidth(double h) {
         double p = findMaxX();
         p += getAxisLabel().prefHeight(-1d) + 5d;
-        return Math.max(p, 20);
+        return Math.max(p, 50);
     }
-
-    @Override
-    public void layoutChildren() {
+    
+    private void doLayout(){
         getLine().get();
         computeValue();
         if (getLayer().isRightAxisLabelled()) {
@@ -73,6 +75,11 @@ public class AxisRight extends AbstractAxisRegion {
             getTickLabels().stream().forEach(x -> getChildren().remove(x));
             removeAxisLabel();
         }
+    }
+
+    @Override
+    public void layoutChildren() {
+        doLayout();
         super.layoutChildren();
     }
 
@@ -108,7 +115,7 @@ public class AxisRight extends AbstractAxisRegion {
                         }
                         if (text != null) {
                             Point2D p1;
-                            p1 = getLayer().toPixel(getLayer().getXLeft(), y);
+                            p1 = getLayer().toPixel(getLayer().getXLeft(), y); 
                             p1 = getLayer().getView().localToParent(p1);
                             p1 = parentToLocal(p1);
                             getChildren().add(text);

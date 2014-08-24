@@ -23,6 +23,7 @@ package waterloo.fx.axis;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,6 +31,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
@@ -45,14 +47,13 @@ import waterloo.fx.plot.Chart;
  *
  * These extend {@code javafx.scene.layout.Region} and use standard JavaFX
  * components rather than painting to the view.
- * 
+ *
  * Separate subclasses are used for the axes to the left and right and at the
  * top and bottom of the view area.
  *
  * @author Malcolm Lidierth
  */
-public class AbstractAxisRegion extends Region {
-
+public abstract class AbstractAxisRegion extends Region {
 
     protected enum AXISPOSITION {
 
@@ -72,7 +73,8 @@ public class AbstractAxisRegion extends Region {
      */
     private final LinkedHashMap<Integer, String> categories = new LinkedHashMap<>();
     /**
-     * Boolean indicating whether to use categoricalProperty labels for the tick marks
+     * Boolean indicating whether to use categoricalProperty labels for the tick
+     * marks
      */
     private final BooleanProperty categoricalProperty = new SimpleBooleanProperty(Boolean.FALSE);
     /**
@@ -87,17 +89,12 @@ public class AbstractAxisRegion extends Region {
     private double deltaY;
 
     public AbstractAxisRegion(Chart layer) {
+
         this.layer = layer;
-        getStyleClass().add("axis");
-            //setBackground(Background.EMPTY);
-        //layer.getChildren().add(this);
         line = new LineClass(layer);
 
-        axisLabel.fillProperty().bind(layer.axisColor());
+        axisLabel.fillProperty().bind(layer.axisColorProperty());
 
-//            if (Chart.toolTipFlag && Platform.isFxApplicationThread()) {
-//                Tooltip.install(this, new Tooltip(Tooltips.axisTooltip));
-//            }
         ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
             setOnMousePressed((MouseEvent m0) -> {
                 switch (getAxisPosition()) {
@@ -125,7 +122,7 @@ public class AbstractAxisRegion extends Region {
                             if (layer.toPositionX(m2.getX()) >= layer.getXOrigin()) {
                                 this.layer.setXRight(this.layer.getXRight() + deltaX);
                             } else {
-                                this.layer.setXLeft(this.layer.getXLeft() + deltaX);
+                                layer.setXLeft(layer.getXLeft() + deltaX);
                             }
                         }
                         break;
@@ -135,25 +132,30 @@ public class AbstractAxisRegion extends Region {
                         if (deltaY != 0) {
                             deltaY = deltaY * this.layer.getPixelHeight();
                             if (layer.toPositionY(m2.getY()) >= layer.getYOrigin()) {
-                                this.layer.setYTop(this.layer.getYTop() - deltaY);
+                                layer.setYTop(layer.getYTop() - deltaY);
                             } else {
-                                this.layer.setYBottom(this.layer.getYBottom() - deltaY);
+                                layer.setYBottom(layer.getYBottom() - deltaY);
                             }
                         }
+                        break;
+                    default:
                 }
                 dragXStart = m2.getX();
                 dragYStart = m2.getY();
-                this.layer.requestLayout();
+                layer.requestLayout();
             });
         };
         sceneProperty().addListener(addedToScene);
+
+
     }
+
 
     public final Chart getLayer() {
         return layer;
     }
-    
-        /**
+
+    /**
      * @return the line
      */
     public LineClass getLine() {
@@ -254,7 +256,7 @@ public class AbstractAxisRegion extends Region {
             super();
             this.layer = layer;
 
-            value.strokeProperty().bind(layer.axisColor());
+            value.strokeProperty().bind(layer.axisColorProperty());
             value.strokeWidthProperty().bind(layer.axisStrokeWidthProperty());
 
             bind();
@@ -299,7 +301,7 @@ public class AbstractAxisRegion extends Region {
                 switch (getAxisPosition()) {
                     case TOP:
                         if (layer.isTopAxisPainted()) {
-                            double h = layer.getAxisTop().computePrefHeight(-1d);
+                            double h = layer.getAxisSet().getTopAxis().computePrefHeight(-1d);
                             value.getPoints().addAll(new Double[]{0d, h});
                             value.getPoints().addAll(new Double[]{getWidth(), h});
                             layer.getAxisSet().getXTransform().get().stream().filter((Double x) -> x >= layer.getXMin() && x <= layer.getXMax()).forEach((Double x) -> {
@@ -317,9 +319,6 @@ public class AbstractAxisRegion extends Region {
                         }
                         break;
                     case BOTTOM:
-                        if (layer.getLayers().size() == 1) {
-
-                        }
                         if (layer.isBottomAxisPainted()) {
                             value.getPoints().addAll(new Double[]{0d, 0d});
                             value.getPoints().addAll(new Double[]{getWidth(), 0d});
@@ -338,9 +337,6 @@ public class AbstractAxisRegion extends Region {
                         }
                         break;
                     case LEFT:
-                        if (layer.getLayers().size() == 1) {
-
-                        }
                         if (layer.isLeftAxisPainted()) {
                             Point2D p0 = layer.toPixel(0, layer.getYBottom());
                             double w = computePrefWidth(-1d);
@@ -364,20 +360,20 @@ public class AbstractAxisRegion extends Region {
                     case RIGHT:
                         if (layer.isRightAxisPainted()) {
                             Point2D p0 = layer.toPixel(layer.getXLeft(), layer.getYBottom());
-                            value.getPoints().addAll(new Double[]{p0.getX() + layer.getxRightOffset() + layer.getxRightOffset(), p0.getY()});
+                            value.getPoints().addAll(new Double[]{p0.getX()  , p0.getY()});
                             p0 = layer.toPixel(layer.getXLeft(), layer.getYTop());
-                            value.getPoints().addAll(new Double[]{p0.getX() - layer.getxRightOffset() + layer.getxRightOffset(), p0.getY()});
+                            value.getPoints().addAll(new Double[]{p0.getX() , p0.getY()});
                             layer.getAxisSet().getYTransform().get().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
                                 Point2D p1 = layer.toPixel(layer.getXLeft(), y);
-                                value.getPoints().addAll(new Double[]{p1.getX() + layer.getxRightOffset(), p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX() + layer.getxRightOffset() + layer.getxRightTickLength(), p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX() + layer.getxRightOffset(), p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX()  + layer.xRightTickLength, p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
                             });
                             layer.getAxisSet().getYTransform().getMinorTicks().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
                                 Point2D p1 = layer.toPixel(layer.getXLeft(), y);
-                                value.getPoints().addAll(new Double[]{p1.getX() - layer.getxRightOffset(), p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX() - layer.getxRightOffset() + layer.getxRightTickLength() * 0.7, p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX() - layer.getxRightOffset(), p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX()  + layer.xRightTickLength * 0.7, p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
                             });
                         }
                         break;

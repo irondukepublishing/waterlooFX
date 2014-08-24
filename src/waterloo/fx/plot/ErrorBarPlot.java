@@ -126,7 +126,7 @@ public class ErrorBarPlot extends AbstractPlot<ArrayList<Path>> implements Marke
      */
     public ErrorBarPlot() {
         visualElement = new ArrayList<>();
-        getStyleClass().add("errorbarplot");
+//        getStyleClass().add("errorbarplot");
 
         dataModel.getExtraData0().addListener(this);
         dataModel.getExtraData1().addListener(this);
@@ -138,23 +138,6 @@ public class ErrorBarPlot extends AbstractPlot<ArrayList<Path>> implements Marke
 
     /**
      * Constructs an instance parenting another plot.
-     *
-     * <em>The data model of the child will be copied by reference to the new
-     * parent instance.</em>
-     *
-     * Compound plots that share a data model may therefore be constructed by
-     * chaining constructor calls, e.g.:
-     * <p>
-     * {@code GJScatter = new GJScatter(new GJLine(new GJErrorBar));}
-     * </p>
-     *
-     * Further plots may be added by calling the {@code add(AbstractPlot p)}
-     * method and will also share the data model. Note that data model are
-     * <strong>not</strong> shared when using the standard
-     * <p>
-     * {@code getChildren().add(...)}
-     * </p>
-     * method.
      *
      * @param p1 the child plot to add to this instance.
      */

@@ -1,5 +1,5 @@
 /* 
-*
+ *
  * <http://waterloo.sourceforge.net/>
  *
  * Copyright King's College London  2013-
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -45,7 +46,6 @@ import javafx.css.StyleableProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
-import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -59,18 +59,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import waterloo.fx.axis.AbstractAxisRegion;
 import waterloo.fx.axis.AxisBottom;
 import waterloo.fx.axis.AxisLeft;
 import waterloo.fx.axis.AxisRight;
 import waterloo.fx.axis.AxisSet;
 import waterloo.fx.axis.AxisTop;
-import waterloo.fx.axis.TickLabel;
 import waterloo.fx.transforms.AbstractTransform;
 import waterloo.fx.transforms.Log10Transform;
 import waterloo.fx.transforms.LogTransform;
@@ -85,17 +81,33 @@ import waterloo.fx.transforms.NOPTransform;
  * for plotting.
  * </p>
  * <p>
- * The {@code Chart} also hosts sub-{@code Region}s for representing a chart's
- * axes.
+ * The {@code Chart} also hosts an axisPane that is used for the chart's axes.
  * </p>
  * A {@code Chart} instance can host other {@code Chart} instances to create
  * layered graphs where each {@code Chart} has independent axes. The axis
- * diplays will be automatically positioned within the individual graphs to
- * prevent overlap.
+ * displays will be automatically positioned within the axisPane of the first
+ * chart to prevent overlap.
  *
  * @author Malcolm Lidierth
  */
 public class Chart extends Pane {
+
+    public double yTopOffset = 0;
+    public double yBottomOffset = 0;
+    public double xLeftOffset = 0;
+    public double xRightOffset = 0;
+    public String yTopLabel = "Axis Label";
+    public Paint yTopColor = Color.BLACK;
+    public double yTopTickLength = 5;
+    public String yBottomLabel = "Axis Label";
+    public Paint yBottomColor = Color.BLACK;
+    public double yBottomTickLength = 5;
+    public String xLeftLabel = "Axis Label";
+    public Paint xLeftColor = Color.BLACK;
+    public double xLeftTickLength = 5;
+    public String xRightLabel = "Axis Label";
+    public Paint xRightColor = Color.BLACK;
+    public double xRightTickLength = 5;
 
     /**
      * TODO: make these styleable
@@ -109,7 +121,7 @@ public class Chart extends Pane {
      * calculated.
      */
     private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
-    protected final AxisTop axisTop;
+    private final AxisTop axisTop;
     private final AxisBottom axisBottom;
     private final AxisLeft axisLeft;
     private final AxisRight axisRight;
@@ -202,6 +214,12 @@ public class Chart extends Pane {
     //private final ObservableList<GJAnnotation> annotations = FXCollections.observableArrayList(new ArrayList<>());
     private final Canvas canvas;
     private final StackPane view;
+    /**
+     * This Pane is used to parent the axes painted outside the view area. Note
+     * that with layered {@code Charts}, the axisPane of the first {@code Chart}
+     * contains the axes for all {@code Charts}.
+     */
+    private final Pane axisPane;
     /**
      * Value for the xpos-axis at the left
      */
@@ -660,7 +678,7 @@ public class Chart extends Pane {
 
     };
     /**
-     * Draw as polar plot
+     * Draw as polarProperty plot
      */
     private final BooleanProperty polar = new StyleableBooleanProperty(Boolean.FALSE) {
 
@@ -797,18 +815,7 @@ public class Chart extends Pane {
         }
 
     };
-    public String yTopLabel = "Axis Label";
-    public Paint yTopColor = Color.BLACK;
-    public double yTopTickLength = 5;
-    public String yBottomLabel = "Axis Label";
-    public Paint yBottomColor = Color.BLACK;
-    public double yBottomTickLength = 5;
-    public String xLeftLabel = "Axis Label";
-    public Paint xLeftColor = Color.BLACK;
-    public double xLeftTickLength = 5;
-    public String xRightLabel = "Axis Label";
-    public Paint xRightColor = Color.BLACK;
-    private double xRightTickLength = 5;
+
     /**
      * Base font to use. This is styleable via the "-w-font-" settings.
      */
@@ -891,11 +898,8 @@ public class Chart extends Pane {
         }
 
     };
-    private double yTopOffset = 0;
-    private double yBottomOffset = 0;
-    private double xLeftOffset = 0;
-    private double xRightOffset = 0;
-    private ObjectProperty<VIEWALIGNMENT> viewAlignment = new StyleableObjectProperty<VIEWALIGNMENT>(VIEWALIGNMENT.CENTER) {
+
+    private final ObjectProperty<VIEWALIGNMENT> viewAlignment = new StyleableObjectProperty<VIEWALIGNMENT>(VIEWALIGNMENT.CENTER) {
         @Override
         public Object getBean() {
             return Chart.this;
@@ -943,16 +947,24 @@ public class Chart extends Pane {
 
         //setManaged(false);
         super();
+
         setPrefWidth(500d);
         setPrefHeight(500d);
 
-        getStyleClass().add("gjchart");
-
+//        getStyleClass().add("chart");
         canvas = new Canvas(500d, 500d);
         view = new StackPane(canvas);
+        axisPane = new Pane();
         //view.getChildren().add(new Pane());
 
         getChildren().add(view);
+        getChildren().add(axisPane);
+
+        axisPane.setLayoutX(0d);
+        axisPane.setLayoutY(0d);
+        axisPane.prefHeightProperty().bind(prefHeightProperty());
+        axisPane.prefWidthProperty().bind(prefWidthProperty());
+        axisPane.setPickOnBounds(false);
 
         setPadding(computeRequiredInsets());
 
@@ -962,7 +974,7 @@ public class Chart extends Pane {
         view.setPrefWidth(getPrefWidth() - getPadding().getLeft() - getPadding().getRight());
         view.setCenterShape(true);
         view.setCursor(Cursor.DEFAULT);
-        view.getStyleClass().add("view");
+//        view.getStyleClass().add("view");
 
         canvas.setLayoutX(0d);
         canvas.setLayoutY(0d);
@@ -973,10 +985,11 @@ public class Chart extends Pane {
         axisTop = new AxisTop(this);
         axisLeft = new AxisLeft(this);
         axisBottom = new AxisBottom(this);
-        getChildren().add(axisTop);
-        getChildren().add(axisRight);
-        getChildren().add(axisLeft);
-        getChildren().add(axisBottom);
+        axisPane.getChildren().add(axisTop);
+        axisPane.getChildren().add(axisRight);
+        axisPane.getChildren().add(axisLeft);
+        axisPane.getChildren().add(axisBottom);
+
         axisSet = new AxisSet(axisRight, axisTop, axisLeft, axisBottom);
 
         // Add the scene dimension listener
@@ -1101,14 +1114,25 @@ public class Chart extends Pane {
         xRightProperty().addListener(axisLimitListener);
         yTopProperty().addListener(axisLimitListener);
         yBottomProperty().addListener(axisLimitListener);
-        xOrigin().addListener(axisLimitListener);
-        yOrigin().addListener(axisLimitListener);
+        xOriginProperty().addListener(axisLimitListener);
+        yOriginProperty().addListener(axisLimitListener);
         // Also, bind to changes in the width/height as we need to recalculate
         // grid, tick  etc. pixel positions.
         widthProperty().addListener(axisLimitListener);
         heightProperty().addListener(axisLimitListener);
         prefWidthProperty().addListener(axisLimitListener);
         prefHeightProperty().addListener(axisLimitListener);
+
+        ChangeListener<Number> sizeListener = (ObservableValue<? extends Number> ov, Number t, Number t1) -> {
+            Platform.runLater(() -> {
+                requestLayout();
+            });
+        };
+
+        widthProperty().addListener(sizeListener);
+        heightProperty().addListener(sizeListener);
+        prefWidthProperty().addListener(sizeListener);
+        prefHeightProperty().addListener(sizeListener);
 
         /**
          * If the parent extends Region, which will normally be the case, bind
@@ -1144,16 +1168,38 @@ public class Chart extends Pane {
             while (c.next()) {
                 List<? extends Node> list = c.getAddedSubList();
                 list.stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
-                    // Make sure a child Chart shares insets, view position etc.
-                    // with the parent.
-                    //node.setManaged(true);
-                    adjustAxes((Chart) node);
-                    setPadding(computeRequiredInsets());
-                    ((Chart) node).setPadding(getPadding());
-                    ((Chart) node).requestLayout();
+
+                    //((Chart) node).requestLayout();
                     // It makes no sense to have a background on the child as it will
                     // obscure the parent's contents.
                     ((Chart) node).setStyle("-fx-background-color: transparent");
+
+                    AbstractAxisRegion axis;
+                    axis = ((Chart) node).getAxisSet().getLeftAxis();
+                    ((Chart) node).axisPane.getChildren().remove(axis);
+                    axisPane.getChildren().add(axis);
+                    //axis.requestLayout();
+                    axis = ((Chart) node).getAxisSet().getRightAxis();
+                    ((Chart) node).axisPane.getChildren().remove(axis);
+                    axisPane.getChildren().add(axis);
+                    //axis.requestLayout();
+                    axis = ((Chart) node).getAxisSet().getBottomAxis();
+                    ((Chart) node).axisPane.getChildren().remove(axis);
+                    axisPane.getChildren().add(axis);
+                    //axis.requestLayout();
+                    axis = ((Chart) node).getAxisSet().getTopAxis();
+                    ((Chart) node).axisPane.getChildren().remove(axis);
+                    axisPane.getChildren().add(axis);
+                    //axis.requestLayout();
+                    // Make child charts mouse transparent by default
+                    ((Chart) node).setMouseTransparent(true);
+
+                    // Make sure a child Chart shares insets, view position etc.
+                    // with the parent.
+                    adjustAxes((Chart) node);
+                    setPadding(computeRequiredInsets());
+                    ((Chart) node).setPadding(getPadding());
+
                 });
                 // If a plot, plot collection or annotation pane has been added
                 // to the graph, transfer it to the view
@@ -1173,21 +1219,34 @@ public class Chart extends Pane {
 
         view.getChildren().addListener((ListChangeListener.Change<? extends Node> c) -> {
             while (c.next()) {
-                List<? extends Node> list = c.getAddedSubList();
-                list.stream().filter((node) -> (node instanceof AbstractPlot)).forEach((node) -> {
-                    AbstractPlot plot = (AbstractPlot) node;
-//                    plot.setLayoutX(0d);
-//                    plot.setLayoutY(0d);
-                    int index = getPlots().indexOf(node);
-                    plot.setPlotStyleIndex(index);
-                    plot.getAllPlots().forEach((p) -> {
-                        ((AbstractPlot) p).setPlotStyleIndex(index);
-                    });
-                });
+//                List<? extends Node> list = c.getAddedSubList();
+//                list.stream().filter((node) -> (node instanceof AbstractPlot)).forEach((node) -> {
+//                    AbstractPlot plot = (AbstractPlot) node;
+////                    plot.setLayoutX(0d);
+////                    plot.setLayoutY(0d);
+//                    int index = getPlots().indexOf(node);
+//                    plot.setPlotStyleIndex(index);
+//                    plot.getAllPlots().forEach((p) -> {
+//                        ((AbstractPlot) p).setPlotStyleIndex(index);
+//                    });
+//                });
                 requestLayout();
             }
         });
 
+        ChangeListener<Boolean> axisPaintedListener = (ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) -> {
+            Platform.runLater(() -> {
+                getChildren().stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
+                    adjustAxes((Chart) node);
+                    setPadding(computeRequiredInsets());
+                    ((Chart) node).setPadding(getPadding());
+                });
+            });
+        };
+        rightAxisPaintedProperty().addListener(axisPaintedListener);
+        leftAxisPaintedProperty().addListener(axisPaintedListener);
+        topAxisPaintedProperty().addListener(axisPaintedListener);
+        bottomAxisPaintedProperty().addListener(axisPaintedListener);
         requestLayout();
 
     }
@@ -1216,7 +1275,6 @@ public class Chart extends Pane {
 //                || clzz.equals(FlowPane.class)
 //                || clzz.equals(StackPane.class);
 //    }
-
     public ObjectProperty<Paint> innerAxisColorProperty() {
         return innerAxisColor;
     }
@@ -1287,6 +1345,43 @@ public class Chart extends Pane {
         return viewAlignment;
     }
 
+//    public void adjustAxes() {
+//        if (this == getFirstLayer()) {
+//            Chart firstLayer = getFirstLayer();
+//            double leftOffset = firstLayer.xLeftOffset + 50d;
+//            double rightOffset = firstLayer.xRightOffset + 50d;
+//            double topOffset = firstLayer.yTopOffset + 50d;
+//            double bottomOffset = firstLayer.yBottomOffset + 50d;
+//            List<? extends Node> list = getChildren();
+//            for (Node node : list) {
+//                if (node instanceof Chart) {
+//                    Chart thisLayer = (Chart) node;
+//                    if (thisLayer.isLeftAxisPainted()) {
+//                        thisLayer.xLeftOffset = leftOffset;
+//                        leftOffset += 50d;
+//                        leftOffset += thisLayer.axisLeft.computePrefWidth(-1d);
+//                    }
+//                    if (thisLayer.isRightAxisPainted()) {
+//                        thisLayer.xRightOffset = rightOffset;
+//                        rightOffset += 50d;
+//                        rightOffset += thisLayer.axisRight.computePrefWidth(-1d);
+//                    }
+//                    if (thisLayer.isTopAxisPainted()) {
+//                        thisLayer.yTopOffset = topOffset;
+//                        topOffset += 50d;
+//                        topOffset += thisLayer.axisTop.computePrefHeight(-1d);
+//                    }
+//                    if (thisLayer.isBottomAxisPainted()) {
+//                        thisLayer.yBottomOffset = bottomOffset;
+//                        bottomOffset += 50d;
+//                        bottomOffset += thisLayer.axisBottom.computePrefHeight(-1d);
+//                    }
+//                }
+//            }
+//        } else {
+//            getFirstLayer().adjustAxes();
+//        }
+//    }
     /**
      * Called when a graph is added as a child of another graph to adjust axis
      * offsets
@@ -1294,20 +1389,18 @@ public class Chart extends Pane {
      * @param layer
      */
     private void adjustAxes(Chart layer) {
-        if (layer.isLeftAxisPainted()) {
-            layer.xLeftOffset += xLeftOffset + axisLeft.computePrefWidth(-1d);
-        }
-        if (layer.isRightAxisPainted()) {
-            layer.setxRightOffset(layer.getxRightOffset() + getxRightOffset() + axisRight.computePrefWidth(-1d));
-        }
-        if (layer.isTopAxisPainted()) {
-            layer.yTopOffset += yTopOffset + getAxisTop().computePrefHeight(-1d);
-        }
-        if (layer.isBottomAxisPainted()) {
-            layer.yBottomOffset += yBottomOffset + axisBottom.computePrefHeight(-1d);
-            ;
-        }
-        layer.setMouseTransparent(true);
+//        if (layer.isLeftAxisPainted()) {
+//            layer.xLeftOffset += xLeftOffset + axisLeft.computePrefWidth(-1d);
+//        }
+//        if (layer.isRightAxisPainted()) {
+//            layer.xRightOffset += xRightOffset + axisRight.computePrefWidth(-1d);
+//        }
+//        if (layer.isTopAxisPainted()) {
+//            layer.yTopOffset += yTopOffset + axisTop.computePrefHeight(-1d);
+//        }
+//        if (layer.isBottomAxisPainted()) {
+//            layer.yBottomOffset += yBottomOffset + axisBottom.computePrefHeight(-1d);
+//        }
     }
 
     /**
@@ -1315,32 +1408,52 @@ public class Chart extends Pane {
      */
     private void enforceMinimumOffsets() {
         if (getLayers().size() > 1) {
-            double sumxl = getFirstLayer().axisLeft.computePrefWidth(-1d);
+            double sumxl = getFirstLayer().xLeftOffset;
+            if (getFirstLayer().isLeftAxisPainted() || getFirstLayer().isLeftAxisLabelled()) {
+                sumxl += getFirstLayer().axisLeft.computePrefWidth(-1d);
+            }
             for (int k = 1; k < getLayers().size(); k++) {
-                if (getLayers().get(k).isLeftAxisPainted()) {
+                if (getLayers().get(k).isLeftAxisPainted() || getLayers().get(k).isLeftAxisLabelled()) {
                     getLayers().get(k).xLeftOffset = sumxl;
-                    sumxl += getLayers().get(k).axisLeft.computePrefWidth(-1d);
+                    if (getLayers().get(k).axisLeft != null) {
+                        sumxl += getLayers().get(k).axisLeft.computePrefWidth(-1d);
+                    }
                 }
             }
-            sumxl = getFirstLayer().getxRightOffset();
+            sumxl = getFirstLayer().xRightOffset;
+            if (getFirstLayer().isRightAxisPainted() || getFirstLayer().isRightAxisLabelled()) {
+                sumxl += getFirstLayer().axisRight.computePrefWidth(-1d);
+            }
             for (int k = 1; k < getLayers().size(); k++) {
-                if (getLayers().get(k).isRightAxisPainted()) {
-                    getLayers().get(k).setxRightOffset(sumxl);
-                    sumxl += getLayers().get(k).axisRight.computePrefWidth(-1d);
+                if (getLayers().get(k).isRightAxisPainted() || getLayers().get(k).isRightAxisLabelled()) {
+                    getLayers().get(k).xRightOffset = sumxl;
+                    if (getLayers().get(k).axisRight != null) {
+                        sumxl += getLayers().get(k).axisRight.computePrefWidth(-1d);
+                    }
                 }
             }
-            sumxl = getFirstLayer().yBottomOffset + getFirstLayer().axisBottom.computePrefHeight(-1d);
+            sumxl = getFirstLayer().yBottomOffset;
+            if (getFirstLayer().isBottomAxisPainted() || getFirstLayer().isBottomAxisLabelled()) {
+                sumxl+=getFirstLayer().axisBottom.computePrefHeight(-1d);
+            }
             for (int k = 1; k < getLayers().size(); k++) {
-                if (getLayers().get(k).isBottomAxisPainted()) {
+                if (getLayers().get(k).isBottomAxisPainted() || getLayers().get(k).isBottomAxisLabelled()) {
                     getLayers().get(k).yBottomOffset = sumxl;
-                    sumxl += getLayers().get(k).axisBottom.computePrefHeight(-1d);
+                    if (getLayers().get(k).axisBottom != null) {
+                        sumxl += getLayers().get(k).axisBottom.computePrefHeight(-1d);
+                    }
                 }
             }
-            sumxl = getFirstLayer().yTopOffset + getFirstLayer().getAxisTop().computePrefHeight(-1d);
+            sumxl = getFirstLayer().yTopOffset;
+            if (getFirstLayer().isTopAxisPainted() || getFirstLayer().isTopAxisLabelled()) {
+                sumxl+=getFirstLayer().axisTop.computePrefHeight(-1d);
+            }
             for (int k = 1; k < getLayers().size(); k++) {
-                if (getLayers().get(k).isTopAxisPainted()) {
+                if (getLayers().get(k).isTopAxisPainted() || getLayers().get(k).isTopAxisLabelled()) {
                     getLayers().get(k).yTopOffset = sumxl;
-                    sumxl += getLayers().get(k).getAxisTop().computePrefHeight(-1d);
+                    if (getLayers().get(k).axisTop != null) {
+                        sumxl += getLayers().get(k).axisTop.computePrefHeight(-1d);
+                    }
                 }
             }
         }
@@ -1379,7 +1492,7 @@ public class Chart extends Pane {
     }
 
     /**
-     * Returns a set of insets with dimensions just adequate to accomodate the
+     * Returns a set of insets with dimensions just adequate to accommodate the
      * contents of all display axis elements.
      *
      * @return the Insets
@@ -1393,21 +1506,21 @@ public class Chart extends Pane {
                 return defaultInsets;
             } else {
                 double xl = axisLeft.computePrefWidth(-1d) + xLeftOffset;
-                double xr = axisRight.computePrefWidth(-1d) + getxRightOffset();
-                double yb = getAxisTop().computePrefHeight(-1d) + yBottomOffset;
+                double xr = axisRight.computePrefWidth(-1d) + xRightOffset;
+                double yb = axisTop.computePrefHeight(-1d) + yBottomOffset;
                 double yt = axisBottom.computePrefHeight(-1d) + yTopOffset;
                 for (Chart g : getLayers()) {
-                    if (g.isLeftAxisPainted()) {
+                    if (g.isLeftAxisPainted() || g.isLeftAxisLabelled()) {
                         xl = Math.max(xl, g.axisLeft.computePrefWidth(-1d) + g.xLeftOffset);
                     }
-                    if (g.isRightAxisPainted()) {
-                        xr = Math.max(xr, g.axisRight.computePrefWidth(-1d) + g.getxRightOffset());
+                    if (g.isRightAxisPainted() || g.isRightAxisLabelled()) {
+                        xr = Math.max(xr, g.axisRight.computePrefWidth(-1d) + g.xRightOffset);
                     }
-                    if (g.isBottomAxisPainted()) {
+                    if (g.isBottomAxisPainted() || g.isBottomAxisLabelled()) {
                         yb = Math.max(yb, g.axisBottom.computePrefHeight(-1d) + g.yBottomOffset);
                     }
-                    if (g.isTopAxisPainted()) {
-                        yt = Math.max(yt, g.getAxisTop().computePrefHeight(-1d) + g.yTopOffset);
+                    if (g.isTopAxisPainted() || g.isTopAxisLabelled()) {
+                        yt = Math.max(yt, g.axisTop.computePrefHeight(-1d) + g.yTopOffset);
                     }
                 }
                 return new Insets(yt + 5, xr + 5, yb + 5, xl + 5);
@@ -1626,12 +1739,16 @@ public class Chart extends Pane {
      *
      * @return the the Chart instance that is first in painting order
      */
-    public Chart getFirstLayer() {
+    public final Chart getFirstLayer() {
         if (getParent() != null && getParent() instanceof Chart) {
             return ((Chart) getParent()).getFirstLayer();
         } else {
             return this;
         }
+    }
+
+    public final Chart getParentChart() {
+        return (getParent() instanceof Chart) ? (Chart) getParent() : null;
     }
 
     /**
@@ -1785,22 +1902,34 @@ public class Chart extends Pane {
 //            node.getNode().relocate(p.getX(), p.getY());
 //        });
         // Layout the axes
-        getAxisTop().setLayoutX(view.getLayoutX());
-        getAxisTop().setLayoutY(view.getLayoutY() - yTopOffset - getAxisTop().computePrefHeight(-1d));
-        getAxisTop().setPrefHeight(Region.USE_COMPUTED_SIZE);
+//        if (getFirstLayer() == this) {
+//            getChildrenUnmodifiable().stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
+//                // Make sure a child Chart shares insets, view position etc.
+//                // with the parent.
+//                adjustAxes((Chart) node);
+//                setPadding(computeRequiredInsets());
+//                ((Chart) node).setPadding(getPadding());
+//            });
+//        }
+        axisTop.setLayoutX(view.getLayoutX());
+        axisTop.setLayoutY(view.getLayoutY() - yTopOffset - axisTop.computePrefHeight(-1d));
+        axisTop.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        axisTop.requestLayout();
 
         axisBottom.setLayoutX(view.getLayoutX());
         axisBottom.setLayoutY(view.getLayoutY() + view.getPrefHeight() + yBottomOffset);
         axisBottom.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        axisBottom.requestLayout();
 
         axisLeft.setLayoutX(view.getLayoutX() - axisLeft.computePrefWidth(-1d) - xLeftOffset);
         axisLeft.setLayoutY(view.getLayoutY());
         axisLeft.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        axisLeft.requestLayout();
 
-        axisRight.setLayoutX(view.getLayoutX() + view.getPrefWidth()
-                + getxRightOffset());
+        axisRight.setLayoutX(view.getLayoutX() + view.getPrefWidth() + xRightOffset);
         axisRight.setLayoutY(view.getLayoutY());
         axisRight.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        axisRight.requestLayout();
 
     }
 
@@ -2080,7 +2209,7 @@ public class Chart extends Pane {
         return Math.max(getYTop(), getYBottom());
     }
 
-    public final DoubleProperty xOrigin() {
+    public final DoubleProperty xOriginProperty() {
         return xOrigin;
     }
 
@@ -2092,7 +2221,7 @@ public class Chart extends Pane {
         xOrigin.set(val);
     }
 
-    public final DoubleProperty yOrigin() {
+    public final DoubleProperty yOriginProperty() {
         return yOrigin;
     }
 
@@ -2140,7 +2269,7 @@ public class Chart extends Pane {
         minorGridStrokeWidth.set(val);
     }
 
-    public final DoubleProperty majorGridStrokeWidth() {
+    public final DoubleProperty majorGridStrokeWidthProperty() {
         return majorGridStrokeWidth;
     }
 
@@ -2152,7 +2281,7 @@ public class Chart extends Pane {
         majorGridStrokeWidth.set(val);
     }
 
-    public final BooleanProperty minorGridPainted() {
+    public final BooleanProperty minorGridPaintedProperty() {
         return minorGridPainted;
     }
 
@@ -2169,7 +2298,7 @@ public class Chart extends Pane {
         minorGridPainted.set(val);
     }
 
-    public final BooleanProperty majorGridPainted() {
+    public final BooleanProperty majorGridPaintedProperty() {
         return majorGridPainted;
     }
 
@@ -2181,7 +2310,7 @@ public class Chart extends Pane {
         majorGridPainted.set(val);
     }
 
-    public final BooleanProperty innerAxisPainted() {
+    public final BooleanProperty innerAxisPaintedProperty() {
         return innerAxisPainted;
     }
 
@@ -2193,7 +2322,7 @@ public class Chart extends Pane {
         innerAxisPainted.set(val);
     }
 
-    public final BooleanProperty innerAxisLabelled() {
+    public final BooleanProperty innerAxisLabelledProperty() {
         return innerAxisLabelled;
     }
 
@@ -2205,8 +2334,8 @@ public class Chart extends Pane {
         innerAxisLabelled.set(val);
     }
 
-    public final boolean leftAxisPainted() {
-        return leftAxisPainted.get();
+    public final BooleanProperty leftAxisPaintedProperty() {
+        return leftAxisPainted;
     }
 
     public final boolean isLeftAxisPainted() {
@@ -2217,7 +2346,7 @@ public class Chart extends Pane {
         leftAxisPainted.set(val);
     }
 
-    public final BooleanProperty rightAxisPainted() {
+    public final BooleanProperty rightAxisPaintedProperty() {
         return rightAxisPainted;
     }
 
@@ -2229,7 +2358,7 @@ public class Chart extends Pane {
         rightAxisPainted.set(val);
     }
 
-    public final BooleanProperty topAxisPainted() {
+    public final BooleanProperty topAxisPaintedProperty() {
         return topAxisPainted;
     }
 
@@ -2241,7 +2370,7 @@ public class Chart extends Pane {
         topAxisPainted.set(val);
     }
 
-    public final BooleanProperty bottomAxisPainted() {
+    public final BooleanProperty bottomAxisPaintedProperty() {
         return bottomAxisPainted;
     }
 
@@ -2253,7 +2382,7 @@ public class Chart extends Pane {
         bottomAxisPainted.set(val);
     }
 
-    public final BooleanProperty leftAxisLabelled() {
+    public final BooleanProperty leftAxisLabelledProperty() {
         return leftAxisLabelled;
     }
 
@@ -2265,8 +2394,8 @@ public class Chart extends Pane {
         leftAxisLabelled.set(val);
     }
 
-    public final boolean rightAxisLabelled() {
-        return rightAxisLabelled.get();
+    public final BooleanProperty rightAxisLabelledProperty() {
+        return rightAxisLabelled;
     }
 
     public final boolean isRightAxisLabelled() {
@@ -2277,7 +2406,7 @@ public class Chart extends Pane {
         rightAxisLabelled.set(val);
     }
 
-    public final BooleanProperty topAxisLabelled() {
+    public final BooleanProperty topAxisLabelledProperty() {
         return topAxisLabeled;
     }
 
@@ -2289,7 +2418,7 @@ public class Chart extends Pane {
         topAxisLabeled.set(val);
     }
 
-    public final BooleanProperty bottomAxisLabelled() {
+    public final BooleanProperty bottomAxisLabelledProperty() {
         return bottomAxisLabelled;
     }
 
@@ -2326,11 +2455,11 @@ public class Chart extends Pane {
     }
 
     public String getTopAxisTitle() {
-        return getAxisTop().getAxisLabel().getText();
+        return axisTop.getAxisLabel().getText();
     }
 
     public void setTopAxisTitle(String s) {
-        getAxisTop().getAxisLabel().setText(s);
+        axisTop.getAxisLabel().setText(s);
     }
 
     /**
@@ -2339,7 +2468,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void setAxisLinkXX(Chart chart) {
+    public void addAxisLinkXX(Chart chart) {
         xLeft.bindBidirectional(chart.xLeft);
         xRight.bindBidirectional(chart.xRight);
     }
@@ -2350,7 +2479,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void setAxisLinkXY(Chart chart) {
+    public void addAxisLinkXY(Chart chart) {
         xLeft.bindBidirectional(chart.yBottom);
         xRight.bindBidirectional(chart.yTop);
     }
@@ -2361,7 +2490,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void setAxisLinkYY(Chart chart) {
+    public void addAxisLinkYY(Chart chart) {
         yBottom.bindBidirectional(chart.yBottom);
         yTop.bindBidirectional(chart.yTop);
     }
@@ -2372,32 +2501,56 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void setAxisLinkYX(Chart chart) {
+    public void addAxisLinkYX(Chart chart) {
         yBottom.bindBidirectional(chart.xLeft);
         yTop.bindBidirectional(chart.xRight);
     }
 
+    /**
+     * Removes a bi-directional binding between the x-axis limits of this chart
+     * and x-axis limits of the specified chart.
+     *
+     * @param chart
+     */
     public void removeAxisLinkXX(Chart chart) {
         xLeft.unbindBidirectional(chart.xLeft);
         xRight.unbindBidirectional(chart.xRight);
     }
 
+    /**
+     * Removes a bi-directional binding between the x-axis limits of this chart
+     * and y-axis limits of the specified chart.
+     *
+     * @param chart
+     */
     public void removeAxisLinkXY(Chart chart) {
         xLeft.unbindBidirectional(chart.yBottom);
         xRight.unbindBidirectional(chart.yTop);
     }
 
+    /**
+     * Removes a bi-directional binding between the y-axis limits of this chart
+     * and y-axis limits of the specified chart.
+     *
+     * @param chart
+     */
     public void removeAxisLinkYY(Chart chart) {
         yBottom.unbindBidirectional(chart.yBottom);
         yTop.unbindBidirectional(chart.yTop);
     }
 
+    /**
+     * Removes a bi-directional binding between the y-axis limits of this chart
+     * and x-axis limits of the specified chart.
+     *
+     * @param chart
+     */
     public void removeAxisLinkYX(Chart chart) {
         yBottom.unbindBidirectional(chart.xLeft);
         yTop.unbindBidirectional(chart.xRight);
     }
 
-    public final BooleanProperty polar() {
+    public final BooleanProperty polarProperty() {
         return polar;
     }
 
@@ -2409,7 +2562,7 @@ public class Chart extends Pane {
         polar.set(val);
     }
 
-    public final ObjectProperty<Paint> majorGridColor() {
+    public final ObjectProperty<Paint> majorGridColorProperty() {
         return majorGridColor;
     }
 
@@ -2421,7 +2574,7 @@ public class Chart extends Pane {
         majorGridColor.set(val);
     }
 
-    public final ObjectProperty<Paint> minorGridColor() {
+    public final ObjectProperty<Paint> minorGridColorProperty() {
         return minorGridColor;
     }
 
@@ -2433,7 +2586,7 @@ public class Chart extends Pane {
         minorGridColor.set(val);
     }
 
-    public final ObjectProperty<Paint> axisColor() {
+    public final ObjectProperty<Paint> axisColorProperty() {
         return axisColor;
     }
 
@@ -2615,39 +2768,40 @@ public class Chart extends Pane {
 
     }
 
+//    /**
+//     * @return the xRightOffset
+//     */
+//    public double getxRightOffset() {
+//        return 0d;
+//        //return xRightOffset;
+//    }
+//
+//    /**
+//     * @param xRightOffset the xRightOffset to set
+//     */
+//    public void setxRightOffset(double xRightOffset) {
+//        this.xRightOffset = xRightOffset;
+//    }
+//
+//    /**
+//     * @return the xRightTickLength
+//     */
+//    public double getxRightTickLength() {
+//        return xRightTickLength;
+//    }
+//
+//    /**
+//     * @param xRightTickLength the xRightTickLength to set
+//     */
+//    public void setxRightTickLength(double xRightTickLength) {
+//        this.xRightTickLength = xRightTickLength;
+//
+//    }
     /**
-     * @return the axisTop
+     * @return the axisPane
      */
-    public AxisTop getAxisTop() {
-        return axisTop;
-    }
-
-    /**
-     * @return the xRightOffset
-     */
-    public double getxRightOffset() {
-        return xRightOffset;
-    }
-
-    /**
-     * @param xRightOffset the xRightOffset to set
-     */
-    public void setxRightOffset(double xRightOffset) {
-        this.xRightOffset = xRightOffset;
-    }
-
-    /**
-     * @return the xRightTickLength
-     */
-    public double getxRightTickLength() {
-        return xRightTickLength;
-    }
-
-    /**
-     * @param xRightTickLength the xRightTickLength to set
-     */
-    public void setxRightTickLength(double xRightTickLength) {
-        this.xRightTickLength = xRightTickLength;
+    public Pane getAxisPane() {
+        return axisPane;
     }
 
     public static enum TRANSFORMTYPE {
@@ -2674,8 +2828,6 @@ public class Chart extends Pane {
     }
 
 // -------------- STYLESHEET HANDLING ------------------------------------------------------------------------------
-
-
 //    private static final class Tooltips {
 //
 //        private final static String axisTooltip = "Double click to edit axis settings";
@@ -2686,8 +2838,8 @@ public class Chart extends Pane {
      */
     private static class StyleableProperties {
 
-        static final Class<? extends Enum> clzz = TRANSFORMTYPE.class;
-        static final Class<? extends Enum> clzz0 = VIEWALIGNMENT.class;
+        //static final Class<? extends Enum> clzz = TRANSFORMTYPE.class;
+        //static final Class<? extends Enum> clzz0 = VIEWALIGNMENT.class;
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
         private static final CssMetaData<Chart, Number> XLEFT
@@ -3137,10 +3289,10 @@ public class Chart extends Pane {
                         return (StyleableProperty<Number>) n.viewAspectRatio;
                     }
                 };
-        @SuppressWarnings("unchecked")
+
         private static final CssMetaData<Chart, TRANSFORMTYPE> XTRANSFORMTYPE
                 = new CssMetaData<Chart, TRANSFORMTYPE>("-w-xtransformtype",
-                        StyleConverter.getEnumConverter(clzz), TRANSFORMTYPE.LINEAR) {
+                        (StyleConverter<?, TRANSFORMTYPE>) StyleConverter.getEnumConverter(TRANSFORMTYPE.class), TRANSFORMTYPE.LINEAR) {
 
                     @Override
                     public boolean isSettable(Chart n) {
@@ -3152,10 +3304,10 @@ public class Chart extends Pane {
                         return (StyleableProperty<TRANSFORMTYPE>) n.xTransformType;
                     }
                 };
-        @SuppressWarnings("unchecked")
+
         private static final CssMetaData<Chart, TRANSFORMTYPE> YTRANSFORMTYPE
                 = new CssMetaData<Chart, TRANSFORMTYPE>("-w-ytransformtype",
-                        StyleConverter.getEnumConverter(clzz), TRANSFORMTYPE.LINEAR) {
+                        (StyleConverter<?, TRANSFORMTYPE>) StyleConverter.getEnumConverter(TRANSFORMTYPE.class), TRANSFORMTYPE.LINEAR) {
 
                     @Override
                     public boolean isSettable(Chart n) {
@@ -3167,10 +3319,10 @@ public class Chart extends Pane {
                         return (StyleableProperty<TRANSFORMTYPE>) n.yTransformType;
                     }
                 };
-        @SuppressWarnings("unchecked")
+
         private static final CssMetaData<Chart, VIEWALIGNMENT> VIEWALIGN
                 = new CssMetaData<Chart, VIEWALIGNMENT>("-w-view-alignment",
-                        StyleConverter.getEnumConverter(clzz0), VIEWALIGNMENT.CENTER) {
+                        (StyleConverter<?, VIEWALIGNMENT>) StyleConverter.getEnumConverter(VIEWALIGNMENT.class), VIEWALIGNMENT.CENTER) {
 
                     @Override
                     public boolean isSettable(Chart n) {
@@ -3233,9 +3385,6 @@ public class Chart extends Pane {
             STYLEABLES = Collections.unmodifiableList(styleables);
         }
     }
-
- 
-
 
     /**
      * Represents a Rectangle2D describing the present limits of the coordinate
@@ -3370,10 +3519,5 @@ public class Chart extends Pane {
         }
 
     }
-
-
-
-
-
 
 }

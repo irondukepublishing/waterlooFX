@@ -99,7 +99,7 @@ public class QuiverPlot extends AbstractPlot<ArrayList<Shape>> implements LineIn
      *
      */
     public QuiverPlot() {
-        getStyleClass().add("quiverplot");
+//        getStyleClass().add("quiverplot");
         visualElement = new ArrayList<>();
         setMarkerType(MARKERTYPE.ARROWHEAD);
         setMarkerRadius(0.75);
@@ -107,23 +107,6 @@ public class QuiverPlot extends AbstractPlot<ArrayList<Shape>> implements LineIn
 
     /**
      * Constructs an instance parenting another plot.
-     *
-     * <em>The data model of the child will be copied by reference to the new
-     * parent instance.</em>
-     *
-     * Compound plots that share a data model may therefore be constructed by
-     * chaining constructor calls, e.g.:
-     * <p>
-     * {@code GJScatter = new GJScatter(new GJLine(new GJErrorBar));}
-     * </p>
-     *
-     * Further plots may be added by calling the {@code add(AbstractPlot p)}
-     * method and will also share the data model. Note that data model are
-     * <strong>not</strong> shared when using the standard
-     * <p>
-     * {@code getChildren().add(...)}
-     * </p>
-     * method.
      *
      * @param p1 the child plot to add to this instance.
      */

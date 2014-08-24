@@ -62,14 +62,14 @@ public class PlotCollection<T extends AbstractPlot> extends StackPane {
         });
 
         getChildren().addListener((ListChangeListener.Change<? extends Node> c) -> {
-            while (c.next()) {
-                List<? extends Node> list = c.getAddedSubList();
-                list.forEach(x -> {
-                    if (x instanceof AbstractPlot) {
-                        addStyle((AbstractPlot) x);
-                    }
-                });
-            }
+//            while (c.next()) {
+//                List<? extends Node> list = c.getAddedSubList();
+//                list.forEach(x -> {
+//                    if (x instanceof AbstractPlot) {
+//                        addStyle((AbstractPlot) x);
+//                    }
+//                });
+//            }
         });
     }
 
@@ -81,16 +81,16 @@ public class PlotCollection<T extends AbstractPlot> extends StackPane {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void addStyle(AbstractPlot child) {
-        // Process the added plot...
-        int index = getChildren().indexOf(child);
-        child.setPlotStyleIndex(index);
-        //... and any descendant plots
-        child.getAllPlots().forEach(x -> {
-            ((AbstractPlot) x).setPlotStyleIndex(index);
-        });
-    }
+//    @SuppressWarnings("unchecked")
+//    private void addStyle(AbstractPlot child) {
+//        // Process the added plot...
+//        int index = getChildren().indexOf(child);
+//        child.setPlotStyleIndex(index);
+//        //... and any descendant plots
+//        child.getAllPlots().forEach(x -> {
+//            ((AbstractPlot) x).setPlotStyleIndex(index);
+//        });
+//    }
 
     public void arrangePlots(Chart chart) {
         getChildren().forEach(x -> {

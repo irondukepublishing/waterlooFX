@@ -37,9 +37,7 @@ import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.css.CssMetaData;
@@ -56,6 +54,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -84,97 +83,53 @@ import waterloo.fx.plot.model.DataModel;
 import waterloo.fx.util.GJCyclicArrayList;
 
 /**
+ * This is the base class for all plots in waterlooFX. An {@code AbstractPlot}
+ * extends {@code StackPane} and, by default, contains two panes for rendering
+ * <ul>
+ * <li>the plot - this is the graphicsPane</li>
+ * <li>annotations that can be superimposed on the plot - this is the
+ * annotationPane</li>
+ * </ul>
+ * Each plot has a {@code visualElement} of a type that extends
+ * {@code List<? extends Node>}. These nodes provided the visual representation
+ * of the plot.
+ *
+ * Subclasses of {@code AbstractPlot} need to implement an
+ * {@code updateElements} method that will
+ * <ol>
+ * <li>Create this list based on the entries in the dataModel and the
+ * visualModel</li>
+ * <li>Add/remove elements from the list when the data are changed</li>
+ * </ol>
+ *
+ * Subclasses also need to implement an {@code arrangePlot} method. This method
+ * is responsible for arranging the contents of visualElement list within the
+ * graphicsPane.
  *
  * @author Malcolm Lidierth
  * @param <T>
  */
 public abstract class AbstractPlot<T extends List<? extends Node>> extends StackPane implements ListChangeListener<Number> {
 
-    BooleanProperty dataPolar = new StyleableBooleanProperty(false) {
-        @Override
-        public boolean get() {
-            return dataModel.isDataPolar();
-        }
+    public static enum MARKERTYPE {
 
-        @Override
-        public void set(boolean tf) {
-            dataModel.setDataPolar(tf);
-        }
-
-        @Override
-        public Object getBean() {
-            return AbstractPlot.this;
-        }
-
-        @Override
-        public String getName() {
-            return "dataPolar";
-        }
-
-        @Override
-        public CssMetaData<? extends Styleable, Boolean> getCssMetaData() {
-            return StyleableProperties.DATAPOLAR;
-        }
-    };
-
-    public boolean isDataPolar() {
-        return dataPolar.get();
+        CIRCLE, SQUARE, TRIANGLE, INVERTED_TRIANGLE, RIGHT_TRIANGLE, LEFT_TRIANGLE, DIAMOND, PENTAGON, HEXAGON, CROSS, PLUS, ASTERISK, SPHERE, ARROWHEAD
     }
 
-    public void setDataPolar(boolean tf) {
-        dataPolar.set(tf);
+    public static enum LABELORIENTATION {
+
+        AUTO, VERTICAL, HORIZONTAL, CUSTOM
     }
 
-    public BooleanProperty dataPolarProperty() {
-        return dataPolar;
-    }
-    ;
     /**
-     * The base value should be used only by plots that implement the
-     * BaseValueSensitiveInterface.
-     *
+     * This pane is used to render the plot
      */
-    DoubleProperty baseValue = new StyleableDoubleProperty(0d) {
-
-        @Override
-        public double get() {
-            return dataModel.getBaseValue();
-        }
-
-        @Override
-        public void set(double val) {
-            dataModel.setBaseValue(val);
-        }
-
-        @Override
-        public Object getBean() {
-            return AbstractPlot.this;
-        }
-
-        @Override
-        public String getName() {
-            return "baseValue";
-        }
-
-        @Override
-        public CssMetaData<? extends Styleable, Number> getCssMetaData() {
-            return StyleableProperties.BASEVALUE;
-        }
-
-    };
-
-    public double getBaseValue() {
-        return baseValue.get();
-    }
-
-    public void setBaseValue(double val) {
-        baseValue.set(val);
-    }
-
-    public DoubleProperty baseValueProperty() {
-        return baseValue;
-    }
-    ;
+    private Pane graphicsPane;
+        /**
+     * This Pane sits above the graphicsPane in the z-order. Annotations can be
+     * added to this layer and will always appear above the plot.
+     */
+    private final AnnotationPane annotationPane;
     /**
      * Data model for this plot.
      */
@@ -184,11 +139,33 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     final VisualModel visualModel = new VisualModel();
     /**
-     * This Pane sits above the graphicsPane in the z-order. Annotations can be
-     * added to this layer and will always appear above the plot.
+     * {@code visualElement} contains the Nodes that are used to represent the
+     * data for this plot.
+     *
+     * For a marker-based plot these will often be references to markers
+     * supplied from the visual model.
+     *
      */
-    private final AnnotationPane annotationPane;
+    T visualElement;
+
     private final NumberFormat formatter = new DecimalFormat();
+    /**
+     * When nodesNeedUpdate is true, nodes required by the plot will be
+     * regenerated/reset before calling arrangePlot to layout those nodes.
+     *
+     * When nodesNeedUpdate is false, the existing nodes will be used but their
+     * layout will be updated on each layout pass.
+     *
+     * nodesNeedUpdate should only be altered on the FX application thread.
+     *
+     * nodesNeedUpdate can be set true via listeners on the relevant properties
+     * of the dataModel.
+     *
+     * The {@code update()} method provides a thread-safe way to set
+     * nodesNeedUpdate true and update the display.
+     */
+    protected AtomicBoolean nodesNeedUpdate = new AtomicBoolean(true);
+
     private final StringProperty xData = new StyleableStringProperty("") {
 
         @Override
@@ -276,7 +253,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public String getName() {
-            return "extraDataEast";
+            return "eastData";
         }
 
         @Override
@@ -308,7 +285,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public String getName() {
-            return "extraDataNorth";
+            return "northData";
         }
 
         @Override
@@ -393,7 +370,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         @Override
         public String get() {
-            return visualModel.labels.stream().map(x -> x.getText()).collect(Collectors.joining(", "));
+            return visualModel.getLabels().stream().map(x -> x.getText()).collect(Collectors.joining(", "));
         }
 
         @Override
@@ -413,57 +390,89 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
     };
     public LABELORIENTATION labelOrientation = LABELORIENTATION.AUTO;
-    /**
-     * When nodesNeedUpdate is true, nodes required by the plot will be
-     * regenerated/reset before calling arrangePlot to layout those nodes.
-     *
-     * When nodesNeedUpdate is false, the existing nodes will be used but their
-     * layout will be updated on each layout pass.
-     *
-     * nodesNeedUpdate should only be altered on the FX application thread.
-     *
-     * nodesNeedUpdate can be set true via listeners on the relevant properties
-     * of the dataModel.
-     *
-     * The {@code update()} method provides a thread-safe way to set
-     * nodesNeedUpdate true and update the display.
-     */
-    protected AtomicBoolean nodesNeedUpdate = new AtomicBoolean(true);
-    /**
-     * {@code visualElement} contains the Nodes that are used to represent the
-     * data for this plot.
-     *
-     * For a marker-based plot these will often be references to markers
-     * supplied from the visual model.
-     *
-     */
-    T visualElement;
-    /**
-     * The CSS styling index for the plot.
-     *
-     * When added to a chart or a PlotCollection, "plot-N" where N is the
-     * plotSyleIndex will be added to the list of classes returned by
-     * {@code getStyleClass}.
-     */
-    IntegerProperty plotStyleIndex = new SimpleIntegerProperty(-1) {
+
+    BooleanProperty dataPolar = new StyleableBooleanProperty(false) {
+        @Override
+        public boolean get() {
+            return dataModel.isDataPolar();
+        }
 
         @Override
-        public void set(int index) {
-            if (index >= 0) {
-                super.set(index);
-                List<String> list = new ArrayList<>();
-                list.addAll(getStyleClass());
-                list.stream().filter((s) -> (s.startsWith("plot-"))).forEach((s) -> {
-                    getStyleClass().remove(s);
-                });
-                getStyleClass().add("plot-" + index);
-            }
+        public void set(boolean tf) {
+            dataModel.setDataPolar(tf);
+        }
+
+        @Override
+        public Object getBean() {
+            return AbstractPlot.this;
+        }
+
+        @Override
+        public String getName() {
+            return "dataPolar";
+        }
+
+        @Override
+        public CssMetaData<? extends Styleable, Boolean> getCssMetaData() {
+            return StyleableProperties.DATAPOLAR;
         }
     };
     /**
-     * This pane is used to render the plot
+     * The base value should be used only by plots that implement the
+     * BaseValueSensitiveInterface.
+     *
      */
-    private Pane graphicsPane;
+    DoubleProperty baseValue = new StyleableDoubleProperty(0d) {
+
+        @Override
+        public double get() {
+            return dataModel.getBaseValue();
+        }
+
+        @Override
+        public void set(double val) {
+            dataModel.setBaseValue(val);
+        }
+
+        @Override
+        public Object getBean() {
+            return AbstractPlot.this;
+        }
+
+        @Override
+        public String getName() {
+            return "baseValue";
+        }
+
+        @Override
+        public CssMetaData<? extends Styleable, Number> getCssMetaData() {
+            return StyleableProperties.BASEVALUE;
+        }
+
+    };
+
+//    /**
+//     * The CSS styling index for the plot.
+//     *
+//     * When added to a chart or a PlotCollection, "plot-N" where N is the
+//     * plotSyleIndex will be added to the list of classes returned by
+//     * {@code getStyleClass}.
+//     */
+//    IntegerProperty plotStyleIndex = new SimpleIntegerProperty(-1) {
+//
+//        @Override
+//        public void set(int index) {
+//            if (index >= 0) {
+//                super.set(index);
+//                List<String> list = new ArrayList<>();
+//                list.addAll(getStyleClass());
+//                list.stream().filter((s) -> (s.startsWith("plot-"))).forEach((s) -> {
+//                    getStyleClass().remove(s);
+//                });
+//                getStyleClass().add("plot-" + index);
+//            }
+//        }
+//    };
 
     /**
      * Default constructor
@@ -472,19 +481,21 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         super();
 
         setBackground(Background.EMPTY);
-        getStyleClass().add("plot-");
+//        getStyleClass().add("plot-");
 
         graphicsPane = new Pane();
         graphicsPane.setBackground(Background.EMPTY);
         getChildren().add(graphicsPane);
+        graphicsPane.setPickOnBounds(false);
 
         annotationPane = new AnnotationPane();
         annotationPane.setBackground(Background.EMPTY);
         getChildren().add(annotationPane);
-        annotationPane.getStyleClass().add("annotationpane");
+        annotationPane.setPickOnBounds(false);
+//        annotationPane.getStyleClass().add("annotationpane");
 
+        // Add a ListChangeListener to the x and y data.
         dataModel.getXData().addListener(this);
-
         dataModel.getYData().addListener(this);
 
         graphicsPane.getChildren().addListener((ListChangeListener.Change<? extends Node> c) -> {
@@ -509,8 +520,12 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                 });
             }
         });
+        
 
     }
+    
+
+    
 
     /**
      * @return The CssMetaData associated with this class, which may include the
@@ -519,6 +534,30 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
         return AbstractPlot.StyleableProperties.STYLEABLES;
+    }
+
+    public boolean isDataPolar() {
+        return dataPolar.get();
+    }
+
+    public void setDataPolar(boolean tf) {
+        dataPolar.set(tf);
+    }
+
+    public BooleanProperty dataPolarProperty() {
+        return dataPolar;
+    }
+
+    public double getBaseValue() {
+        return baseValue.get();
+    }
+
+    public void setBaseValue(double val) {
+        baseValue.set(val);
+    }
+
+    public DoubleProperty baseValueProperty() {
+        return baseValue;
     }
 
     /**
@@ -563,22 +602,26 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return list;
     }
 
-    IntegerProperty plotStyleIndex() {
-        return plotStyleIndex;
-    }
+//    IntegerProperty plotStyleIndex() {
+//        return plotStyleIndex;
+//    }
+//
+//    public void setPlotStyleIndex(int index) {
+//        plotStyleIndex.set(index);
+//    }
+//    
+//    public int getPlotStyleIndex(){
+//        return plotStyleIndex.get();
+//    }
 
-    public void setPlotStyleIndex(int index) {
-        plotStyleIndex.set(index);
-    }
-
-    public String getPlotStyle() {
-        for (String s : getStyleClass()) {
-            if (s.startsWith("plot-")) {
-                return s;
-            }
-        }
-        return "UNSET";
-    }
+//    public String getPlotStyle() {
+//        for (String s : getStyleClass()) {
+//            if (s.startsWith("plot-")) {
+//                return s;
+//            }
+//        }
+//        return "UNSET";
+//    }
 
     public VisualModel getVisualModel() {
         return visualModel;
@@ -799,7 +842,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      *
      */
     protected void arrangeLabels() {
-        for (int k = 0; k < visualModel.labels.size(); k++) {
+        for (int k = 0; k < visualModel.getLabels().size(); k++) {
 
             Node marker = visualElement.get(k);
             double w = marker.prefWidth(-1d);
@@ -829,7 +872,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                     }
                 }
             }
-            Text text = visualModel.labels.get(k);
+            Text text = visualModel.getLabels().get(k);
             text.setX(x + (w / 2d) - (text.prefWidth(-1d) / 2d));
             text.setY(y + (h / 2d));
             switch (labelOrientation) {
@@ -934,16 +977,21 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
     }
 
     public void setLabels(Text... arr) {
-        visualModel.labels.forEach(x -> annotationPane.getChildren().remove(x));
-        visualModel.labels.clear();
+        visualModel.getLabels().forEach(x -> annotationPane.getChildren().remove(x));
+        visualModel.getLabels().clear();
         Arrays.stream(arr).forEach((Text text) -> {
             text.setTextAlignment(TextAlignment.CENTER);
             text.setTextOrigin(VPos.CENTER);
-            visualModel.labels.add(text);
+            visualModel.getLabels().add(text);
             annotationPane.getChildren().add(text);
         });
     }
 
+    /**
+     * This is the ListChangeListener
+     *
+     * @param c
+     */
     @Override
     public void onChanged(Change<? extends Number> c) {
         // If the number on data points has altered, request an update...
@@ -957,27 +1005,17 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         requestLayout();
     }
 
-    public static enum MARKERTYPE {
-
-        CIRCLE, SQUARE, TRIANGLE, INVERTED_TRIANGLE, RIGHT_TRIANGLE, LEFT_TRIANGLE, DIAMOND, PENTAGON, HEXAGON, CROSS, PLUS, ASTERISK, SPHERE, ARROWHEAD
-    }
-
-    public static enum LABELORIENTATION {
-
-        AUTO, VERTICAL, HORIZONTAL, CUSTOM
-    }
-
     /**
      * @treatAsPrivate implementation detail
      */
     private static class StyleableProperties {
 
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
-        private final static Class<? extends Enum> clzz = MARKERTYPE.class;
-        @SuppressWarnings("unchecked")
+        //private final static Class<? extends Enum> clzz = MARKERTYPE.class;
+
         private static final CssMetaData<AbstractPlot, MARKERTYPE> MARKERSTYLE
                 = new CssMetaData<AbstractPlot, MARKERTYPE>("-w-plot-marker-style",
-                        StyleConverter.getEnumConverter(clzz), MARKERTYPE.CIRCLE) {
+                        (StyleConverter<?, MARKERTYPE>) StyleConverter.getEnumConverter(MARKERTYPE.class), MARKERTYPE.CIRCLE) {
 
                     @Override
                     public boolean isSettable(AbstractPlot node) {
@@ -989,6 +1027,20 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                         return (StyleableProperty<MARKERTYPE>) node.visualModel.markerType;
                     }
 
+                };
+        private static final CssMetaData<AbstractPlot, Number> MARKERRADIUS
+                = new CssMetaData<AbstractPlot, Number>("-w-plot-marker-radius",
+                        StyleConverter.getSizeConverter(), 5d) {
+
+                    @Override
+                    public boolean isSettable(AbstractPlot node) {
+                        return node instanceof MarkerInterface;
+                    }
+
+                    @Override
+                    public StyleableProperty<Number> getStyleableProperty(AbstractPlot node) {
+                        return (StyleableProperty<Number>) node.visualModel.markerRadius;
+                    }
                 };
         private static final CssMetaData<AbstractPlot, String> XDATA
                 = new CssMetaData<AbstractPlot, String>("-w-plot-xdata",
@@ -1003,20 +1055,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                     @Override
                     public StyleableProperty<String> getStyleableProperty(AbstractPlot n) {
                         return (StyleableProperty<String>) n.xData;
-                    }
-                };
-        private static final CssMetaData<AbstractPlot, Number> MARKERRADIUS
-                = new CssMetaData<AbstractPlot, Number>("-w-plot-marker-radius",
-                        StyleConverter.getSizeConverter(), 5d) {
-
-                    @Override
-                    public boolean isSettable(AbstractPlot node) {
-                        return node instanceof MarkerInterface;
-                    }
-
-                    @Override
-                    public StyleableProperty<Number> getStyleableProperty(AbstractPlot node) {
-                        return (StyleableProperty<Number>) node.visualModel.markerRadius;
                     }
                 };
         private static final CssMetaData<AbstractPlot, Paint> FILL
@@ -1034,48 +1072,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                     @Override
                     public StyleableProperty<Paint> getStyleableProperty(AbstractPlot node) {
                         return (StyleableProperty<Paint>) node.visualModel.fill;
-                    }
-                };
-        private static final CssMetaData<AbstractPlot, String> YDATA
-                = new CssMetaData<AbstractPlot, String>("-w-plot-ydata",
-                        StyleConverter.getStringConverter(), "") {
-
-                    @Override
-                    public boolean isSettable(AbstractPlot n) {
-                        return true;
-                    }
-
-                    @Override
-                    public StyleableProperty<String> getStyleableProperty(AbstractPlot n) {
-                        return (StyleableProperty<String>) n.yData;
-                    }
-                };
-        private static final CssMetaData<AbstractPlot, Number> BASEVALUE
-                = new CssMetaData<AbstractPlot, Number>("-w-plot-basevalue",
-                        StyleConverter.getSizeConverter(), 0d) {
-
-                    @Override
-                    public boolean isSettable(AbstractPlot n) {
-                        return true;
-                    }
-
-                    @Override
-                    public StyleableProperty<Number> getStyleableProperty(AbstractPlot n) {
-                        return (StyleableProperty<Number>) n.baseValue;
-                    }
-                };
-        private static final CssMetaData<AbstractPlot, Boolean> DATAPOLAR
-                = new CssMetaData<AbstractPlot, Boolean>("-w-plot-datapolar",
-                        StyleConverter.getBooleanConverter(), false) {
-
-                    @Override
-                    public boolean isSettable(AbstractPlot n) {
-                        return true;
-                    }
-
-                    @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(AbstractPlot n) {
-                        return (StyleableProperty<Boolean>) n.dataPolar;
                     }
                 };
         private static final CssMetaData<AbstractPlot, Paint> EDGECOLOR
@@ -1111,10 +1107,9 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                         return (StyleableProperty<Number>) node.visualModel.edgeWidth;
                     }
                 };
-        private static final CssMetaData<AbstractPlot, String> EASTDATA
-                = new CssMetaData<AbstractPlot, String>("-w-plot-eastdata",
-                        StyleConverter.getStringConverter(),
-                        "") {
+        private static final CssMetaData<AbstractPlot, String> YDATA
+                = new CssMetaData<AbstractPlot, String>("-w-plot-ydata",
+                        StyleConverter.getStringConverter(), "") {
 
                     @Override
                     public boolean isSettable(AbstractPlot n) {
@@ -1123,7 +1118,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
                     @Override
                     public StyleableProperty<String> getStyleableProperty(AbstractPlot n) {
-                        return (StyleableProperty<String>) n.extraDataEast;
+                        return (StyleableProperty<String>) n.yData;
                     }
                 };
         private static final CssMetaData<AbstractPlot, Paint> LINECOLOR
@@ -1143,6 +1138,20 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                         return (StyleableProperty<Paint>) node.visualModel.lineColor;
                     }
                 };
+        private static final CssMetaData<AbstractPlot, Number> BASEVALUE
+                = new CssMetaData<AbstractPlot, Number>("-w-plot-basevalue",
+                        StyleConverter.getSizeConverter(), 0d) {
+
+                    @Override
+                    public boolean isSettable(AbstractPlot n) {
+                        return true;
+                    }
+
+                    @Override
+                    public StyleableProperty<Number> getStyleableProperty(AbstractPlot n) {
+                        return (StyleableProperty<Number>) n.baseValue;
+                    }
+                };
         private static final CssMetaData<AbstractPlot, Number> LINEWIDTH
                 = new CssMetaData<AbstractPlot, Number>("-w-plot-line-width",
                         StyleConverter.getSizeConverter(), 1d) {
@@ -1159,6 +1168,37 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                         return (StyleableProperty<Number>) node.visualModel.lineWidth;
                     }
                 };
+        private static final CssMetaData<AbstractPlot, Boolean> DATAPOLAR
+                = new CssMetaData<AbstractPlot, Boolean>("-w-plot-datapolar",
+                        StyleConverter.getBooleanConverter(), false) {
+
+                    @Override
+                    public boolean isSettable(AbstractPlot n) {
+                        return true;
+                    }
+
+                    @Override
+                    public StyleableProperty<Boolean> getStyleableProperty(AbstractPlot n) {
+                        return (StyleableProperty<Boolean>) n.dataPolar;
+                    }
+                };
+
+        private static final CssMetaData<AbstractPlot, String> EASTDATA
+                = new CssMetaData<AbstractPlot, String>("-w-plot-eastdata",
+                        StyleConverter.getStringConverter(),
+                        "") {
+
+                    @Override
+                    public boolean isSettable(AbstractPlot n) {
+                        return true;
+                    }
+
+                    @Override
+                    public StyleableProperty<String> getStyleableProperty(AbstractPlot n) {
+                        return (StyleableProperty<String>) n.extraDataEast;
+                    }
+                };
+
         private static final CssMetaData<AbstractPlot, String> NORTHDATA
                 = new CssMetaData<AbstractPlot, String>("-w-plot-northdata",
                         StyleConverter.getStringConverter(),
@@ -1255,7 +1295,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     public class VisualModel {
 
-        public final ArrayList<Text> labels = new ArrayList<>();
+        private final ArrayList<Text> labels = new ArrayList<>();
         private final DoubleProperty markerRadius = new StyleableDoubleProperty(5d) {
 
             @Override
@@ -1739,6 +1779,13 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
         public DoubleProperty markerRadius() {
             return markerRadius;
+        }
+
+        /**
+         * @return the labels
+         */
+        public ArrayList<Text> getLabels() {
+            return labels;
         }
 
     }

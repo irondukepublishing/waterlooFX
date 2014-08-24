@@ -26,15 +26,14 @@ package waterloo.fx.demo;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import waterloo.fx.css.StyleSheetManager;
-import waterloo.fx.plot.Chart;
 import waterloo.fx.plot.AbstractPlot;
 import waterloo.fx.plot.BarExtra;
 import waterloo.fx.plot.BarPlot;
-import waterloo.fx.plot.FeatherPlot;
+import waterloo.fx.plot.Chart;
 import waterloo.fx.plot.LinePlot;
 import waterloo.fx.plot.PlotCollection;
 import waterloo.fx.plot.ScatterPlot;
@@ -51,8 +50,11 @@ public class Demo extends Application {
 
         System.err.println(System.getProperty("java.version"));
 
+        Pane p=new Pane();
+        System.out.println(p.getStyleClass());
         //GJChart g1 = new Chart();
         Chart g = new Chart();
+        System.out.println(g.getStyleClass());
         //g.getChildren().add(g1);
 
         //LinePlot lp = GJLinePlotLine();
@@ -97,7 +99,7 @@ public class Demo extends Application {
         line.getChildren().add(scatter);
         g.getChildren().add(line);
         
-        //System.out.println(line.getDataModel().xSummary());
+        System.out.println("*******");
 
         
        

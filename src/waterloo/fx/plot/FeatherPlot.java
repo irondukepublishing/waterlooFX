@@ -50,7 +50,7 @@ public class FeatherPlot extends AbstractPlot<ArrayList<Shape>> implements LineI
      *
      */
     public FeatherPlot() {
-        getStyleClass().add("featherplot");
+//        getStyleClass().add("featherplot");
         visualElement = new ArrayList<>();
         setMarkerType(MARKERTYPE.ARROWHEAD);
         setMarkerRadius(7d);
@@ -58,23 +58,6 @@ public class FeatherPlot extends AbstractPlot<ArrayList<Shape>> implements LineI
 
     /**
      * Constructs an instance parenting another plot.
-     *
-     * <em>The data model of the child will be copied by reference to the new
-     * parent instance.</em>
-     *
-     * Compound plots that share a data model may therefore be constructed by
-     * chaining constructor calls, e.g.:
-     * <p>
-     * {@code GJScatter = new GJScatter(new GJLine(new GJErrorBar));}
-     * </p>
-     *
-     * Further plots may be added by calling the {@code add(AbstractPlot p)}
-     * method and will also share the data model. Note that data model are
-     * <strong>not</strong> shared when using the standard
-     * <p>
-     * {@code getChildren().add(...)}
-     * </p>
-     * method.
      *
      * @param p1 the child plot to add to this instance.
      */

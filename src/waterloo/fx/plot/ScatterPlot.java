@@ -48,7 +48,7 @@ public class ScatterPlot extends AbstractPlot<ArrayList<Node>> implements Marker
      *
      */
     public ScatterPlot() {
-        getStyleClass().add("scatterplot");
+//        getStyleClass().add("scatterplot");
         visualElement = new ArrayList<>();
     }
 

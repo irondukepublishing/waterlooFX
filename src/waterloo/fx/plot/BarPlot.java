@@ -163,29 +163,12 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
      */
     public BarPlot() {
         super();
-        getStyleClass().add("barplot");
+//        getStyleClass().add("barplot");
         dataModel.setExtraObject(new BarExtra());
     }
 
     /**
      * Constructs an instance parenting another plot.
-     *
-     * <em>The data model of the child will be copied by reference to the new
-     * parent instance.</em>
-     *
-     * Compound plots that share a data model may therefore be constructed by
-     * chaining constructor calls, e.g.:
-     * <p>
-     * {@code GJScatter = new GJScatter(new GJLine(new GJErrorBar));}
-     * </p>
-     *
-     * Further plots may be added by calling the {@code add(AbstractPlot p)}
-     * method and will also share the data model. Note that data model are
-     * <strong>not</strong> shared when using the standard
-     * <p>
-     * {@code getChildren().add(...)}
-     * </p>
-     * method.
      *
      * @param p1 the child plot to add to this instance.
      */
@@ -359,7 +342,7 @@ public class BarPlot extends AbstractBox<Rectangle> implements BaseValueSensitiv
                     p0 = getData(chart,bv, x0);
                     p0 = chart.toPixel(p0);
                     //Lower right
-                    p1 = getData(chart,dataModel.getYData().get(k), x1);;
+                    p1 = getData(chart,dataModel.getYData().get(k), x1);
                     p1 = chart.toPixel(p1);
                 } else {
                     //Upper-left

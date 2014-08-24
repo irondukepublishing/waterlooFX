@@ -1,5 +1,5 @@
 /* 
-*
+ *
  * <http://waterloo.sourceforge.net/>
  *
  * Copyright King's College London  2014-
@@ -26,6 +26,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -49,6 +50,7 @@ public class AnnotationPane extends Pane {
 //            // Note this will impose any aspect ratio restriction
 //            requestParentLayout();
         });
+
     }
 
     @Override

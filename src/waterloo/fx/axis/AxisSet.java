@@ -59,7 +59,7 @@ public class AxisSet {
         this.axisTop = axisTop;
         this.axisLeft = axisLeft;
         this.axisBottom = axisBottom;
-        layer = (Chart) axisRight.getParent();
+        layer = (Chart) axisRight.getLayer();
         xTransform.bind(layer, AbstractTransform.AXIS.HORIZONTAL);
         yTransform.bind(layer, AbstractTransform.AXIS.VERTICAL);
     }
@@ -158,10 +158,10 @@ public class AxisSet {
      */
     public void paintGrid(GraphicsContext g) {
 
-        axisTop.requestLayout();
-        axisBottom.requestLayout();
-        axisLeft.requestLayout();
-        axisRight.requestLayout();
+//        axisTop.requestLayout();
+//        axisBottom.requestLayout();
+//        axisLeft.requestLayout();
+//        axisRight.requestLayout();
 
         if (layer.getParent() instanceof Chart) {
             g.clearRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
