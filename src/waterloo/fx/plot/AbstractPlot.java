@@ -2,7 +2,7 @@
  *
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London  2014-
+ * Copyright King's College London 2014.
  *
  * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  *
@@ -54,7 +54,6 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Effect;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -90,6 +89,11 @@ import waterloo.fx.util.GJCyclicArrayList;
  * <li>annotations that can be superimposed on the plot - this is the
  * annotationPane</li>
  * </ul>
+ *
+ * Each of these panes has {@code PickOnBounds} set (@code false} by default so
+ * mouse events will fall through to the underlying {@code Chart} for empty
+ * areas of the plot.
+ *
  * Each plot has a {@code visualElement} of a type that extends
  * {@code List<? extends Node>}. These nodes provided the visual representation
  * of the plot.
@@ -125,7 +129,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      * This pane is used to render the plot
      */
     private Pane graphicsPane;
-        /**
+    /**
      * This Pane sits above the graphicsPane in the z-order. Annotations can be
      * added to this layer and will always appear above the plot.
      */
@@ -166,6 +170,9 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     protected AtomicBoolean nodesNeedUpdate = new AtomicBoolean(true);
 
+    /**
+     *
+     */
     private final StringProperty xData = new StyleableStringProperty("") {
 
         @Override
@@ -473,7 +480,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 //            }
 //        }
 //    };
-
     /**
      * Default constructor
      */
@@ -520,12 +526,8 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
                 });
             }
         });
-        
 
     }
-    
-
-    
 
     /**
      * @return The CssMetaData associated with this class, which may include the
@@ -613,7 +615,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 //    public int getPlotStyleIndex(){
 //        return plotStyleIndex.get();
 //    }
-
 //    public String getPlotStyle() {
 //        for (String s : getStyleClass()) {
 //            if (s.startsWith("plot-")) {
@@ -622,7 +623,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 //        }
 //        return "UNSET";
 //    }
-
     public VisualModel getVisualModel() {
         return visualModel;
     }
@@ -920,10 +920,26 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return getClassCssMetaData();
     }
 
+    /**
+     * Returns the {@code edgeColor} from the visual model.
+     *
+     * The edge color defines the {@code Paint} property used to color the edges
+     * of e.g. markers in scatter plots.
+     *
+     * @return the Paint instance.
+     */
     public Paint getEdgeColor() {
         return visualModel.getEdgeColor();
     }
 
+    /**
+     * Sets the {@code edgeColor} in the visual model.
+     *
+     * The edge color defines the {@code Paint} property used to color the edges
+     * of e.g. markers in scatter plots.
+     *
+     * @param color (or {@code Paint}) to set
+     */
     public void setEdgeColor(Paint color) {
         visualModel.setEdgeColor(color);
     }
