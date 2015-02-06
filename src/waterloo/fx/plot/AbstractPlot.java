@@ -2,7 +2,7 @@
  *
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London 2014.
+ * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
  *
  * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  *
@@ -789,7 +789,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      *
      * The method needs to be overridden in plot subclasses to perform
      * plot-specific operations. Most work will be done within the subclass
-     * methods. Those will be called directly from the parent chart's {@code
+     * methods. Those will be called directly from the parent Chart's {@code
      * layoutChildren} method.
      *
      * The plot subclass methods should call this {@code AbstractPlot}

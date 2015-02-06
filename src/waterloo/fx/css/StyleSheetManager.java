@@ -2,7 +2,7 @@
 *
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London  2013-
+ * Copyright King's College London  2013-2014.
  * 
  * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  * 

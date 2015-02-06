@@ -1,7 +1,7 @@
 /* 
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London 2014.
+ * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
  * 
  * @author Malcolm Lidierth, <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  * 
@@ -23,7 +23,6 @@ package waterloo.fx.axis;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -31,7 +30,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;

@@ -2,7 +2,8 @@
  *
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London  2013-
+ * Copyright King's College London  2013-2014. 
+ * Copyright Malcolm Lidierth 2014-.
  * 
  * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  * 
@@ -85,8 +86,8 @@ import waterloo.fx.transforms.NOPTransform;
  * </p>
  * A {@code Chart} instance can host other {@code Chart} instances to create
  * layered graphs where each {@code Chart} has independent axes. The axis
- * displays will be automatically positioned within the axisPane of the first
- * chart to prevent overlap.
+ * displays will be automatically positioned within the axisPane <strong>of the first
+ * chart</strong> to prevent overlap.
  *
  * @author Malcolm Lidierth
  */
@@ -125,6 +126,41 @@ public class Chart extends Pane {
     private final AxisBottom axisBottom;
     private final AxisLeft axisLeft;
     private final AxisRight axisRight;
+    /**
+     * The axisSet
+     */
+    private final AxisSet axisSet;
+    //private final ObservableList<GJAnnotation> annotations = FXCollections.observableArrayList(new ArrayList<>());
+    private final Canvas canvas;
+    private final StackPane view;
+    /**
+     * This Pane is used to parent the axes painted outside the view area. Note
+     * that with layered {@code Charts}, the axisPane of the first {@code Chart}
+     * contains the axes for all {@code Charts}.
+     */
+    private final Pane axisPane;
+    /**
+     * Base font to use. This is styleable via the "-w-font-" settings.
+     */
+    private Font font = Font.getDefault();
+    private boolean clipping = true;
+    private final ObjectBinding<Rectangle2D> axesBounds = new AxesBounds();
+    /**
+     * Sets the interval between major xpos-axis ticks and grids.
+     */
+    private final MajorXInterval majorXInterval = new MajorXInterval();
+    /**
+     * Number of minor ticks/grids in the majorTickInterval.
+     * <strong>This is a hint, not all AxesSets support its use.</strong>
+     */
+    private int minorCountXHint = 4;
+    private final MajorYInterval majorYInterval = new MajorYInterval();
+    private int minorCountYHint = 4;
+    private double dragXStart = Double.NaN;
+    private double dragYStart = Double.NaN;
+    private double deltaX, deltaY;
+    private final Tolerance xTol = new Tolerance("X");
+    private final Tolerance yTol = new Tolerance("Y");
     /**
      * Defines the viewAspectRatio for this graph.
      * <p/>
@@ -207,19 +243,7 @@ public class Chart extends Pane {
         }
 
     };
-    /**
-     * The axisSet
-     */
-    private final AxisSet axisSet;
-    //private final ObservableList<GJAnnotation> annotations = FXCollections.observableArrayList(new ArrayList<>());
-    private final Canvas canvas;
-    private final StackPane view;
-    /**
-     * This Pane is used to parent the axes painted outside the view area. Note
-     * that with layered {@code Charts}, the axisPane of the first {@code Chart}
-     * contains the axes for all {@code Charts}.
-     */
-    private final Pane axisPane;
+
     /**
      * Value for the xpos-axis at the left
      */
@@ -816,10 +840,7 @@ public class Chart extends Pane {
 
     };
 
-    /**
-     * Base font to use. This is styleable via the "-w-font-" settings.
-     */
-    private Font font = Font.getDefault();
+
     /**
      * The inner axes are those drawn within the plotting area of the chart.
      * Inner axis colors, font characteristics etc are editable separately from
@@ -915,24 +936,7 @@ public class Chart extends Pane {
             return StyleableProperties.VIEWALIGN;
         }
     };
-    private boolean clipping = true;
-    private final ObjectBinding<Rectangle2D> axesBounds = new AxesBounds();
-    /**
-     * Sets the interval between major xpos-axis ticks and grids.
-     */
-    private final MajorXInterval majorXInterval = new MajorXInterval();
-    /**
-     * Number of minor ticks/grids in the majorTickInterval.
-     * <strong>This is a hint, not all AxesSets support its use.</strong>
-     */
-    private int minorCountXHint = 4;
-    private final MajorYInterval majorYInterval = new MajorYInterval();
-    private int minorCountYHint = 4;
-    private double dragXStart = Double.NaN;
-    private double dragYStart = Double.NaN;
-    private double deltaX, deltaY;
-    private final Tolerance xTol = new Tolerance("X");
-    private final Tolerance yTol = new Tolerance("Y");
+
 
     // MAIN CODE
     public Chart(Chart layer) {
@@ -951,36 +955,41 @@ public class Chart extends Pane {
         setPrefWidth(500d);
         setPrefHeight(500d);
 
-//        getStyleClass().add("chart");
-        canvas = new Canvas(500d, 500d);
-        view = new StackPane(canvas);
-        axisPane = new Pane();
-        //view.getChildren().add(new Pane());
 
+        // Create a canvas that can be used to draw grids, axes etc behind added plots
+        canvas = new Canvas(500d, 500d);
+        // Put the canvas into a StackPane - this forms the "view" where charts will be drawn
+        view = new StackPane(canvas);
+        
+        // Now creae a Pane that can be used to show axes alongside the charts
+        axisPane = new Pane();
+        
+        //Add the view and axisPane to the chart....
         getChildren().add(view);
         getChildren().add(axisPane);
-
+        //...and bind the axisPane to fill the chart Pane
         axisPane.setLayoutX(0d);
         axisPane.setLayoutY(0d);
         axisPane.prefHeightProperty().bind(prefHeightProperty());
         axisPane.prefWidthProperty().bind(prefWidthProperty());
+        // Pick on bounds should be false
         axisPane.setPickOnBounds(false);
 
+        // Constrain the size of the view and canvas within it.
+        // This will be done again on each layout pass to support resizing.
         setPadding(computeRequiredInsets());
-
         view.setLayoutX(50d);
         view.setLayoutY(50d);
         view.setPrefHeight(getPrefHeight() - getPadding().getTop() - getPadding().getBottom());
         view.setPrefWidth(getPrefWidth() - getPadding().getLeft() - getPadding().getRight());
         view.setCenterShape(true);
         view.setCursor(Cursor.DEFAULT);
-//        view.getStyleClass().add("view");
-
         canvas.setLayoutX(0d);
         canvas.setLayoutY(0d);
         canvas.setHeight(view.getPrefHeight());
         canvas.setWidth(view.getPrefWidth());
 
+        // Populate the axisPane with the axes, and add them to the axisSet
         axisRight = new AxisRight(this);
         axisTop = new AxisTop(this);
         axisLeft = new AxisLeft(this);
@@ -989,13 +998,11 @@ public class Chart extends Pane {
         axisPane.getChildren().add(axisRight);
         axisPane.getChildren().add(axisLeft);
         axisPane.getChildren().add(axisBottom);
-
         axisSet = new AxisSet(axisRight, axisTop, axisLeft, axisBottom);
 
         // Add the scene dimension listener
         ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
             // Scrolling via mouse wheel or touch-enabled device
-
             view.setOnScroll((ScrollEvent t0) -> {
 
                 if (t0.isInertia() || t0.getDeltaY() == 0) {
@@ -1089,8 +1096,8 @@ public class Chart extends Pane {
 
             });
 
-            // Do this only of a GJGraph has been set as the root element.
-            // This sets the GJGraph to resize with the scene.
+            // Do this only of a Chart has been set as the root element.
+            // This sets the Chart to resize with the scene.
             if (t1 != null && this.equals(t1.getRoot())) {
                 setLayoutX(0d);
                 setLayoutY(0d);
@@ -1788,7 +1795,6 @@ public class Chart extends Pane {
      * {@code requestLayout()} instead.
      */
     @Override
-
     public void layoutChildren() {
         updateLayout();
         super.layoutChildren();
