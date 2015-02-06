@@ -93,29 +93,29 @@ import waterloo.fx.transforms.NOPTransform;
  */
 public class Chart extends Pane {
 
-    public double yTopOffset = 0;
-    public double yBottomOffset = 0;
-    public double xLeftOffset = 0;
-    public double xRightOffset = 0;
-    public String yTopLabel = "Axis Label";
-    public Paint yTopColor = Color.BLACK;
+    private double yTopOffset = 0;
+    private double yBottomOffset = 0;
+    private double xLeftOffset = 0;
+    private double xRightOffset = 0;
+    //public String yTopLabel = "Axis Label";
+    //private Paint yTopColor = Color.BLACK;
     public double yTopTickLength = 5;
-    public String yBottomLabel = "Axis Label";
-    public Paint yBottomColor = Color.BLACK;
+    //public String yBottomLabel = "Axis Label";
+    //private Paint yBottomColor = Color.BLACK;
     public double yBottomTickLength = 5;
-    public String xLeftLabel = "Axis Label";
-    public Paint xLeftColor = Color.BLACK;
+    //public String xLeftLabel = "Axis Label";
+    //private Paint xLeftColor = Color.BLACK;
     public double xLeftTickLength = 5;
-    public String xRightLabel = "Axis Label";
-    public Paint xRightColor = Color.BLACK;
+    //public String xRightLabel = "Axis Label";
+    //private Paint xRightColor = Color.BLACK;
     public double xRightTickLength = 5;
 
     /**
      * TODO: make these styleable
      */
-    public static final boolean toolTipFlag = false;
-    public static final boolean editable = true;
-    public static final boolean interactive = true;
+    //public static final boolean toolTipFlag = false;
+    //public static final boolean editable = true;
+    //public static final boolean interactive = true;
 
     /**
      * Singleton instance used as the standard Insets before the padding can be
@@ -144,23 +144,21 @@ public class Chart extends Pane {
      */
     private Font font = Font.getDefault();
     private boolean clipping = true;
-    private final ObjectBinding<Rectangle2D> axesBounds = new AxesBounds();
-    /**
-     * Sets the interval between major xpos-axis ticks and grids.
-     */
-    private final MajorXInterval majorXInterval = new MajorXInterval();
+    private final ObjectBinding<Rectangle2D> axesBounds;
+
+    private final MajorXInterval majorXInterval;
     /**
      * Number of minor ticks/grids in the majorTickInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
     private int minorCountXHint = 4;
-    private final MajorYInterval majorYInterval = new MajorYInterval();
+    private final MajorYInterval majorYInterval;
     private int minorCountYHint = 4;
     private double dragXStart = Double.NaN;
     private double dragYStart = Double.NaN;
     private double deltaX, deltaY;
-    private final Tolerance xTol = new Tolerance("X");
-    private final Tolerance yTol = new Tolerance("Y");
+    private final Tolerance xTol;
+    private final Tolerance yTol;
     /**
      * Defines the viewAspectRatio for this graph.
      * <p/>
@@ -951,10 +949,15 @@ public class Chart extends Pane {
 
         //setManaged(false);
         super();
+        this.yTol = new Tolerance("Y");
+        this.xTol = new Tolerance("X");
+        this.majorYInterval = new MajorYInterval();
+        this.majorXInterval = new MajorXInterval();
 
         setPrefWidth(500d);
         setPrefHeight(500d);
 
+        axesBounds = new AxesBounds();
 
         // Create a canvas that can be used to draw grids, axes etc behind added plots
         canvas = new Canvas(500d, 500d);
