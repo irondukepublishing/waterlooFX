@@ -54,7 +54,7 @@ public class BarExtra {
      * HIST or HISTC.
      */
     private double barWidth = 1d;
-    private ArrayList<String> labels = new ArrayList<String>();
+    private ArrayList<String> labels = new ArrayList<>();
     private ORIENTATION labelOrientation = ORIENTATION.HORIZONTAL;
 
     /**
@@ -143,7 +143,7 @@ public class BarExtra {
     }
 
     public void setLabels(String[] labels) {
-        ArrayList<String> copy = new ArrayList<String>();
+        ArrayList<String> copy = new ArrayList<>();
         copy.addAll(Arrays.asList(labels));
         this.labels = copy;
     }

@@ -25,7 +25,6 @@ package waterloo.fx.plot;
 import java.util.ArrayList;
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Shape;
 import waterloo.fx.markers.ArrowHead;
 

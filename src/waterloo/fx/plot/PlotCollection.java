@@ -22,7 +22,6 @@
  */
 package waterloo.fx.plot;
 
-import java.util.List;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.scene.Node;

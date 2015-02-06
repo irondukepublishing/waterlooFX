@@ -152,7 +152,8 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     T visualElement;
 
-    private final NumberFormat formatter = new DecimalFormat();
+    //private final NumberFormat formatter = new DecimalFormat();
+    
     /**
      * When nodesNeedUpdate is true, nodes required by the plot will be
      * regenerated/reset before calling arrangePlot to layout those nodes.

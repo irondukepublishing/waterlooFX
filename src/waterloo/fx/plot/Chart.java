@@ -86,8 +86,8 @@ import waterloo.fx.transforms.NOPTransform;
  * </p>
  * A {@code Chart} instance can host other {@code Chart} instances to create
  * layered graphs where each {@code Chart} has independent axes. The axis
- * displays will be automatically positioned within the axisPane <strong>of the first
- * chart</strong> to prevent overlap.
+ * displays will be automatically positioned within the axisPane <strong>of the
+ * first chart</strong> to prevent overlap.
  *
  * @author Malcolm Lidierth
  */
@@ -116,7 +116,6 @@ public class Chart extends Pane {
     //public static final boolean toolTipFlag = false;
     //public static final boolean editable = true;
     //public static final boolean interactive = true;
-
     /**
      * Singleton instance used as the standard Insets before the padding can be
      * calculated.
@@ -838,7 +837,6 @@ public class Chart extends Pane {
 
     };
 
-
     /**
      * The inner axes are those drawn within the plotting area of the chart.
      * Inner axis colors, font characteristics etc are editable separately from
@@ -935,7 +933,6 @@ public class Chart extends Pane {
         }
     };
 
-
     // MAIN CODE
     public Chart(Chart layer) {
         this();
@@ -963,10 +960,10 @@ public class Chart extends Pane {
         canvas = new Canvas(500d, 500d);
         // Put the canvas into a StackPane - this forms the "view" where charts will be drawn
         view = new StackPane(canvas);
-        
+
         // Now creae a Pane that can be used to show axes alongside the charts
         axisPane = new Pane();
-        
+
         //Add the view and axisPane to the chart....
         getChildren().add(view);
         getChildren().add(axisPane);
@@ -1444,7 +1441,7 @@ public class Chart extends Pane {
             }
             sumxl = getFirstLayer().yBottomOffset;
             if (getFirstLayer().isBottomAxisPainted() || getFirstLayer().isBottomAxisLabelled()) {
-                sumxl+=getFirstLayer().axisBottom.computePrefHeight(-1d);
+                sumxl += getFirstLayer().axisBottom.computePrefHeight(-1d);
             }
             for (int k = 1; k < getLayers().size(); k++) {
                 if (getLayers().get(k).isBottomAxisPainted() || getLayers().get(k).isBottomAxisLabelled()) {
@@ -1456,7 +1453,7 @@ public class Chart extends Pane {
             }
             sumxl = getFirstLayer().yTopOffset;
             if (getFirstLayer().isTopAxisPainted() || getFirstLayer().isTopAxisLabelled()) {
-                sumxl+=getFirstLayer().axisTop.computePrefHeight(-1d);
+                sumxl += getFirstLayer().axisTop.computePrefHeight(-1d);
             }
             for (int k = 1; k < getLayers().size(); k++) {
                 if (getLayers().get(k).isTopAxisPainted() || getLayers().get(k).isTopAxisLabelled()) {

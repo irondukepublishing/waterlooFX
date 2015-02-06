@@ -23,11 +23,8 @@
 package waterloo.fx.plot;
 
 import java.util.ArrayList;
-import java.util.List;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -39,15 +36,6 @@ import javafx.scene.shape.PathElement;
  *
  * Each point is represented by a single dash on screen. The weight of the dash
  * in pixels is set by the {@code markerRadius} property of the visual model.
- *
- * <strong>Note:</strong>
- * When added to a chart (or strictly its view), a plot description of "plot-N"
- * will be added to the StyleClass of the top plot <em>and its children</em>,
- * where N is equal to {@code chart.getPlots().size() - 1}, i.e. to the number
- * of plots that are children of the view in that chart less one.
- *
- * A common css styling may therefore be applied to family of plots by declaring
- * styles for ".plot-0", ".plot-1" etc. in the style sheet.
  *
  * @author Malcolm Lidierth
  */

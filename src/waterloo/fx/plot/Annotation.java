@@ -42,12 +42,12 @@ public class Annotation extends Pane {
         getChildren().addListener((ListChangeListener.Change<? extends Node> c) -> {
             while (c.next()) {
                 List<? extends Node> list = c.getAddedSubList();
-                list.stream().forEach(x -> {
-                    if (x instanceof Region) {
-                        x.setLayoutX(0d);
-                        x.setLayoutY(0d);
-                        prefWidthProperty().bind(((Region) x).widthProperty());
-                        prefHeightProperty().bind(((Region) x).heightProperty());
+                list.stream().forEach(node -> {
+                    if (node instanceof Region) {
+                        node.setLayoutX(0d);
+                        node.setLayoutY(0d);
+                        prefWidthProperty().bind(((Region) node).widthProperty());
+                        prefHeightProperty().bind(((Region) node).heightProperty());
                     }
                 });
             }
