@@ -93,23 +93,51 @@ import waterloo.fx.transforms.NOPTransform;
  */
 public class Chart extends Pane {
 
+    /**
+     * Offset (in pixels) between the top axis and the view area.
+     */
     private double yTopOffset = 0;
+    /**
+     * Offset (in pixels) between the bottom axis and the view area.
+     */
     private double yBottomOffset = 0;
+    /**
+     * Offset (in pixels) between the left axis and the view area.
+     */
     private double xLeftOffset = 0;
+    /**
+     * Offset (in pixels) between the right axis and the view area.
+     */
     private double xRightOffset = 0;
-    //public String yTopLabel = "Axis Label";
-    //private Paint yTopColor = Color.BLACK;
+
+    /**
+     * Tick length (in pixels) for major ticks on the top axis
+     */
     public double yTopTickLength = 5;
-    //public String yBottomLabel = "Axis Label";
-    //private Paint yBottomColor = Color.BLACK;
+
+    /**
+     * Tick length (in pixels) for major ticks on the bottom axis
+     */
     public double yBottomTickLength = 5;
-    //public String xLeftLabel = "Axis Label";
-    //private Paint xLeftColor = Color.BLACK;
+
+    /**
+     * Tick length (in pixels) for major ticks on the left axis
+     */
     public double xLeftTickLength = 5;
-    //public String xRightLabel = "Axis Label";
-    //private Paint xRightColor = Color.BLACK;
+
+    /**
+     * Tick length (in pixels) for major ticks on the right axis
+     */
     public double xRightTickLength = 5;
 
+    //public String yTopLabel = "Axis Label";
+    //private Paint yTopColor = Color.BLACK;
+    //public String yBottomLabel = "Axis Label";
+    //private Paint yBottomColor = Color.BLACK;
+    //public String xLeftLabel = "Axis Label";
+    //private Paint xLeftColor = Color.BLACK;
+    //public String xRightLabel = "Axis Label";
+    //private Paint xRightColor = Color.BLACK;
     /**
      * TODO: make these styleable
      */
@@ -238,9 +266,7 @@ public class Chart extends Pane {
             super.applyStyle(so, v);
             setYTransformType(v);
         }
-
     };
-
     /**
      * Value for the xpos-axis at the left
      */
