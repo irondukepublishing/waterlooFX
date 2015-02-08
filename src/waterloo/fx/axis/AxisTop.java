@@ -29,6 +29,7 @@ import javafx.scene.text.TextAlignment;
 import waterloo.fx.plot.Chart;
 
 /**
+ * Implementation of the {@code AbstractAxisRegion} for a top axis.
  *
  * @author ML
  */
@@ -48,6 +49,13 @@ public class AxisTop extends AbstractAxisRegion {
         requestLayout();
     }
 
+    /**
+     * Returns the required height of the axis to accommodate the labels.
+     *
+     * @param w the width of the axis region. Use 0d in practice.
+     *
+     * @return the required height
+     */
     @Override
     public double computePrefHeight(double w) {
         if (getTickLabels().size() > 0) {
@@ -56,9 +64,8 @@ public class AxisTop extends AbstractAxisRegion {
             return 50d;
         }
     }
-    
 
-    private void doLayout(){
+    private void doLayout() {
         getLine().get();
         computeValue();
         if (getLayer().isTopAxisLabelled()) {
@@ -68,7 +75,6 @@ public class AxisTop extends AbstractAxisRegion {
             if (getTickLabels().size() > 0) {
                 getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
                     TickLabel text = (TickLabel) x;
-                    //text.setFont(getLayer().fontProperty.get());
                     text.setLayoutX(text.getXpos());
                     text.setLayoutY(p);
                 });
@@ -86,6 +92,10 @@ public class AxisTop extends AbstractAxisRegion {
         }
     }
 
+    /**
+     * Recalculates the layout for {@code Nodes} in this axis and calls
+     * {@code super.layoutChildren()} to do the real work.
+     */
     @Override
     public void layoutChildren() {
         doLayout();
@@ -125,4 +135,5 @@ public class AxisTop extends AbstractAxisRegion {
                     });
         }
     }
+
 }

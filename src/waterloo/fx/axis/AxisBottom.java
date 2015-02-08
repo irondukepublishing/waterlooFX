@@ -29,10 +29,12 @@ import javafx.scene.text.TextAlignment;
 import waterloo.fx.plot.Chart;
 
 /**
+ * Implementation of the {@code AbstractAxisRegion} for a bottom axis.
  *
  * @author ML
  */
 public class AxisBottom extends AbstractAxisRegion {
+
 
     public AxisBottom(Chart layer) {
         super(layer);
@@ -49,6 +51,11 @@ public class AxisBottom extends AbstractAxisRegion {
         requestLayout();
     }
 
+    /**
+     *
+     * @param w
+     * @return
+     */
     @Override
     public double computePrefHeight(double w) {
         if (getTickLabels().size() > 0) {
@@ -84,6 +91,10 @@ public class AxisBottom extends AbstractAxisRegion {
         }
     }
 
+    /**
+     * Recalculates the layout for {@code Nodes} in this axis and calls
+     * {@code super.layoutChildren()} to do the real work.
+     */
     @Override
     public void layoutChildren() {
         doLayout();
@@ -121,6 +132,7 @@ public class AxisBottom extends AbstractAxisRegion {
 
                         }
                     });
-        } 
+        }
     }
+
 }

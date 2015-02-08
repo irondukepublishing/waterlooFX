@@ -29,6 +29,7 @@ import javafx.scene.text.Text;
 import waterloo.fx.plot.Chart;
 
 /**
+ * Implementation of the {@code AbstractAxisRegion} for a left axis.
  *
  * @author ML
  */
@@ -70,8 +71,8 @@ public class AxisLeft extends AbstractAxisRegion {
         if (getLayer().isLeftAxisLabelled()) {
             if (getTickLabels().size() > 0) {
                 double p = getLayer().isLeftAxisPainted()
-                    ? getLine().get().getBoundsInParent().getMinX()
-                    : getWidth() - 2d;
+                        ? getLine().get().getBoundsInParent().getMinX()
+                        : getWidth() - 2d;
                 getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
                     TickLabel text = (TickLabel) x;
                     //text.setFont(getFont());
@@ -89,6 +90,10 @@ public class AxisLeft extends AbstractAxisRegion {
         }
     }
 
+    /**
+     * Recalculates the layout for {@code Nodes} in this axis and calls
+     * {@code super.layoutChildren()} to do the real work.
+     */
     @Override
     public void layoutChildren() {
         doLayout();
@@ -131,7 +136,12 @@ public class AxisLeft extends AbstractAxisRegion {
                             getChildren().add(text);
                         }
                     });
-        } 
+        }
+    }
+
+    @Override
+    public double computePrefHeight(double w) {
+        return 0d;
     }
 
 }

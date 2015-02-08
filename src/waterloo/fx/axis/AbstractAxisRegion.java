@@ -43,9 +43,6 @@ import waterloo.fx.plot.Chart;
  * {@code AbstractAxisRegion} provides the base class for axes drawn outside of
  * the view area.
  *
- * These extend {@code javafx.scene.layout.Region} and use standard JavaFX
- * components rather than painting to the view.
- *
  * Separate subclasses are used for the axes to the left and right and at the
  * top and bottom of the view area.
  *

@@ -28,6 +28,7 @@ import javafx.scene.text.Text;
 import waterloo.fx.plot.Chart;
 
 /**
+ * Implementation of the {@code AbstractAxisRegion} for a right axis.
  *
  * @author ML
  */
@@ -53,8 +54,8 @@ public class AxisRight extends AbstractAxisRegion {
         p += getAxisLabel().prefHeight(-1d) + 5d;
         return Math.max(p, 50);
     }
-    
-    private void doLayout(){
+
+    private void doLayout() {
         getLine().get();
         computeValue();
         if (getLayer().isRightAxisLabelled()) {
@@ -77,6 +78,10 @@ public class AxisRight extends AbstractAxisRegion {
         }
     }
 
+    /**
+     * Recalculates the layout for {@code Nodes} in this axis and calls
+     * {@code super.layoutChildren()} to do the real work.
+     */
     @Override
     public void layoutChildren() {
         doLayout();
@@ -115,7 +120,7 @@ public class AxisRight extends AbstractAxisRegion {
                         }
                         if (text != null) {
                             Point2D p1;
-                            p1 = getLayer().toPixel(getLayer().getXLeft(), y); 
+                            p1 = getLayer().toPixel(getLayer().getXLeft(), y);
                             p1 = getLayer().getView().localToParent(p1);
                             p1 = parentToLocal(p1);
                             getChildren().add(text);
@@ -128,4 +133,5 @@ public class AxisRight extends AbstractAxisRegion {
 
         }
     }
+
 }
