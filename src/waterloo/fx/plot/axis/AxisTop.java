@@ -19,78 +19,73 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package waterloo.fx.axis;
+package waterloo.fx.plot.axis;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import waterloo.fx.plot.Chart;
 
 /**
- * Implementation of the {@code AbstractAxisRegion} for a left axis.
+ * Implementation of the {@code AbstractAxisRegion} for a top axis.
  *
  * @author ML
  */
-public class AxisLeft extends AbstractAxisRegion {
+public class AxisTop extends AbstractAxisRegion {
 
-    public AxisLeft(Chart layer) {
+    public AxisTop(Chart layer) {
         super(layer);
         getChildren().add(getLine().get());
-        getAxisLabel().setRotate(-90d);
-        getAxisLabel().setTextOrigin(VPos.CENTER);
-        getChildren().add(getAxisLabel());
+        getAxisLabel().setTextAlignment(TextAlignment.CENTER);
+        getAxisLabel().setTextOrigin(VPos.BOTTOM);
         setCursor(Cursor.DEFAULT);
-        prefHeightProperty().bind(layer.getFirstLayer().getView().prefHeightProperty());
+        getChildren().add(getAxisLabel());
+        prefWidthProperty().bind(layer.getFirstLayer().getView().prefWidthProperty());
         // Bind mouse sensitivity to the layer painted poperty for this axis
-        mouseTransparentProperty().set(!layer.isLeftAxisPainted());
-        mouseTransparentProperty().bind(layer.leftAxisPaintedProperty().not());
+        mouseTransparentProperty().set(!layer.isTopAxisPainted());
+        mouseTransparentProperty().bind(layer.topAxisPaintedProperty().not());
         requestLayout();
     }
 
     /**
-     * Returns an estimate of the width required to display this axis given the
-     * current {@code TickLabel}s and {@code AxisLabel}.
+     * Returns the required height of the axis to accommodate the labels.
      *
-     * @param h - not used. Specify 0d.
-     * @return the required width
+     * @param w the width of the axis region. Use 0d in practice.
+     *
+     * @return the required height
      */
     @Override
-    public final double computePrefWidth(double h) {
-        double w = Double.NEGATIVE_INFINITY;
+    public double computePrefHeight(double w) {
         if (getTickLabels().size() > 0) {
-            for (TickLabel text : getTickLabels()) {
-                w = Math.max(w, text.getBoundsInParent().getWidth());
-            }
+            return getAxisLabel().prefHeight(-1d) * 3d;
         } else {
-            Text t = new Text("000");
-            t.setFont(getFont());
-            w = t.prefWidth(-1d);
+            return 50d;
         }
-        w += getAxisLabel().prefHeight(-1d) + 5d;
-        return Math.max(w, 50);
     }
 
     private void doLayout() {
         getLine().get();
         computeValue();
-        if (getLayer().isLeftAxisLabelled()) {
+        if (getLayer().isTopAxisLabelled()) {
+            double p = getLayer().isTopAxisPainted()
+                    ? getLine().get().getBoundsInParent().getMinY()
+                    : getHeight() - 2d;
             if (getTickLabels().size() > 0) {
-                double p = getLayer().isLeftAxisPainted()
-                        ? getLine().get().getBoundsInParent().getMinX()
-                        : getWidth() - 2d;
                 getChildren().stream().filter(x -> x instanceof TickLabel).forEach((Node x) -> {
                     TickLabel text = (TickLabel) x;
-                    //text.setFont(getFont());
-                    text.setLayoutX(p - text.getBoundsInParent().getWidth());
-                    text.setLayoutY(text.getYpos());
+                    text.setLayoutX(text.getXpos());
+                    text.setLayoutY(p);
                 });
             }
             addAxisLabel();
-            getAxisLabel().setFont(getFont());
-            getAxisLabel().setLayoutY(getHeight() / 2d);
-            getAxisLabel().setLayoutX(findMinX() - (getAxisLabel().prefWidth(0) / 2d) - 5d);
+            if (getTickLabels().size() > 0) {
+                getAxisLabel().setFont(getFont());
+                getAxisLabel().setLayoutY(getTickLabels().get(0).getBoundsInParent().getMinY());
+                getAxisLabel().setLayoutX(getLayer().getView().prefWidth(0d) / 2d
+                        - getAxisLabel().prefWidth(0d) / 2d);
+            }
         } else {
             getTickLabels().stream().forEach(x -> getChildren().remove(x));
             removeAxisLabel();
@@ -107,48 +102,38 @@ public class AxisLeft extends AbstractAxisRegion {
         super.layoutChildren();
     }
 
-    private double findMinX() {
-        double minx = Double.POSITIVE_INFINITY;
-        for (Text text : getTickLabels()) {
-            minx = Math.min(minx, text.prefWidth(-1d));
-        }
-        return minx;
-    }
-
     private void computeValue() {
+        /**
+         * Add or remove text as per the present settings
+         */
         getTickLabels().stream().forEach((TickLabel x) -> {
             getChildren().remove(x);
         });
 
-        if (getLayer().isLeftAxisLabelled()) {
-            getLayer().getAxisSet().getYTransform().get().stream()
-                    .filter(y -> y >= getLayer().getYMin() && y <= getLayer().getYMax())
-                    .forEach((Double y) -> {
+        if (getLayer().isTopAxisLabelled()) {
+            getLayer().getAxisSet().getXTransform().get().stream()
+                    .filter(x -> x >= getLayer().getXMin() && x <= getLayer().getXMax())
+                    .forEach((Double x) -> {
                         TickLabel text = null;
                         if (isCategorical()) {
-                            if (getCategories().containsKey(y.intValue())) {
-                                text = new TickLabel(getCategories().get(y.intValue()));
+                            if (getCategories().containsKey(x.intValue())) {
+                                text = new TickLabel(getCategories().get(x.intValue()));
                             }
                         } else {
-                            text = new TickLabel(getLayer().getAxisSet().getYTransform().getTickLabel(y));
+                            text = new TickLabel(getLayer().getAxisSet().getXTransform().getTickLabel(x));
                         }
                         if (text != null) {
-                            Point2D p1;
-                            p1 = getLayer().toPixel(getLayer().getXLeft(), y);
+                            Point2D p1 = getLayer().toPixel(x, getLayer().getYTop());
                             p1 = getLayer().getView().localToParent(p1);
                             p1 = parentToLocal(p1);
                             text.setFont(getFont());
                             text.setFill(getLayer().getAxisColor());
-                            text.setYpos(p1.getY());
+                            text.setXpos(p1.getX() - text.prefWidth(0) / 2d);
+                            text.setTextOrigin(VPos.BOTTOM);
                             getChildren().add(text);
                         }
                     });
         }
-    }
-
-    @Override
-    public double computePrefHeight(double w) {
-        return 0d;
     }
 
 }

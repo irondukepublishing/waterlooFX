@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package waterloo.fx.axis;
+package waterloo.fx.plot.axis;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
