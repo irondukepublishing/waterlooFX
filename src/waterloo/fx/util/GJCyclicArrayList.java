@@ -2,7 +2,8 @@
 *
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. 
+ * Copyright Malcolm Lidierth 2014-.
  * 
  * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  * 

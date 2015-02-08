@@ -2,7 +2,8 @@
 *
  * <http://waterloo.sourceforge.net/>
  *
- * Copyright King's College London 2011-, 2014
+ * Copyright King's College London 2011-2014.
+ * Copyright Malcolm Lidierth 2014.
  * 
  * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
  * 
@@ -26,10 +27,6 @@ package waterloo.fx.util;
 import javafx.scene.paint.Color;
 
 /**
- * <p>
- * This code is part of the Waterloo Scientific Graphics package from King's
- * College London {@literal http://waterloo.sourceforge.net/}
- * </p>
  *
  * @author Malcolm Lidierth <a
  * href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>

@@ -35,6 +35,16 @@ import waterloo.fx.transforms.NOPTransform;
 /**
  * AxisSet class.
  *
+ * This class collects that axes associated with a {@code Chart} and paints the
+ * grid for those axes in the {@code Chart}'s view.
+ *
+ * The {@code AxisSet} also provides support for the transforms for the x- an y-
+ * data, allowing a single transform instance to be shared by top/bottom and
+ * left/right axes.
+ *
+ * <strong>Note:</strong> The axes in a set should all be in the same
+ * {@code Chart} instance.
+ *
  */
 public class AxisSet {
 
@@ -42,12 +52,15 @@ public class AxisSet {
     private final AxisBottom axisBottom;
     private final AxisLeft axisLeft;
     private final AxisRight axisRight;
-    protected Chart layer;
+    private final Chart layer;
     private AbstractTransform xTransform = new NOPTransform();
     private AbstractTransform yTransform = new NOPTransform();
 
     /**
      * Constructs the axis set.
+     *
+     * <strong>Note:</strong> The supplied axes should all be in the same
+     * {@code Chart} instance.
      *
      * @param axisRight - right axis instance.
      * @param axisTop - top axis instance.
@@ -60,8 +73,8 @@ public class AxisSet {
         this.axisLeft = axisLeft;
         this.axisBottom = axisBottom;
         layer = (Chart) axisRight.getLayer();
-        xTransform.bind(layer, AbstractTransform.AXIS.HORIZONTAL);
-        yTransform.bind(layer, AbstractTransform.AXIS.VERTICAL);
+        xTransform.updateBindings(layer, AbstractTransform.AXIS.HORIZONTAL);
+        yTransform.updateBindings(layer, AbstractTransform.AXIS.VERTICAL);
     }
 
     /**
@@ -131,7 +144,7 @@ public class AxisSet {
      * @param xTransform the xTransform to set
      */
     public void setXTransform(AbstractTransform xTransform) {
-        xTransform.bind(layer, AbstractTransform.AXIS.HORIZONTAL);
+        xTransform.updateBindings(layer, AbstractTransform.AXIS.HORIZONTAL);
         this.xTransform = xTransform;
     }
 
@@ -146,7 +159,7 @@ public class AxisSet {
      * @param yTransform the yTransform to set
      */
     public void setYTransform(AbstractTransform yTransform) {
-        yTransform.bind(layer, AbstractTransform.AXIS.VERTICAL);
+        yTransform.updateBindings(layer, AbstractTransform.AXIS.VERTICAL);
         this.yTransform = yTransform;
     }
 
@@ -157,11 +170,6 @@ public class AxisSet {
      * @param g the GraphicsContext retrieved from the canvas instance.
      */
     public void paintGrid(GraphicsContext g) {
-
-//        axisTop.requestLayout();
-//        axisBottom.requestLayout();
-//        axisLeft.requestLayout();
-//        axisRight.requestLayout();
 
         if (layer.getParent() instanceof Chart) {
             g.clearRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
@@ -360,7 +368,6 @@ public class AxisSet {
                 });
             }
         }
-
     }
 
     private static Point2D getIntersection(Ellipse e0, double x0, double y0) {

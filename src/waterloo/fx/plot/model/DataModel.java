@@ -76,7 +76,7 @@ public final class DataModel {
     private Object extraObject;
 
     /**
-     * Constructor for XML de-serialization only. Do not use.
+     * Constructor 
      */
     public DataModel() {
         xData = FXCollections.observableArrayList(new ArrayList<Double>());
@@ -138,7 +138,7 @@ public final class DataModel {
     }
 
     /**
-     * Returns true if the xData and yData are if equal size; false otherwise.
+     * Returns true if the xData and yData are of equal size; false otherwise.
      *
      * @return the flag
      */
@@ -150,7 +150,7 @@ public final class DataModel {
      * Returns the length of the usable elements in the xData and yData
      * properties, i.e. the minimum of the two sizes.
      *
-     * This should be used when plotting as updates to the data content in xData
+     * This can be used when plotting as updates to the data content in xData
      * and yData may transiently create arrays of unequal length.
      *
      * @return the usable size of the xData and yData arrays for this model.

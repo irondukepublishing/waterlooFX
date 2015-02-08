@@ -49,6 +49,13 @@ public class AxisLeft extends AbstractAxisRegion {
         requestLayout();
     }
 
+    /**
+     * Returns an estimate of the width required to display this axis given the
+     * current {@code TickLabel}s and {@code AxisLabel}.
+     *
+     * @param h - not used. Specify 0d.
+     * @return the required width
+     */
     @Override
     public final double computePrefWidth(double h) {
         double w = Double.NEGATIVE_INFINITY;

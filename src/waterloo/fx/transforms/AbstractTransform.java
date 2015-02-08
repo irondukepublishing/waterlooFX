@@ -64,7 +64,7 @@ public abstract class AbstractTransform extends ObjectBinding<ArrayList<Double>>
      * @param p
      * @param or
      */
-    public void bind(Chart p, AXIS or) {
+    public void updateBindings(Chart p, AXIS or) {
         if (layer != null) {
             unbind();
         }
@@ -81,7 +81,7 @@ public abstract class AbstractTransform extends ObjectBinding<ArrayList<Double>>
 
     /**
      * Needs to be called when the layer property of is cleared/changed. Removes
-     * all bindings associated with the present layer.
+     * the bindings created by {@code updateBindings()}.
      */
     public void unbind() {
         this.getDependencies().forEach((x) -> {
