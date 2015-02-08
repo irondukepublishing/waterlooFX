@@ -53,46 +53,91 @@ import waterloo.fx.plot.Chart;
  */
 public abstract class AbstractAxisRegion extends Region {
 
+    /**
+     * Enum thats indicates where the axis is drawn relative to the view area.
+     */
     protected enum AXISPOSITION {
 
         LEFT, TOP, RIGHT, BOTTOM
     }
 
+    /**
+     * A LinClass object that contains the JavaFX nodes that represent the axis
+     * on screen.
+     */
     private final LineClass line;
+    /**
+     * Reference to the {@code Chart} that this axis belongs to. The axis range
+     * and tick marks are set relative to the range of this chart.
+     *
+     * <stong>Implementation detail:</strong>
+     * Note, however, that the nodes may not always be rendered to this
+     * {@code Chart}. The standard {@code Chart} class moves all axes into the
+     * hierarchy of the "top" {@code Chart} in the z-order when multiple
+     * {@code Chart}s overlap as in a layered {@code Chart}. As the axis region
+     * will therefore be at the top of the z-order rather than covered by other
+     * components, it will always remain responsive to mouse events. This
+     * behaviour is implemented via listeners in the standard {@code Chart} and
+     * is not a feature of the AbstractAxisRegion. Custom chart classes
+     * implemented by users might not implement this behaviour.
+     *
+     */
     private final Chart layer;
     /**
-     * Text instance for the axis label
+     * Text instance for the axis label. Note that the fill color of the text is
+     * bound in the constructor to match the color of the lines drawn for this
+     * axis. To customise the color, remove this binding.
      */
     private final Text axisLabel = new Text("Axis Label");
     /**
      * A {@code LinkedHashMap} containing Integer keys and String values. When
      * an axis tick position coincides with the Integer key, the corresponding
-     * String value will be used for the tick label.
+     * String value should be used for the tick label when the {code
+     * categoricalProperty} is set true..
      */
     private final LinkedHashMap<Integer, String> categories = new LinkedHashMap<>();
     /**
-     * Boolean indicating whether to use categoricalProperty labels for the tick
-     * marks
+     * Boolean indicating whether to use categorical labels for the tick marks
      */
     private final BooleanProperty categoricalProperty = new SimpleBooleanProperty(Boolean.FALSE);
-    /**
-     * Internally generated list of labels corresponding to the numerical
-     * position of each tick.
-     */
-    //private final ArrayList<TickLabel> tickLabels = new ArrayList<>();
 
     private double dragXStart = Double.NaN;
     private double dragYStart = Double.NaN;
     private double deltaX;
     private double deltaY;
 
+    /**
+     * Constructor which accepts a reference to a {@code Chart} as input. The
+     * axis range and tick marks are set relative to the range of this
+     * {@code Chart}.
+     *
+     * <strong>Implementation detail:</strong>
+     * Note, however, that the nodes may not always be rendered to this
+     * {@code Chart}. The standard {@code Chart} class moves all axes into the
+     * hierarchy of the "top" {@code Chart} in the z-order when multiple
+     * {@code Chart}s overlap as in a layered {@code Chart}. As the axis region
+     * will therefore be at the top of the z-order rather than covered by other
+     * components, it will always remain responsive to mouse events. This
+     * behaviour is implemented via listeners in the standard {@code Chart} and
+     * is not a feature of the AbstractAxisRegion. Custom chart classes
+     * implemented by users might not implement this behaviour.
+     *
+     * @param layer
+     */
     public AbstractAxisRegion(Chart layer) {
 
+        // Add a reference to the layer
         this.layer = layer;
+
+        // Generate the line - done on the constructor so we use the Platform thread.
         line = new LineClass(layer);
 
+        // Create a binding betqeen the axisLabel color and the axis color.
         axisLabel.fillProperty().bind(layer.axisColorProperty());
 
+        // For convenience, we add mouse listeners here with behaviour 
+        // that depends on the position of the axis relative to the view rather than in the subclasses.
+        // The mouse listeners will be installed when  the axis is added to a scene.
         ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
             setOnMousePressed((MouseEvent m0) -> {
                 switch (getAxisPosition()) {
@@ -110,6 +155,8 @@ public abstract class AbstractAxisRegion extends Region {
             setOnMouseReleased((MouseEvent m1) -> {
                 setCursor(Cursor.DEFAULT);
             });
+            // Drag events on the axis update the axis range of the
+            // {@code Chart} referenced in layer
             setOnMouseDragged((MouseEvent m2) -> {
                 switch (getAxisPosition()) {
                     case TOP:
@@ -145,15 +192,39 @@ public abstract class AbstractAxisRegion extends Region {
         };
         sceneProperty().addListener(addedToScene);
 
-
     }
 
-
+    /**
+     * Returns a reference to the {@code Chart} that this axis belongs to. The
+     * axis range and tick marks are set relative to the range of this chart.
+     *
+     * <strong>Implementation detail:</strong>
+     * Note, however, that the nodes may not always be rendered to this
+     * {@code Chart}. The standard {@code Chart} class moves all axes into the
+     * hierarchy of the "top" {@code Chart} in the z-order when multiple
+     * {@code Chart}s overlap as in a layered {@code Chart}. As the axis region
+     * will therefore be at the top of the z-order rather than covered by other
+     * components, it will always remain responsive to mouse events. This
+     * behaviour is implemented via listeners in the standard {@code Chart} and
+     * is not a feature of the AbstractAxisRegion. Custom chart classes
+     * implemented by users might not implement this behaviour.
+     *
+     * @return the {@code Chart}
+     */
     public final Chart getLayer() {
         return layer;
     }
 
     /**
+     * Return the line used to render this axis. This is a subclass of
+     * {@code ObjectBinding<Polyline>}. The stroke color and width are bound in
+     * the constructor to the axis stroke width and color properties of the
+     * layer. The position and length of the line is also bound to match that of
+     * the appropriate dimension of the layer, which corresponds to that of the
+     * view area in the {@code Chart}. For example, for an axis at the bottom of
+     * the chart, the left and right positions of the line will match those of
+     * the view.
+     *
      * @return the line
      */
     public LineClass getLine() {
@@ -161,20 +232,42 @@ public abstract class AbstractAxisRegion extends Region {
     }
 
     /**
-     * @return the categoricalProperty
+     * Returns true to use categorical labels stored in the {@code categories}
+     * property to label the tick marks, or false if numerical values should be
+     * used.
+     *
+     * @return the boolean - true to paint categorical labels
      */
     public boolean isCategorical() {
         return categoricalProperty().get();
     }
 
+    /**
+     * Sets the categoricalProperty.
+     *
+     * @param categorical true to use categorical labels stored in the
+     * {@code categories} property to label the tick marks, or false if
+     * numerical values should be used
+     */
     public void setCategorial(boolean categorical) {
         categoricalProperty().set(categorical);
     }
 
+    /**
+     * Return the categoricalProperty.
+     *
+     * @return categoricalProperty
+     */
     public BooleanProperty categoricalProperty() {
         return categoricalProperty;
     }
 
+    /**
+     * Returns the {@code Font} associated with the {@code Chart} in the
+     * {@code layer} property.
+     *
+     * @return the layer
+     */
     public Font getFont() {
         return Font.font(getLayer().fontProperty().get().getFamily(),
                 FontPosture.valueOf(getLayer().fontProperty().get().getStyle().toUpperCase()),
@@ -182,6 +275,9 @@ public abstract class AbstractAxisRegion extends Region {
     }
 
     /**
+     * Returns a {@code LinkedHashMap<Integer, String>} of the category labels
+     * to be drawn when {@code isCategoral()} returns true.
+     *
      * @return the categories
      */
     public LinkedHashMap<Integer, String> getCategories() {
@@ -189,9 +285,12 @@ public abstract class AbstractAxisRegion extends Region {
     }
 
     /**
+     * Returns an an {@code ArrayList<TickLabel>} containing references to the
+     * TickLabels for this axis.
+     *
      * @return the tickLabels
      */
-    public ArrayList<TickLabel> getTickLabels() {
+    ArrayList<TickLabel> getTickLabels() {
         ArrayList<TickLabel> arr = new ArrayList<>();
         getChildren().filtered(x -> x instanceof TickLabel).forEach((x) -> {
             arr.add((TickLabel) x);
@@ -199,7 +298,7 @@ public abstract class AbstractAxisRegion extends Region {
         return arr;
     }
 
-    protected double calcTickLabelWidth() {
+    double calcTickLabelWidth() {
         double w = 0d;
         for (TickLabel t : getTickLabels()) {
             w = Math.max(w, t.getText().length());
@@ -210,7 +309,7 @@ public abstract class AbstractAxisRegion extends Region {
     /**
      * @return the axisPosition
      */
-    public final AXISPOSITION getAxisPosition() {
+    private AXISPOSITION getAxisPosition() {
         if (this instanceof AxisRight) {
             return AXISPOSITION.RIGHT;
         } else if (this instanceof AxisTop) {
@@ -223,26 +322,28 @@ public abstract class AbstractAxisRegion extends Region {
     }
 
     /**
+     * Returns the {@code Text} object used to label this axis.
+     *
      * @return the axisLabel
      */
     public final Text getAxisLabel() {
         return axisLabel;
     }
 
-    protected void removeAxisLabel() {
+    void removeAxisLabel() {
         if (getChildren().contains(getAxisLabel())) {
             getChildren().remove(getAxisLabel());
         }
     }
 
-    protected void addAxisLabel() {
+    void addAxisLabel() {
         if (!getChildren().contains(axisLabel)) {
             getChildren().add(getAxisLabel());
         }
     }
 
     /**
-     * Line used to represent the axis and tickmarks
+     * {@code ObjectBinding<Polyline>} used to represent the axis.
      */
     public final class LineClass extends ObjectBinding<Polyline> {
 
@@ -257,23 +358,6 @@ public abstract class AbstractAxisRegion extends Region {
             value.strokeProperty().bind(layer.axisColorProperty());
             value.strokeWidthProperty().bind(layer.axisStrokeWidthProperty());
 
-            bind();
-//                if (Chart.toolTipFlag && Platform.isFxApplicationThread()) {
-//                    Tooltip.install(value, new Tooltip(Tooltips.axisLineTooltip));
-//                }
-
-            ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
-                value.setOnMouseEntered((MouseEvent m0) -> {
-                    setCursor(Cursor.E_RESIZE);
-                });
-                value.setOnMouseExited((MouseEvent m1) -> {
-                    setCursor(Cursor.DEFAULT);
-                });
-            };
-            sceneProperty().addListener(addedToScene);
-        }
-
-        public void bind() {
             bind(layer.widthProperty());
             bind(layer.heightProperty());
             switch (getAxisPosition()) {
@@ -289,6 +373,16 @@ public abstract class AbstractAxisRegion extends Region {
                     bind(layer.yBottomProperty());
                     bind(prefHeightProperty());
             }
+
+            ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
+                value.setOnMouseEntered((MouseEvent m0) -> {
+                    setCursor(Cursor.E_RESIZE);
+                });
+                value.setOnMouseExited((MouseEvent m1) -> {
+                    setCursor(Cursor.DEFAULT);
+                });
+            };
+            sceneProperty().addListener(addedToScene);
         }
 
         @Override
@@ -358,20 +452,20 @@ public abstract class AbstractAxisRegion extends Region {
                     case RIGHT:
                         if (layer.isRightAxisPainted()) {
                             Point2D p0 = layer.toPixel(layer.getXLeft(), layer.getYBottom());
-                            value.getPoints().addAll(new Double[]{p0.getX()  , p0.getY()});
+                            value.getPoints().addAll(new Double[]{p0.getX(), p0.getY()});
                             p0 = layer.toPixel(layer.getXLeft(), layer.getYTop());
-                            value.getPoints().addAll(new Double[]{p0.getX() , p0.getY()});
+                            value.getPoints().addAll(new Double[]{p0.getX(), p0.getY()});
                             layer.getAxisSet().getYTransform().get().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
                                 Point2D p1 = layer.toPixel(layer.getXLeft(), y);
-                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX()  + layer.xRightTickLength, p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX(), p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX() + layer.xRightTickLength, p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX(), p1.getY()});
                             });
                             layer.getAxisSet().getYTransform().getMinorTicks().stream().filter((Double y) -> y >= layer.getYMin() && y <= layer.getYMax()).forEach((Double y) -> {
                                 Point2D p1 = layer.toPixel(layer.getXLeft(), y);
-                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX()  + layer.xRightTickLength * 0.7, p1.getY()});
-                                value.getPoints().addAll(new Double[]{p1.getX() , p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX(), p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX() + layer.xRightTickLength * 0.7, p1.getY()});
+                                value.getPoints().addAll(new Double[]{p1.getX(), p1.getY()});
                             });
                         }
                         break;
