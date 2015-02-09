@@ -29,9 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -91,7 +88,13 @@ import waterloo.fx.transforms.NOPTransform;
  *
  * @author Malcolm Lidierth
  */
-public class Chart extends Pane {
+public final class Chart extends Pane {
+
+    /**
+     * Singleton instance used as the standard Insets before the padding can be
+     * calculated.
+     */
+    private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
 
     /**
      * Offset (in pixels) between the top axis and the view area.
@@ -109,46 +112,37 @@ public class Chart extends Pane {
      * Offset (in pixels) between the right axis and the view area.
      */
     private double xRightOffset = 0;
-
     /**
      * Tick length (in pixels) for major ticks on the top axis
      */
     public double yTopTickLength = 5;
-
     /**
      * Tick length (in pixels) for major ticks on the bottom axis
      */
     public double yBottomTickLength = 5;
-
     /**
      * Tick length (in pixels) for major ticks on the left axis
      */
     public double xLeftTickLength = 5;
-
     /**
      * Tick length (in pixels) for major ticks on the right axis
      */
     public double xRightTickLength = 5;
 
-    //public String yTopLabel = "Axis Label";
+    //public final String yTopLabel = "Axis Label";
     //private Paint yTopColor = Color.BLACK;
-    //public String yBottomLabel = "Axis Label";
+    //public final String yBottomLabel = "Axis Label";
     //private Paint yBottomColor = Color.BLACK;
-    //public String xLeftLabel = "Axis Label";
+    //public final String xLeftLabel = "Axis Label";
     //private Paint xLeftColor = Color.BLACK;
-    //public String xRightLabel = "Axis Label";
+    //public final String xRightLabel = "Axis Label";
     //private Paint xRightColor = Color.BLACK;
     /**
      * TODO: make these styleable
      */
-    //public static final boolean toolTipFlag = false;
-    //public static final boolean editable = true;
-    //public static final boolean interactive = true;
-    /**
-     * Singleton instance used as the standard Insets before the padding can be
-     * calculated.
-     */
-    private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
+    //public final static final boolean toolTipFlag = false;
+    //public final static final boolean editable = true;
+    //public final static final boolean interactive = true;
     private final AxisTop axisTop;
     private final AxisBottom axisBottom;
     private final AxisLeft axisLeft;
@@ -170,17 +164,35 @@ public class Chart extends Pane {
      * Base font to use. This is styleable via the "-w-font-" settings.
      */
     private Font font = Font.getDefault();
+    /**
+     * If clipping is true, this limits painting of added nodes to the limits of
+     * the view bounds
+     */
     private boolean clipping = true;
-    private final ObjectBinding<Rectangle2D> axesBounds;
 
+    /**
+     * Used internally to store the axes limits
+     */
+    private final ObjectBinding<Rectangle2D> axesBounds;
+    /**
+     * Interval between major ticks/grids in axis coordinates for the x-axis
+     */
     private final MajorXInterval majorXInterval;
     /**
-     * Number of minor ticks/grids in the majorTickInterval.
+     * Interval between major ticks/grids in axis coordinates for the y-axis
+     */
+    private final MajorYInterval majorYInterval;
+    /**
+     * Number of minor ticks/grids in the majorXInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
     private int minorCountXHint = 4;
-    private final MajorYInterval majorYInterval;
+    /**
+     * Number of minor ticks/grids in the majorYInterval.
+     * <strong>This is a hint, not all AxesSets support its use.</strong>
+     */
     private int minorCountYHint = 4;
+
     private double dragXStart = Double.NaN;
     private double dragYStart = Double.NaN;
     private double deltaX, deltaY;
@@ -202,67 +214,67 @@ public class Chart extends Pane {
      * graph may be centered (the dafault) or have be positioned to the top/left
      * or bottom/right.
      */
-    private final DoubleProperty viewAspectRatio = new StyleableDoubleProperty(Double.NaN) {
+    private final StyleableDoubleProperty viewAspectRatio = new StyleableDoubleProperty(Double.NaN) {
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "aspectRatio";
         }
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.ASPECTRATIO;
         }
     };
-    private final ObjectProperty<TRANSFORMTYPE> xTransformType = new StyleableObjectProperty<TRANSFORMTYPE>(TRANSFORMTYPE.LINEAR) {
+    private final StyleableObjectProperty<TRANSFORMTYPE> xTransformType = new StyleableObjectProperty<TRANSFORMTYPE>(TRANSFORMTYPE.LINEAR) {
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "xTransformType";
         }
 
         @Override
-        public CssMetaData<? extends Styleable, TRANSFORMTYPE> getCssMetaData() {
+        public final CssMetaData<? extends Styleable, TRANSFORMTYPE> getCssMetaData() {
             return StyleableProperties.XTRANSFORMTYPE;
         }
 
         @Override
-        public void applyStyle(StyleOrigin so, TRANSFORMTYPE v) {
+        public final void applyStyle(StyleOrigin so, TRANSFORMTYPE v) {
             super.applyStyle(so, v);
             setXTransformType(v);
         }
 
     };
-    private final ObjectProperty<TRANSFORMTYPE> yTransformType = new StyleableObjectProperty<TRANSFORMTYPE>(TRANSFORMTYPE.LINEAR) {
+    private final StyleableObjectProperty<TRANSFORMTYPE> yTransformType = new StyleableObjectProperty<TRANSFORMTYPE>(TRANSFORMTYPE.LINEAR) {
 
         //private StyleOrigin origin;
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "yTransformType";
         }
 
         @Override
-        public CssMetaData<? extends Styleable, TRANSFORMTYPE> getCssMetaData() {
+        public final CssMetaData<? extends Styleable, TRANSFORMTYPE> getCssMetaData() {
             return StyleableProperties.YTRANSFORMTYPE;
         }
 
         @Override
-        public void applyStyle(StyleOrigin so, TRANSFORMTYPE v) {
+        public final void applyStyle(StyleOrigin so, TRANSFORMTYPE v) {
             super.applyStyle(so, v);
             setYTransformType(v);
         }
@@ -270,20 +282,20 @@ public class Chart extends Pane {
     /**
      * Value for the xpos-axis at the left
      */
-    private final DoubleProperty xLeft = new StyleableDoubleProperty(-1d) {
+    private final StyleableDoubleProperty xLeft = new StyleableDoubleProperty(-1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.XLEFT;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "xLeft";
         }
 
@@ -291,20 +303,20 @@ public class Chart extends Pane {
     /**
      * Value for the x-axis at the right-most position
      */
-    private final DoubleProperty xRight = new StyleableDoubleProperty(1d) {
+    private final StyleableDoubleProperty xRight = new StyleableDoubleProperty(1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.XRIGHT;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "xRight";
         }
 
@@ -312,20 +324,20 @@ public class Chart extends Pane {
     /**
      * Value for the ypos-axis at the bottom
      */
-    private final DoubleProperty yBottom = new StyleableDoubleProperty(-1d) {
+    private final StyleableDoubleProperty yBottom = new StyleableDoubleProperty(-1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.YBOTTOM;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "yBottom";
         }
 
@@ -333,20 +345,20 @@ public class Chart extends Pane {
     /**
      * Value for the ypos-axis at the top
      */
-    private final DoubleProperty yTop = new StyleableDoubleProperty(1d) {
+    private final StyleableDoubleProperty yTop = new StyleableDoubleProperty(1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.YTOP;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "yTop";
         }
 
@@ -354,20 +366,20 @@ public class Chart extends Pane {
     /**
      * Value for the origin on the xpos-axis. Internal axisSet are painted here.
      */
-    private final DoubleProperty xOrigin = new StyleableDoubleProperty(0d) {
+    private final StyleableDoubleProperty xOrigin = new StyleableDoubleProperty(0d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.XORIGIN;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "xOrigin";
         }
 
@@ -375,20 +387,20 @@ public class Chart extends Pane {
     /**
      * Value for the origin on the xpos-axis. Internal axisSet are painted here.
      */
-    private final DoubleProperty yOrigin = new StyleableDoubleProperty(0d) {
+    private final StyleableDoubleProperty yOrigin = new StyleableDoubleProperty(0d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.YORIGIN;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "xOrigin";
         }
 
@@ -396,38 +408,38 @@ public class Chart extends Pane {
     /**
      * stroke width used to draw an internal axis
      */
-    private final DoubleProperty axisStrokeWidth = new StyleableDoubleProperty(1d) {
+    private final StyleableDoubleProperty axisStrokeWidth = new StyleableDoubleProperty(1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.AXISSTROKEWIDTH;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "axisStrokeWeight";
         }
 
     };
-    private final DoubleProperty innerAxisStrokeWidth = new StyleableDoubleProperty(1.1d) {
+    private final StyleableDoubleProperty innerAxisStrokeWidth = new StyleableDoubleProperty(1.1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.INNERAXISSTROKEWIDTH;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "innerAxisStrokeWeight";
         }
 
@@ -435,38 +447,38 @@ public class Chart extends Pane {
     /**
      * stroke width used to draw the minor grid
      */
-    private final DoubleProperty minorGridStrokeWidth = new StyleableDoubleProperty(1.1d) {
+    private final StyleableDoubleProperty minorGridStrokeWidth = new StyleableDoubleProperty(1.1d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.MINORGRIDSTROKEWIDTH;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "minorGridStrokeWidth";
         }
 
     };
-    private final DoubleProperty majorGridStrokeWidth = new StyleableDoubleProperty(1.3d) {
+    private final StyleableDoubleProperty majorGridStrokeWidth = new StyleableDoubleProperty(1.3d) {
 
         @Override
-        public CssMetaData<Chart, Number> getCssMetaData() {
+        public final CssMetaData<Chart, Number> getCssMetaData() {
             return StyleableProperties.MAJORGRIDSTROKEWIDTH;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "majorGridStrokeWidth";
         }
 
@@ -475,20 +487,20 @@ public class Chart extends Pane {
      * Set true to paint the minor grid
      */
 
-    private final BooleanProperty minorGridPainted = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty minorGridPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.MINORGRIDPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "minorGridPainted";
         }
 
@@ -496,20 +508,20 @@ public class Chart extends Pane {
     /**
      * Set true to paint the major grid
      */
-    private final BooleanProperty majorGridPainted = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty majorGridPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.MAJORGRIDPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "majorGridPainted";
         }
 
@@ -517,20 +529,20 @@ public class Chart extends Pane {
     /**
      * getParent true to paint the axisSet within the view
      */
-    private final BooleanProperty innerAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty innerAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.INNERAXISPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "innerAxisPainted";
         }
 
@@ -538,20 +550,20 @@ public class Chart extends Pane {
     /**
      * getParent true to paint the labels for axisSet within the view
      */
-    private final BooleanProperty innerAxisLabelled = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty innerAxisLabelled = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.INNERAXISLABELLED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "innerAxisLabelled";
         }
 
@@ -559,20 +571,20 @@ public class Chart extends Pane {
     /**
      * Set true to paint left axis
      */
-    private final BooleanProperty leftAxisPainted = new StyleableBooleanProperty(Boolean.TRUE) {
+    private final StyleableBooleanProperty leftAxisPainted = new StyleableBooleanProperty(Boolean.TRUE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.LEFTAXISPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "leftAxisPainted";
         }
 
@@ -580,20 +592,20 @@ public class Chart extends Pane {
     /**
      * Set true to paint right axis
      */
-    private final BooleanProperty rightAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty rightAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.RIGHTAXISPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "rightAxisPainted";
         }
 
@@ -601,20 +613,20 @@ public class Chart extends Pane {
     /**
      * Set true to paint top axis
      */
-    private final BooleanProperty topAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty topAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.TOPAXISPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "topAxisPainted";
         }
 
@@ -622,20 +634,20 @@ public class Chart extends Pane {
     /**
      * Set true to paint bottom axis
      */
-    private final BooleanProperty bottomAxisPainted = new StyleableBooleanProperty(Boolean.TRUE) {
+    private final StyleableBooleanProperty bottomAxisPainted = new StyleableBooleanProperty(Boolean.TRUE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.BOTTOMAXISPAINTED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "bottomAxisPainted";
         }
 
@@ -643,20 +655,20 @@ public class Chart extends Pane {
     /**
      * Set true to label the left axis
      */
-    private final BooleanProperty leftAxisLabelled = new StyleableBooleanProperty(Boolean.TRUE) {
+    private final StyleableBooleanProperty leftAxisLabelled = new StyleableBooleanProperty(Boolean.TRUE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.LEFTAXISLABELLED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "leftAxisLabelled";
         }
 
@@ -664,20 +676,20 @@ public class Chart extends Pane {
     /**
      * Set true to label the right axis
      */
-    private final BooleanProperty rightAxisLabelled = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty rightAxisLabelled = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.RIGHTAXISLABELLED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "rightAxisLabelled";
         }
 
@@ -685,20 +697,20 @@ public class Chart extends Pane {
     /**
      * Set true to label the top axis
      */
-    private final BooleanProperty topAxisLabeled = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty topAxisLabeled = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.TOPAXISLABELLED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "topAxisLabelled";
         }
 
@@ -706,20 +718,20 @@ public class Chart extends Pane {
     /**
      * Set true to label the bottom axis
      */
-    private final BooleanProperty bottomAxisLabelled = new StyleableBooleanProperty(Boolean.TRUE) {
+    private final StyleableBooleanProperty bottomAxisLabelled = new StyleableBooleanProperty(Boolean.TRUE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.BOTTOMAXISLABELLED;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "bottomAxisLabelled";
         }
 
@@ -727,20 +739,20 @@ public class Chart extends Pane {
     /**
      * Draw as polarProperty plot
      */
-    private final BooleanProperty polar = new StyleableBooleanProperty(Boolean.FALSE) {
+    private final StyleableBooleanProperty polar = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
-        public CssMetaData<Chart, Boolean> getCssMetaData() {
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
             return StyleableProperties.POLAR;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "polar";
         }
 
@@ -748,20 +760,20 @@ public class Chart extends Pane {
     /**
      * Major grid color
      */
-    private final ObjectProperty<Paint> majorGridColor = new StyleableObjectProperty<Paint>(Color.SLATEBLUE) {
+    private final StyleableObjectProperty<Paint> majorGridColor = new StyleableObjectProperty<Paint>(Color.SLATEBLUE) {
 
         @Override
-        public CssMetaData<Chart, Paint> getCssMetaData() {
+        public final CssMetaData<Chart, Paint> getCssMetaData() {
             return StyleableProperties.MAJORGRIDCOLOR;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "majorGridColor";
         }
 
@@ -769,20 +781,20 @@ public class Chart extends Pane {
     /**
      * Minor grid color
      */
-    private final ObjectProperty<Paint> minorGridColor = new StyleableObjectProperty<Paint>(Color.SLATEBLUE) {
+    private final StyleableObjectProperty<Paint> minorGridColor = new StyleableObjectProperty<Paint>(Color.SLATEBLUE) {
 
         @Override
-        public CssMetaData<Chart, Paint> getCssMetaData() {
+        public final CssMetaData<Chart, Paint> getCssMetaData() {
             return StyleableProperties.MINORGRIDCOLOR;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "minorGridColor";
         }
 
@@ -790,74 +802,74 @@ public class Chart extends Pane {
     /**
      * Inner axis color
      */
-    private final ObjectProperty<Paint> innerAxisColor = new StyleableObjectProperty<Paint>(Color.BLACK) {
+    private final StyleableObjectProperty<Paint> innerAxisColor = new StyleableObjectProperty<Paint>(Color.BLACK) {
 
         @Override
-        public CssMetaData<Chart, Paint> getCssMetaData() {
+        public final CssMetaData<Chart, Paint> getCssMetaData() {
             return StyleableProperties.INNERAXISCOLOR;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "innerAxisColor";
         }
 
     };
-    private final ObjectProperty<Paint> axisColor = new StyleableObjectProperty<Paint>(Color.BLACK) {
+    private final StyleableObjectProperty<Paint> axisColor = new StyleableObjectProperty<Paint>(Color.BLACK) {
 
         @Override
-        public CssMetaData<Chart, Paint> getCssMetaData() {
+        public final CssMetaData<Chart, Paint> getCssMetaData() {
             return StyleableProperties.AXISCOLOR;
         }
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "axisColor";
         }
 
     };
-    private final ObjectProperty<Paint> altFillVertical = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
+    private final StyleableObjectProperty<Paint> altFillVertical = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "altFillVertical";
         }
 
         @Override
-        public CssMetaData<? extends Styleable, Paint> getCssMetaData() {
+        public final CssMetaData<? extends Styleable, Paint> getCssMetaData() {
             return StyleableProperties.ALTFILLVERTICAL;
         }
 
     };
-    private final ObjectProperty<Paint> altFillHorizontal = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
+    private final StyleableObjectProperty<Paint> altFillHorizontal = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
 
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "altFillHorizontal";
         }
 
         @Override
-        public CssMetaData<? extends Styleable, Paint> getCssMetaData() {
+        public final CssMetaData<? extends Styleable, Paint> getCssMetaData() {
             return StyleableProperties.ALTFILLHORIZONTAL;
         }
 
@@ -870,21 +882,21 @@ public class Chart extends Pane {
      *
      * innerAxisFontSize represents the size of the font to use.
      */
-    private DoubleProperty innerAxisFontSize = new StyleableDoubleProperty(
+    private StyleableDoubleProperty innerAxisFontSize = new StyleableDoubleProperty(
             font == null ? Font.getDefault().getSize() : font.getSize()) {
 
                 @Override
-                public Object getBean() {
+                public final Object getBean() {
                     return Chart.this;
                 }
 
                 @Override
-                public String getName() {
+                public final String getName() {
                     return "innerAxisFontSize";
                 }
 
                 @Override
-                public CssMetaData<? extends Styleable, Number> getCssMetaData() {
+                public final CssMetaData<? extends Styleable, Number> getCssMetaData() {
                     return (CssMetaData<? extends Styleable, Number>) StyleableProperties.INNERAXISFONTSIZE;
                 }
 
@@ -894,83 +906,75 @@ public class Chart extends Pane {
      * tick marks, labels etc in th outer axes (those drawn to the left, right,
      * top etc of the plotting area).
      */
-    private DoubleProperty axisFontSize = new StyleableDoubleProperty(
+    private StyleableDoubleProperty axisFontSize = new StyleableDoubleProperty(
             font == null ? Font.getDefault().getSize() : font.getSize()) {
 
                 @Override
-                public Object getBean() {
+                public final Object getBean() {
                     return Chart.this;
                 }
 
                 @Override
-                public String getName() {
+                public final String getName() {
                     return "axisFontSize";
                 }
 
                 @Override
-                public CssMetaData<? extends Styleable, Number> getCssMetaData() {
+                public final CssMetaData<? extends Styleable, Number> getCssMetaData() {
                     return (CssMetaData<? extends Styleable, Number>) StyleableProperties.INNERAXISFONTSIZE;
                 }
 
             };
-    public final ObjectProperty<Font> fontProperty = new StyleableObjectProperty<Font>(font) {
+    private final StyleableObjectProperty<Font> fontProperty = new StyleableObjectProperty<Font>(font) {
 
         @Override
-        public void set(Font value) {
+        public final void set(Font value) {
             font = value;
         }
 
         @Override
-        public Font get() {
+        public final Font get() {
             return font;
         }
 
         @Override
-        public FontCssMetaData<Chart> getCssMetaData() {
+        public final FontCssMetaData<Chart> getCssMetaData() {
             return (FontCssMetaData<Chart>) StyleableProperties.FONT;
         }
 
         @Override
-        public Chart getBean() {
+        public final Chart getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "font";
         }
 
     };
 
-    private final ObjectProperty<VIEWALIGNMENT> viewAlignment = new StyleableObjectProperty<VIEWALIGNMENT>(VIEWALIGNMENT.CENTER) {
+    private final StyleableObjectProperty<VIEWALIGNMENT> viewAlignment = new StyleableObjectProperty<VIEWALIGNMENT>(VIEWALIGNMENT.CENTER) {
         @Override
-        public Object getBean() {
+        public final Object getBean() {
             return Chart.this;
         }
 
         @Override
-        public String getName() {
+        public final String getName() {
             return "viewAlignment";
         }
 
         @Override
-        public CssMetaData<Chart, VIEWALIGNMENT> getCssMetaData() {
+        public final CssMetaData<Chart, VIEWALIGNMENT> getCssMetaData() {
             return StyleableProperties.VIEWALIGN;
         }
     };
 
-    // MAIN CODE
-    public Chart(Chart layer) {
-        this();
-        adjustAxes(layer);
-        getChildren().add(layer);
-        setPadding(computeRequiredInsets());
-        layer.setPadding(getPadding());
-    }
-
+    /**
+     * Default constructor.
+     */
     public Chart() {
-
-        //setManaged(false);
         super();
         this.yTol = new Tolerance("Y");
         this.xTol = new Tolerance("X");
@@ -1156,12 +1160,14 @@ public class Chart extends Pane {
         prefWidthProperty().addListener(axisLimitListener);
         prefHeightProperty().addListener(axisLimitListener);
 
+        /**
+         * Create and add a listener to redo the layout on resizing
+         */
         ChangeListener<Number> sizeListener = (ObservableValue<? extends Number> ov, Number t, Number t1) -> {
             Platform.runLater(() -> {
                 requestLayout();
             });
         };
-
         widthProperty().addListener(sizeListener);
         heightProperty().addListener(sizeListener);
         prefWidthProperty().addListener(sizeListener);
@@ -1202,7 +1208,6 @@ public class Chart extends Pane {
                 List<? extends Node> list = c.getAddedSubList();
                 list.stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
 
-                    //((Chart) node).requestLayout();
                     // It makes no sense to have a background on the child as it will
                     // obscure the parent's contents.
                     ((Chart) node).setStyle("-fx-background-color: transparent");
@@ -1211,25 +1216,24 @@ public class Chart extends Pane {
                     axis = ((Chart) node).getAxisSet().getLeftAxis();
                     ((Chart) node).axisPane.getChildren().remove(axis);
                     axisPane.getChildren().add(axis);
-                    //axis.requestLayout();
+
                     axis = ((Chart) node).getAxisSet().getRightAxis();
                     ((Chart) node).axisPane.getChildren().remove(axis);
                     axisPane.getChildren().add(axis);
-                    //axis.requestLayout();
+
                     axis = ((Chart) node).getAxisSet().getBottomAxis();
                     ((Chart) node).axisPane.getChildren().remove(axis);
                     axisPane.getChildren().add(axis);
-                    //axis.requestLayout();
+
                     axis = ((Chart) node).getAxisSet().getTopAxis();
                     ((Chart) node).axisPane.getChildren().remove(axis);
                     axisPane.getChildren().add(axis);
-                    //axis.requestLayout();
+
                     // Make child charts mouse transparent by default
                     ((Chart) node).setMouseTransparent(true);
 
                     // Make sure a child Chart shares insets, view position etc.
                     // with the parent.
-                    adjustAxes((Chart) node);
                     setPadding(computeRequiredInsets());
                     ((Chart) node).setPadding(getPadding());
 
@@ -1252,17 +1256,6 @@ public class Chart extends Pane {
 
         view.getChildren().addListener((ListChangeListener.Change<? extends Node> c) -> {
             while (c.next()) {
-//                List<? extends Node> list = c.getAddedSubList();
-//                list.stream().filter((node) -> (node instanceof AbstractPlot)).forEach((node) -> {
-//                    AbstractPlot plot = (AbstractPlot) node;
-////                    plot.setLayoutX(0d);
-////                    plot.setLayoutY(0d);
-//                    int index = getPlots().indexOf(node);
-//                    plot.setPlotStyleIndex(index);
-//                    plot.getAllPlots().forEach((p) -> {
-//                        ((AbstractPlot) p).setPlotStyleIndex(index);
-//                    });
-//                });
                 requestLayout();
             }
         });
@@ -1270,7 +1263,6 @@ public class Chart extends Pane {
         ChangeListener<Boolean> axisPaintedListener = (ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) -> {
             Platform.runLater(() -> {
                 getChildren().stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
-                    adjustAxes((Chart) node);
                     setPadding(computeRequiredInsets());
                     ((Chart) node).setPadding(getPadding());
                 });
@@ -1285,38 +1277,57 @@ public class Chart extends Pane {
     }
 
     /**
+     * Construct a new {@code Chart} with the supplied {@code Chart} as a child.
+     *
+     * See the {@code parentProperty()} listener in the null constructor to see
+     * exactly how this is handled.
+     *
+     * @param layer the child {@code Chart}
+     */
+    public Chart(Chart layer) {
+        this();
+        // Note: this will trigger the {@code Chart} parentProperty() listener
+        getChildren().add(layer);
+        setPadding(computeRequiredInsets());
+        layer.setPadding(getPadding());
+    }
+
+    /**
      * @return The CssMetaData associated with this class, which may include the
      * CssMetaData of its super classes.
      * @since JavaFX 8.0
      */
-    public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
+    public final static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
         return StyleableProperties.STYLEABLES;
     }
 
-//    /**
-//     * NB. To use other panes, e.g. a GridPane or TitledPane, add the chart to
-//     * one of the supported pane's then add that to the target.
-//     *
-//     * @param node the node the chart is to be added to
-//     * @return true if the node is supported as a parent of a chart
-//     */
-//    private boolean isSupportedAsParent(Node node) {
-//        Class clzz = node.getClass();
-//        return clzz.equals(Pane.class)
-//                || clzz.equals(Chart.class)
-//                || clzz.equals(AnchorPane.class)
-//                || clzz.equals(FlowPane.class)
-//                || clzz.equals(StackPane.class);
-//    }
-    public ObjectProperty<Paint> innerAxisColorProperty() {
+    /**
+     * {@code StyleableObjectProperty<Paint>} controlling the color of the inner
+     * axes, {@literal i.e.} the axes painted to the {@code Canvas} of the view.
+     *
+     * @return the innerAxisColorProperty
+     */
+    public final StyleableObjectProperty<Paint> innerAxisColorProperty() {
         return innerAxisColor;
     }
 
-    public Paint getInnerAxisColor() {
+    /**
+     * Returns the color of the inner axes, {@literal i.e.} the axes painted to
+     * the {@code Canvas} of the view.
+     *
+     * @return the color
+     */
+    public final Paint getInnerAxisColor() {
         return innerAxisColor.get();
     }
 
-    public void setInnerAxisColor(Paint color) {
+    /**
+     * Sets the color of the inner axes, {@literal i.e.} the axes painted to the
+     * {@code Canvas} of the view.
+     *
+     * @param color a {@code Paint} instance
+     */
+    public final void setInnerAxisColor(Paint color) {
         innerAxisColor.set(color);
     }
 
@@ -1336,7 +1347,7 @@ public class Chart extends Pane {
      *
      * @return the viewAlignment
      */
-    public VIEWALIGNMENT getViewAlignment() {
+    public final VIEWALIGNMENT getViewAlignment() {
         return viewAlignment.get();
     }
 
@@ -1355,7 +1366,7 @@ public class Chart extends Pane {
      *
      * @param val the viewAlignment to set
      */
-    public void setViewAlignment(VIEWALIGNMENT val) {
+    public final void setViewAlignment(VIEWALIGNMENT val) {
         viewAlignment.set(val);
     }
 
@@ -1374,66 +1385,8 @@ public class Chart extends Pane {
      *
      * @return the viewAlignment property
      */
-    public ObjectProperty<VIEWALIGNMENT> viewAlignmentProperty() {
+    public final StyleableObjectProperty<VIEWALIGNMENT> viewAlignmentProperty() {
         return viewAlignment;
-    }
-
-//    public void adjustAxes() {
-//        if (this == getFirstLayer()) {
-//            Chart firstLayer = getFirstLayer();
-//            double leftOffset = firstLayer.xLeftOffset + 50d;
-//            double rightOffset = firstLayer.xRightOffset + 50d;
-//            double topOffset = firstLayer.yTopOffset + 50d;
-//            double bottomOffset = firstLayer.yBottomOffset + 50d;
-//            List<? extends Node> list = getChildren();
-//            for (Node node : list) {
-//                if (node instanceof Chart) {
-//                    Chart thisLayer = (Chart) node;
-//                    if (thisLayer.isLeftAxisPainted()) {
-//                        thisLayer.xLeftOffset = leftOffset;
-//                        leftOffset += 50d;
-//                        leftOffset += thisLayer.axisLeft.computePrefWidth(-1d);
-//                    }
-//                    if (thisLayer.isRightAxisPainted()) {
-//                        thisLayer.xRightOffset = rightOffset;
-//                        rightOffset += 50d;
-//                        rightOffset += thisLayer.axisRight.computePrefWidth(-1d);
-//                    }
-//                    if (thisLayer.isTopAxisPainted()) {
-//                        thisLayer.yTopOffset = topOffset;
-//                        topOffset += 50d;
-//                        topOffset += thisLayer.axisTop.computePrefHeight(-1d);
-//                    }
-//                    if (thisLayer.isBottomAxisPainted()) {
-//                        thisLayer.yBottomOffset = bottomOffset;
-//                        bottomOffset += 50d;
-//                        bottomOffset += thisLayer.axisBottom.computePrefHeight(-1d);
-//                    }
-//                }
-//            }
-//        } else {
-//            getFirstLayer().adjustAxes();
-//        }
-//    }
-    /**
-     * Called when a graph is added as a child of another graph to adjust axis
-     * offsets
-     *
-     * @param layer
-     */
-    private void adjustAxes(Chart layer) {
-//        if (layer.isLeftAxisPainted()) {
-//            layer.xLeftOffset += xLeftOffset + axisLeft.computePrefWidth(-1d);
-//        }
-//        if (layer.isRightAxisPainted()) {
-//            layer.xRightOffset += xRightOffset + axisRight.computePrefWidth(-1d);
-//        }
-//        if (layer.isTopAxisPainted()) {
-//            layer.yTopOffset += yTopOffset + axisTop.computePrefHeight(-1d);
-//        }
-//        if (layer.isBottomAxisPainted()) {
-//            layer.yBottomOffset += yBottomOffset + axisBottom.computePrefHeight(-1d);
-//        }
     }
 
     /**
@@ -1504,7 +1457,7 @@ public class Chart extends Pane {
      * @return the minimum width to accommodate the components.
      */
     @Override
-    public double computePrefWidth(double height) {
+    public final double computePrefWidth(double height) {
         return getPadding().getLeft() + getPadding().getRight() + view.getWidth();
     }
 
@@ -1520,7 +1473,7 @@ public class Chart extends Pane {
      * @return the minimum height to accommodate the components.
      */
     @Override
-    public double computePrefHeight(double width) {
+    public final double computePrefHeight(double width) {
         return getPadding().getTop() + getPadding().getBottom() + view.getHeight();
     }
 
@@ -1566,7 +1519,7 @@ public class Chart extends Pane {
      * @return the DoubleProperty wrapping the size of Font used to label the
      * inner axes
      */
-    public DoubleProperty innerAxisFontSizeProperty() {
+    public final StyleableDoubleProperty innerAxisFontSizeProperty() {
         return innerAxisFontSize;
     }
 
@@ -1574,7 +1527,7 @@ public class Chart extends Pane {
      *
      * @return size of Font used to label the inner axes
      */
-    public double getInnerAxisFontSize() {
+    public final double getInnerAxisFontSize() {
         return innerAxisFontSize.get();
     }
 
@@ -1583,7 +1536,7 @@ public class Chart extends Pane {
      *
      * @param val size of Font used to label the inner axes
      */
-    public void setInnerAxisFontSize(double val) {
+    public final void setInnerAxisFontSize(double val) {
         innerAxisFontSize.set(val);
     }
 
@@ -1597,7 +1550,7 @@ public class Chart extends Pane {
      *
      * @return the font property
      */
-    public ObjectProperty<Font> fontProperty() {
+    public final StyleableObjectProperty<Font> fontProperty() {
         return fontProperty;
     }
 
@@ -1606,7 +1559,7 @@ public class Chart extends Pane {
      *
      * @return the TRANSFORMTYPE
      */
-    public TRANSFORMTYPE getXTransformType() {
+    public final TRANSFORMTYPE getXTransformType() {
         return xTransformType.get();
     }
 
@@ -1615,7 +1568,7 @@ public class Chart extends Pane {
      *
      * @param type
      */
-    public void setXTransformType(TRANSFORMTYPE type) {
+    public final void setXTransformType(TRANSFORMTYPE type) {
         axisSet.setXTransform(getTransformForType(type));
         xTransformType.set(type);
     }
@@ -1625,7 +1578,7 @@ public class Chart extends Pane {
      *
      * @return the property
      */
-    public ObjectProperty<TRANSFORMTYPE> xTransformTypeProperty() {
+    public final StyleableObjectProperty<TRANSFORMTYPE> xTransformTypeProperty() {
         return xTransformType;
     }
 
@@ -1634,7 +1587,7 @@ public class Chart extends Pane {
      *
      * @return the TRANSFORMTYPE
      */
-    public TRANSFORMTYPE getYTransformType() {
+    public final TRANSFORMTYPE getYTransformType() {
         return yTransformType.get();
     }
 
@@ -1643,7 +1596,7 @@ public class Chart extends Pane {
      *
      * @param type
      */
-    public void setYTransformType(TRANSFORMTYPE type) {
+    public final void setYTransformType(TRANSFORMTYPE type) {
         axisSet.setYTransform(getTransformForType(type));
         yTransformType.set(type);
     }
@@ -1653,7 +1606,7 @@ public class Chart extends Pane {
      *
      * @return the property
      */
-    public ObjectProperty<TRANSFORMTYPE> yTransformTypeProperty() {
+    public final StyleableObjectProperty<TRANSFORMTYPE> yTransformTypeProperty() {
         return yTransformType;
     }
 
@@ -1692,7 +1645,7 @@ public class Chart extends Pane {
      *
      * @return the aspect ratio
      */
-    public double getViewAspectRatio() {
+    public final double getViewAspectRatio() {
         return viewAspectRatio.get();
     }
 
@@ -1724,7 +1677,7 @@ public class Chart extends Pane {
      *
      * @param val the aspect ratio
      */
-    public void setViewAspectRatio(double val) {
+    public final void setViewAspectRatio(double val) {
         if (!viewAspectRatio.isBound()) {
             viewAspectRatio.set(val);
         }
@@ -1735,7 +1688,7 @@ public class Chart extends Pane {
      *
      * @return the property
      */
-    public final DoubleProperty viewAspectRatioProperty() {
+    public final StyleableDoubleProperty viewAspectRatioProperty() {
         return viewAspectRatio;
     }
 
@@ -1780,10 +1733,16 @@ public class Chart extends Pane {
         }
     }
 
-    public final Chart getParentChart() {
-        return (getParent() instanceof Chart) ? (Chart) getParent() : null;
-    }
-
+//    /**
+//     *
+//     */
+//    public final Chart getParentChart() {
+//        if (getParent() == null) {
+//            return null;
+//        } else {
+//            return (getParent() instanceof Chart) ? (Chart) getParent() : null;
+//        }
+//    }
     /**
      * Returns an {@literal ArrayList<Chart>} with references to the layers of
      * this chart. For a single-layered chart, this will contain only one
@@ -1791,7 +1750,7 @@ public class Chart extends Pane {
      *
      * @return an {@literal ArrayList<Chart>} with references to the layers
      */
-    public ArrayList<Chart> getLayers() {
+    public final ArrayList<Chart> getLayers() {
         ArrayList<Chart> layers = new ArrayList<>();
         layers.add(this);
         getChildren().filtered(x -> x instanceof Chart)
@@ -1821,7 +1780,7 @@ public class Chart extends Pane {
      * {@code requestLayout()} instead.
      */
     @Override
-    public void layoutChildren() {
+    public final void layoutChildren() {
         updateLayout();
         super.layoutChildren();
         // Layout has been called on the view so render its contents.
@@ -1923,26 +1882,6 @@ public class Chart extends Pane {
             view.setClip(new Rectangle(0, 0, w, h));
         }
 
-//        // For each annotation, recalculate the nodes pixel position
-//        annotations.stream().forEach((GJAnnotation node) -> {
-//            // Get the required location in the view
-//            Point2D p = toPixel(node.getX(), node.getY());
-//            // Convert from view space to this pane's space (as the node
-//            // is in the view' parent's layout.
-//            p = view.localToParent(p);
-//            // Set the xpos,ypos location
-//            node.getNode().relocate(p.getX(), p.getY());
-//        });
-        // Layout the axes
-//        if (getFirstLayer() == this) {
-//            getChildrenUnmodifiable().stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
-//                // Make sure a child Chart shares insets, view position etc.
-//                // with the parent.
-//                adjustAxes((Chart) node);
-//                setPadding(computeRequiredInsets());
-//                ((Chart) node).setPadding(getPadding());
-//            });
-//        }
         axisTop.setLayoutX(view.getLayoutX());
         axisTop.setLayoutY(view.getLayoutY() - yTopOffset - axisTop.computePrefHeight(-1d));
         axisTop.setPrefHeight(Region.USE_COMPUTED_SIZE);
@@ -1975,6 +1914,46 @@ public class Chart extends Pane {
     }
 
     /**
+     * {@code StyleableDoubleProperty} containing the value on the y-axis at the
+     * bottom of the view.
+     *
+     * @return the yBottomProperty
+     */
+    public final StyleableDoubleProperty yBottomProperty() {
+        return yBottom;
+    }
+
+    /**
+     * {@code StyleableDoubleProperty} containing the value on the x-axis at the
+     * left of the view.
+     *
+     * @return the xLeftProperty
+     */
+    public final StyleableDoubleProperty xLeftProperty() {
+        return xLeft;
+    }
+
+    /**
+     * {@code StyleableDoubleProperty} containing the value on the x-axis at the
+     * right of the view.
+     *
+     * @return the xRightProperty
+     */
+    public final StyleableDoubleProperty xRightProperty() {
+        return xRight;
+    }
+
+    /**
+     * {@code StyleableDoubleProperty} containing the value on the y-axis at the
+     * top of the view.
+     *
+     * @return the yTopProperty
+     */
+    public final StyleableDoubleProperty yTopProperty() {
+        return yTop;
+    }
+
+    /**
      * Returns the x-axis value to the extreme left of the view.
      *
      * @return the value
@@ -1993,15 +1972,7 @@ public class Chart extends Pane {
     }
 
     /**
-     *
-     * @return the property
-     */
-    public final DoubleProperty xLeftProperty() {
-        return xLeft;
-    }
-
-    /**
-     * Returns the x-axis value to the extreme right of the view.
+     * Returns the x-axis value at the right of the view.
      *
      * @return the value
      */
@@ -2010,7 +1981,7 @@ public class Chart extends Pane {
     }
 
     /**
-     * Sets the x-axis value to the extreme right of the view.
+     * Sets the x-axis value at the right of the view.
      *
      * @param value the value to use
      */
@@ -2019,64 +1990,82 @@ public class Chart extends Pane {
     }
 
     /**
+     * Returns the y-axis value at the bottom of the view.
      *
-     * @return the property
+     * @return the value
      */
-    public final DoubleProperty xRightProperty() {
-        return xRight;
-    }
-
     public final double getYBottom() {
         return yBottom.doubleValue();
     }
 
+    /**
+     * Sets the y-axis value at the bottom of the view.
+     *
+     * @param val the value
+     */
     public final void setYBottom(double val) {
         yBottom.set(val);
     }
 
-    public final DoubleProperty yBottomProperty() {
-        return yBottom;
-    }
-
+    /**
+     * Returns the y-axis value at the top of the view.
+     *
+     * @return the value
+     */
     public final double getYTop() {
         return yTop.doubleValue();
     }
 
+    /**
+     * Sets the y-axis value at the top of the view.
+     *
+     * @param val the value
+     */
     public final void setYTop(double val) {
         yTop.set(val);
     }
 
-    public final DoubleProperty yTopProperty() {
-        return yTop;
-    }
-
     /**
+     * Returns the {@code StackPane} that forms the view of this {@code Chart}.
+     *
      * @return the view
      */
-    public StackPane getView() {
+    public final StackPane getView() {
         return view;
     }
 
-    public Canvas getCanvas() {
+    /**
+     * Returns the {@code Canvas} from the view of this {@code Chart}.
+     *
+     * @return the canvas
+     */
+    public final Canvas getCanvas() {
         return canvas;
     }
 
-    public final ObjectBinding<Rectangle2D> axesBounds() {
-        return axesBounds;
-    }
-
+    /**
+     * An {@code Rectangle2D} containing the axes limits.
+     *
+     * @return the limits.
+     */
     public final Rectangle2D getAxesBounds() {
         return axesBounds.get();
     }
 
     /**
+     * Returns true if the left-most x-axis value is larger than the right-most.
      *
-     * @return true if the left-most x-axis value is larger than the right-most.
+     * @return the boolean
      */
     public final boolean isReverseX() {
         return getXLeft() > getXRight();
     }
 
+    /**
+     * Flips the left and right extremes of the x-axis, if required.
+     *
+     * @param flag true to reverse the axes, false otherwise.
+     */
     public final void setReverseX(boolean flag) {
         double temp = getXLeft();
         if (flag) {
@@ -2093,13 +2082,19 @@ public class Chart extends Pane {
     }
 
     /**
+     * Returns true if the top-most y-axis value is larger than the bottom-most.
      *
-     * @return true if the bottom-most x-axis value is larger than the top-most.
+     * @return the boolean
      */
     public final boolean isReverseY() {
         return getYBottom() > getYTop();
     }
 
+    /**
+     * Flips the upper and lower extremes of the y-axis, if required.
+     *
+     * @param flag true to reverse the axes, false otherwise.
+     */
     public final void setReverseY(boolean flag) {
         double temp = getYBottom();
         if (flag) {
@@ -2115,10 +2110,6 @@ public class Chart extends Pane {
         }
     }
 
-    public final MajorXInterval majorXInterval() {
-        return majorXInterval;
-    }
-
     /**
      * The interval between major tick marks and grid lines in chart coordinate
      * space on the x-axis. This is calculated automatically unless the user
@@ -2126,19 +2117,24 @@ public class Chart extends Pane {
      *
      * @return the interval.
      */
-    public double getMajorXInterval() {
+    public final double getMajorXInterval() {
         return majorXInterval.get();
     }
 
+    /**
+     * Sets the interval between major tick marks and grid lines in chart
+     * coordinate space on the x-axis and supresses automatic calculation of
+     * that value.
+     *
+     * To restore automatic calculation, set majorX to Double.NaN.
+     *
+     * @param majorX the interval to use
+     */
     public final void setMajorXInterval(double majorX) {
         if (majorX <= 0.0) {
             majorX = 1e-15;
         }
-        majorXInterval.userSpecifiedValue = majorX;
-    }
-
-    public MajorYInterval majorYInterval() {
-        return majorYInterval;
+        majorXInterval.userSpecifiedValue.set(majorX);
     }
 
     /**
@@ -2152,11 +2148,20 @@ public class Chart extends Pane {
         return majorYInterval.get();
     }
 
+    /**
+     * Sets the interval between major tick marks and grid lines in chart
+     * coordinate space on the y-axis and supresses automatic calculation of
+     * that value.
+     *
+     * To restore automatic calculation, set majorX to Double.NaN.
+     *
+     * @param majorY the interval to use
+     */
     public final void setMajorYInterval(double majorY) {
         if (majorY <= 0.0) {
             majorY = 1e-15;
         }
-        majorYInterval.userSpecifiedValue = majorY;
+        majorYInterval.userSpecifiedValue.set(majorY);
     }
 
     /**
@@ -2241,7 +2246,7 @@ public class Chart extends Pane {
         return Math.max(getYTop(), getYBottom());
     }
 
-    public final DoubleProperty xOriginProperty() {
+    public final StyleableDoubleProperty xOriginProperty() {
         return xOrigin;
     }
 
@@ -2253,7 +2258,7 @@ public class Chart extends Pane {
         xOrigin.set(val);
     }
 
-    public final DoubleProperty yOriginProperty() {
+    public final StyleableDoubleProperty yOriginProperty() {
         return yOrigin;
     }
 
@@ -2265,7 +2270,7 @@ public class Chart extends Pane {
         yOrigin.set(val);
     }
 
-    public final DoubleProperty innerAxisStrokeWidthProperty() {
+    public final StyleableDoubleProperty innerAxisStrokeWidthProperty() {
         return innerAxisStrokeWidth;
     }
 
@@ -2277,7 +2282,7 @@ public class Chart extends Pane {
         innerAxisStrokeWidth.set(val);
     }
 
-    public final DoubleProperty axisStrokeWidthProperty() {
+    public final StyleableDoubleProperty axisStrokeWidthProperty() {
         return axisStrokeWidth;
     }
 
@@ -2301,7 +2306,7 @@ public class Chart extends Pane {
         minorGridStrokeWidth.set(val);
     }
 
-    public final DoubleProperty majorGridStrokeWidthProperty() {
+    public final StyleableDoubleProperty majorGridStrokeWidthProperty() {
         return majorGridStrokeWidth;
     }
 
@@ -2313,7 +2318,7 @@ public class Chart extends Pane {
         majorGridStrokeWidth.set(val);
     }
 
-    public final BooleanProperty minorGridPaintedProperty() {
+    public final StyleableBooleanProperty minorGridPaintedProperty() {
         return minorGridPainted;
     }
 
@@ -2330,7 +2335,7 @@ public class Chart extends Pane {
         minorGridPainted.set(val);
     }
 
-    public final BooleanProperty majorGridPaintedProperty() {
+    public final StyleableBooleanProperty majorGridPaintedProperty() {
         return majorGridPainted;
     }
 
@@ -2342,7 +2347,7 @@ public class Chart extends Pane {
         majorGridPainted.set(val);
     }
 
-    public final BooleanProperty innerAxisPaintedProperty() {
+    public final StyleableBooleanProperty innerAxisPaintedProperty() {
         return innerAxisPainted;
     }
 
@@ -2354,7 +2359,7 @@ public class Chart extends Pane {
         innerAxisPainted.set(val);
     }
 
-    public final BooleanProperty innerAxisLabelledProperty() {
+    public final StyleableBooleanProperty innerAxisLabelledProperty() {
         return innerAxisLabelled;
     }
 
@@ -2366,7 +2371,7 @@ public class Chart extends Pane {
         innerAxisLabelled.set(val);
     }
 
-    public final BooleanProperty leftAxisPaintedProperty() {
+    public final StyleableBooleanProperty leftAxisPaintedProperty() {
         return leftAxisPainted;
     }
 
@@ -2378,7 +2383,7 @@ public class Chart extends Pane {
         leftAxisPainted.set(val);
     }
 
-    public final BooleanProperty rightAxisPaintedProperty() {
+    public final StyleableBooleanProperty rightAxisPaintedProperty() {
         return rightAxisPainted;
     }
 
@@ -2390,7 +2395,7 @@ public class Chart extends Pane {
         rightAxisPainted.set(val);
     }
 
-    public final BooleanProperty topAxisPaintedProperty() {
+    public final StyleableBooleanProperty topAxisPaintedProperty() {
         return topAxisPainted;
     }
 
@@ -2402,7 +2407,7 @@ public class Chart extends Pane {
         topAxisPainted.set(val);
     }
 
-    public final BooleanProperty bottomAxisPaintedProperty() {
+    public final StyleableBooleanProperty bottomAxisPaintedProperty() {
         return bottomAxisPainted;
     }
 
@@ -2414,7 +2419,7 @@ public class Chart extends Pane {
         bottomAxisPainted.set(val);
     }
 
-    public final BooleanProperty leftAxisLabelledProperty() {
+    public final StyleableBooleanProperty leftAxisLabelledProperty() {
         return leftAxisLabelled;
     }
 
@@ -2426,7 +2431,7 @@ public class Chart extends Pane {
         leftAxisLabelled.set(val);
     }
 
-    public final BooleanProperty rightAxisLabelledProperty() {
+    public final StyleableBooleanProperty rightAxisLabelledProperty() {
         return rightAxisLabelled;
     }
 
@@ -2438,7 +2443,7 @@ public class Chart extends Pane {
         rightAxisLabelled.set(val);
     }
 
-    public final BooleanProperty topAxisLabelledProperty() {
+    public final StyleableBooleanProperty topAxisLabelledProperty() {
         return topAxisLabeled;
     }
 
@@ -2450,7 +2455,7 @@ public class Chart extends Pane {
         topAxisLabeled.set(val);
     }
 
-    public final BooleanProperty bottomAxisLabelledProperty() {
+    public final StyleableBooleanProperty bottomAxisLabelledProperty() {
         return bottomAxisLabelled;
     }
 
@@ -2462,35 +2467,55 @@ public class Chart extends Pane {
         bottomAxisLabelled.set(val);
     }
 
-    public String getLeftAxisTitle() {
+    public final String getLeftAxisTitle() {
         return axisLeft.getAxisLabel().getText();
     }
 
-    public void setLeftAxisTitle(String s) {
+    /**
+     * Sets the title for the left axis.
+     *
+     * @param s the title
+     */
+    public final void setLeftAxisTitle(String s) {
         axisLeft.getAxisLabel().setText(s);
     }
 
-    public String getBottomAxisTitle() {
+    public final String getBottomAxisTitle() {
         return axisBottom.getAxisLabel().getText();
     }
 
-    public void setBottomAxisTitle(String s) {
+    /**
+     * Sets the title for the bottom axis.
+     *
+     * @param s the title
+     */
+    public final void setBottomAxisTitle(String s) {
         axisBottom.getAxisLabel().setText(s);
     }
 
-    public String getRightAxisTitle() {
+    public final String getRightAxisTitle() {
         return axisRight.getAxisLabel().getText();
     }
 
-    public void setRightAxisTitle(String s) {
+    /**
+     * Sets the title for the right axis.
+     *
+     * @param s the title
+     */
+    public final void setRightAxisTitle(String s) {
         axisRight.getAxisLabel().setText(s);
     }
 
-    public String getTopAxisTitle() {
+    public final String getTopAxisTitle() {
         return axisTop.getAxisLabel().getText();
     }
 
-    public void setTopAxisTitle(String s) {
+    /**
+     * Sets the title for the top axis.
+     *
+     * @param s the title
+     */
+    public final void setTopAxisTitle(String s) {
         axisTop.getAxisLabel().setText(s);
     }
 
@@ -2500,7 +2525,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void addAxisLinkXX(Chart chart) {
+    public final void addAxisLinkXX(Chart chart) {
         xLeft.bindBidirectional(chart.xLeft);
         xRight.bindBidirectional(chart.xRight);
     }
@@ -2511,7 +2536,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void addAxisLinkXY(Chart chart) {
+    public final void addAxisLinkXY(Chart chart) {
         xLeft.bindBidirectional(chart.yBottom);
         xRight.bindBidirectional(chart.yTop);
     }
@@ -2522,7 +2547,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void addAxisLinkYY(Chart chart) {
+    public final void addAxisLinkYY(Chart chart) {
         yBottom.bindBidirectional(chart.yBottom);
         yTop.bindBidirectional(chart.yTop);
     }
@@ -2533,7 +2558,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void addAxisLinkYX(Chart chart) {
+    public final void addAxisLinkYX(Chart chart) {
         yBottom.bindBidirectional(chart.xLeft);
         yTop.bindBidirectional(chart.xRight);
     }
@@ -2544,7 +2569,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void removeAxisLinkXX(Chart chart) {
+    public final void removeAxisLinkXX(Chart chart) {
         xLeft.unbindBidirectional(chart.xLeft);
         xRight.unbindBidirectional(chart.xRight);
     }
@@ -2555,7 +2580,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void removeAxisLinkXY(Chart chart) {
+    public final void removeAxisLinkXY(Chart chart) {
         xLeft.unbindBidirectional(chart.yBottom);
         xRight.unbindBidirectional(chart.yTop);
     }
@@ -2566,7 +2591,7 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void removeAxisLinkYY(Chart chart) {
+    public final void removeAxisLinkYY(Chart chart) {
         yBottom.unbindBidirectional(chart.yBottom);
         yTop.unbindBidirectional(chart.yTop);
     }
@@ -2577,12 +2602,12 @@ public class Chart extends Pane {
      *
      * @param chart
      */
-    public void removeAxisLinkYX(Chart chart) {
+    public final void removeAxisLinkYX(Chart chart) {
         yBottom.unbindBidirectional(chart.xLeft);
         yTop.unbindBidirectional(chart.xRight);
     }
 
-    public final BooleanProperty polarProperty() {
+    public final StyleableBooleanProperty polarProperty() {
         return polar;
     }
 
@@ -2594,7 +2619,7 @@ public class Chart extends Pane {
         polar.set(val);
     }
 
-    public final ObjectProperty<Paint> majorGridColorProperty() {
+    public final StyleableObjectProperty<Paint> majorGridColorProperty() {
         return majorGridColor;
     }
 
@@ -2606,7 +2631,7 @@ public class Chart extends Pane {
         majorGridColor.set(val);
     }
 
-    public final ObjectProperty<Paint> minorGridColorProperty() {
+    public final StyleableObjectProperty<Paint> minorGridColorProperty() {
         return minorGridColor;
     }
 
@@ -2618,7 +2643,7 @@ public class Chart extends Pane {
         minorGridColor.set(val);
     }
 
-    public final ObjectProperty<Paint> axisColorProperty() {
+    public final StyleableObjectProperty<Paint> axisColorProperty() {
         return axisColor;
     }
 
@@ -2630,21 +2655,27 @@ public class Chart extends Pane {
         axisColor.set(val);
     }
 
-    public ObjectProperty<Paint> altFillVerticalProperty() {
+    /**
+     * Property wrapping the Paint instance to use when filling alternate
+     * vertical major grid divisions.
+     *
+     * @return the property.
+     */
+    public final StyleableObjectProperty<Paint> altFillVerticalProperty() {
         return altFillVertical;
     }
 
     /**
      * @return the alternateBackground
      */
-    public Paint getAltFillVertical() {
+    public final Paint getAltFillVertical() {
         return altFillVertical.get();
     }
 
     /**
      * @param alternateBackground the alternateBackground to getParent
      */
-    public void setAltFillVertical(Paint alternateBackground) {
+    public final void setAltFillVertical(Paint alternateBackground) {
         altFillVertical.set(alternateBackground);
     }
 
@@ -2654,7 +2685,7 @@ public class Chart extends Pane {
      *
      * @return the property.
      */
-    public ObjectProperty<Paint> altFillHorizontalProperty() {
+    public final StyleableObjectProperty<Paint> altFillHorizontalProperty() {
         return altFillHorizontal;
     }
 
@@ -2664,7 +2695,7 @@ public class Chart extends Pane {
      *
      * @return the Paint instance.
      */
-    public Paint getAltFillHorizontal() {
+    public final Paint getAltFillHorizontal() {
         return altFillHorizontal.get();
     }
 
@@ -2674,7 +2705,7 @@ public class Chart extends Pane {
      *
      * @param alternateBackground the Paint instance
      */
-    public void setAltFillHorizontal(Paint alternateBackground) {
+    public final void setAltFillHorizontal(Paint alternateBackground) {
         altFillHorizontal.set(alternateBackground);
     }
 
@@ -2685,7 +2716,7 @@ public class Chart extends Pane {
      * @since JavaFX 8.0
      */
     @Override
-    public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() {
+    public final List<CssMetaData<? extends Styleable, ?>> getCssMetaData() {
         return getClassCssMetaData();
     }
 
@@ -2698,7 +2729,7 @@ public class Chart extends Pane {
 
     //    /**
     private boolean atOrigin(double x, double y) {
-        return onXAxis(y) & onYAxis(x);
+        return onXAxis(y) && onYAxis(x);
     }
 
     private boolean onXAxis(double y) {
@@ -2726,11 +2757,11 @@ public class Chart extends Pane {
         return getYBottom() + (view.getHeight() - pixel) * (getYTop() - getYBottom()) / view.getHeight();
     }
 
-    public double toPixelX(double x) {
+    public final double toPixelX(double x) {
         return (x - getXLeft()) * getView().getWidth() / (getXRight() - getXLeft());
     }
 
-    public double toPixelY(double y) {
+    public final double toPixelY(double y) {
         return view.getHeight() - ((y - getYBottom()) * view.getHeight() / (getYTop() - getYBottom()));
     }
 
@@ -2742,7 +2773,7 @@ public class Chart extends Pane {
      * @param y y value in graph coordinates
      * @return a Point2D instance with the pixel values for the point
      */
-    public Point2D toPixel(double x, double y) {
+    public final Point2D toPixel(double x, double y) {
         return new Point2D(toPixelX(x), toPixelY(y));
     }
 
@@ -2754,19 +2785,19 @@ public class Chart extends Pane {
      * space
      * @return a Point2D instance with the pixel values for the point
      */
-    public Point2D toPixel(Point2D p) {
+    public final Point2D toPixel(Point2D p) {
         return new Point2D(toPixelX(p.getX()), toPixelY(p.getY()));
     }
 
-    public double getPixelWidth() {
+    public final double getPixelWidth() {
         return (getXMax() - getXMin()) / view.getWidth();
     }
 
-    public double getPixelHeight() {
+    public final double getPixelHeight() {
         return (getYMax() - getYMin()) / view.getHeight();
     }
 
-    public ArrayList<Point2D> toPixel(Collection<Point2D> p) {
+    public final ArrayList<Point2D> toPixel(Collection<Point2D> p) {
         ArrayList<Point2D> val = new ArrayList<>();
         p.stream().forEach((Point2D x) -> {
             val.add(toPixel(x));
@@ -2774,7 +2805,7 @@ public class Chart extends Pane {
         return val;
     }
 
-    public Point2D pixelToPos(Point2D p) {
+    public final Point2D pixelToPos(Point2D p) {
         return toPixel(axisSet.getInverse(p.getX(), p.getY()));
 
     }
@@ -2782,65 +2813,32 @@ public class Chart extends Pane {
     /**
      * @return the axisFontSize
      */
-    public double getAxisFontSize() {
+    public final double getAxisFontSize() {
         return axisFontSize.get();
     }
-
-    ;
 
     /**
      * @param value the axisFontSize to set
      */
-    public void setAxisFontSize(double value) {
+    public final void setAxisFontSize(double value) {
         this.axisFontSize.set(value);
     }
 
-    public DoubleProperty axisFontSizeProperty() {
+    public final StyleableDoubleProperty axisFontSizeProperty() {
         return axisFontSize;
 
     }
 
-//    /**
-//     * @return the xRightOffset
-//     */
-//    public double getxRightOffset() {
-//        return 0d;
-//        //return xRightOffset;
-//    }
-//
-//    /**
-//     * @param xRightOffset the xRightOffset to set
-//     */
-//    public void setxRightOffset(double xRightOffset) {
-//        this.xRightOffset = xRightOffset;
-//    }
-//
-//    /**
-//     * @return the xRightTickLength
-//     */
-//    public double getxRightTickLength() {
-//        return xRightTickLength;
-//    }
-//
-//    /**
-//     * @param xRightTickLength the xRightTickLength to set
-//     */
-//    public void setxRightTickLength(double xRightTickLength) {
-//        this.xRightTickLength = xRightTickLength;
-//
-//    }
     /**
      * @return the axisPane
      */
-    public Pane getAxisPane() {
+    public final Pane getAxisPane() {
         return axisPane;
     }
 
     public static enum TRANSFORMTYPE {
 
-        LINEAR,
-        LOG,
-        LOG10, LOG2
+        LINEAR, LOG, LOG10, LOG2
     }
 
     /**
@@ -2859,32 +2857,24 @@ public class Chart extends Pane {
         CENTER, LEFT_TOP, RIGHT_BOTTOM
     }
 
-// -------------- STYLESHEET HANDLING ------------------------------------------------------------------------------
-//    private static final class Tooltips {
-//
-//        private final static String axisTooltip = "Double click to edit axis settings";
-//        private final static String axisLineTooltip = "Click and drag to change axis limits";
-//    }
     /**
      * @treatAsPrivate implementation detail
      */
     private static class StyleableProperties {
 
-        //static final Class<? extends Enum> clzz = TRANSFORMTYPE.class;
-        //static final Class<? extends Enum> clzz0 = VIEWALIGNMENT.class;
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
         private static final CssMetaData<Chart, Number> XLEFT
                 = new CssMetaData<Chart, Number>("-w-xleft",
-                        StyleConverter.getSizeConverter(), -10) {
+                        StyleConverter.getSizeConverter(), -1) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.xLeft != null && !n.xLeft.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.xLeft;
                     }
                 };
@@ -2893,26 +2883,26 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 1) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.xRight != null && !n.xRight.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.xRight;
                     }
                 };
         private static final CssMetaData<Chart, Number> YBOTTOM
                 = new CssMetaData<Chart, Number>("-w-ybottom",
-                        StyleConverter.getSizeConverter(), 1) {
+                        StyleConverter.getSizeConverter(), -1) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.yBottom != null && !n.yBottom.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.yBottom;
                     }
                 };
@@ -2921,13 +2911,41 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 1) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.yTop != null && !n.yTop.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.yTop;
+                    }
+                };
+        private static final CssMetaData<Chart, Number> MAJORXINTERVAL
+                = new CssMetaData<Chart, Number>("-w-majorx",
+                        StyleConverter.getSizeConverter(), Double.NaN) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.majorXInterval != null;
+                    }
+
+                    @Override
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Number>) n.majorXInterval.userSpecifiedValue;
+                    }
+                };
+        private static final CssMetaData<Chart, Number> MAJORYINTERVAL
+                = new CssMetaData<Chart, Number>("-w-majory",
+                        StyleConverter.getSizeConverter(), Double.NaN) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.majorYInterval != null;
+                    }
+
+                    @Override
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Number>) n.majorYInterval.userSpecifiedValue;
                     }
                 };
         private static final CssMetaData<Chart, Number> XORIGIN
@@ -2935,12 +2953,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 0d) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.xOrigin != null && !n.xOrigin.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.xOrigin;
                     }
                 };
@@ -2949,12 +2967,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 0d) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.yOrigin != null && !n.yOrigin.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.yOrigin;
                     }
                 };
@@ -2963,12 +2981,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 1d) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.axisStrokeWidth != null && !n.axisStrokeWidth.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.axisStrokeWidth;
                     }
                 };
@@ -2977,12 +2995,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 1.5d) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.innerAxisStrokeWidth != null && !n.innerAxisStrokeWidth.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.innerAxisStrokeWidth;
                     }
                 };
@@ -2991,12 +3009,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 1.1) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.yTop != null && !n.yTop.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.yTop;
                     }
                 };
@@ -3005,12 +3023,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), 1.3) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.yTop != null && !n.yTop.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.yTop;
                     }
                 };
@@ -3019,12 +3037,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.minorGridPainted != null && !n.minorGridPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.minorGridPainted;
                     }
                 };
@@ -3033,12 +3051,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.majorGridPainted != null && !n.majorGridPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.majorGridPainted;
                     }
                 };
@@ -3047,12 +3065,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.innerAxisPainted != null && !n.innerAxisPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.innerAxisPainted;
                     }
                 };
@@ -3061,12 +3079,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), Font.getDefault().getSize()) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.innerAxisFontSize != null && !n.innerAxisFontSize.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.innerAxisFontSize;
                     }
                 };
@@ -3075,12 +3093,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.innerAxisLabelled != null && !n.innerAxisLabelled.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.innerAxisLabelled;
                     }
                 };
@@ -3089,12 +3107,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.leftAxisPainted != null && !n.leftAxisPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.leftAxisPainted;
                     }
                 };
@@ -3103,12 +3121,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.rightAxisPainted != null && !n.rightAxisPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.rightAxisPainted;
                     }
                 };
@@ -3117,12 +3135,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.topAxisPainted != null && !n.topAxisPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.topAxisPainted;
                     }
                 };
@@ -3131,12 +3149,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.TRUE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.bottomAxisPainted != null && !n.bottomAxisPainted.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.bottomAxisPainted;
                     }
                 };
@@ -3145,12 +3163,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.leftAxisLabelled != null && !n.leftAxisLabelled.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.leftAxisLabelled;
                     }
                 };
@@ -3159,12 +3177,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.TRUE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.bottomAxisLabelled != null && !n.bottomAxisLabelled.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.bottomAxisLabelled;
                     }
                 };
@@ -3173,12 +3191,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.topAxisLabeled != null && !n.topAxisLabeled.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.topAxisLabeled;
                     }
                 };
@@ -3187,12 +3205,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.rightAxisLabelled != null && !n.rightAxisLabelled.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.rightAxisLabelled;
                     }
                 };
@@ -3201,12 +3219,12 @@ public class Chart extends Pane {
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.polar != null && !n.polar.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Boolean>) n.polar;
                     }
                 };
@@ -3215,12 +3233,12 @@ public class Chart extends Pane {
                         StyleConverter.getPaintConverter(), Color.SLATEBLUE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.majorGridColor != null && !n.majorGridColor.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Paint> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Paint> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Paint>) n.majorGridColor;
                     }
                 };
@@ -3229,12 +3247,12 @@ public class Chart extends Pane {
                         StyleConverter.getPaintConverter(), Color.SLATEBLUE) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.minorGridColor != null && !n.minorGridColor.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Paint> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Paint> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Paint>) n.minorGridColor;
                     }
                 };
@@ -3242,12 +3260,12 @@ public class Chart extends Pane {
                 = new FontCssMetaData<Chart>("-w-font", Font.getDefault()) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.fontProperty != null && !n.fontProperty.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Font> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Font> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Font>) n.fontProperty;
                     }
                 };
@@ -3256,12 +3274,12 @@ public class Chart extends Pane {
                         StyleConverter.getPaintConverter(), Color.BLACK) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.axisColor != null && !n.axisColor.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Paint> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Paint> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Paint>) n.axisColor;
                     }
                 };
@@ -3270,12 +3288,12 @@ public class Chart extends Pane {
                         StyleConverter.getPaintConverter(), Color.BLACK) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.innerAxisColor != null && !n.innerAxisColor.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Paint> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Paint> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Paint>) n.innerAxisColor;
                     }
                 };
@@ -3284,12 +3302,12 @@ public class Chart extends Pane {
                         StyleConverter.getPaintConverter(), Color.TRANSPARENT) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.altFillVertical != null && !n.altFillVertical.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Paint> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Paint> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Paint>) n.altFillVertical;
                     }
                 };
@@ -3298,12 +3316,12 @@ public class Chart extends Pane {
                         StyleConverter.getPaintConverter(), Color.TRANSPARENT) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.altFillHorizontal != null && !n.altFillHorizontal.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Paint> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Paint> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Paint>) n.altFillHorizontal;
                     }
                 };
@@ -3312,12 +3330,12 @@ public class Chart extends Pane {
                         StyleConverter.getSizeConverter(), Double.NaN) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return n.viewAspectRatio != null && !n.viewAspectRatio.isBound();
                     }
 
                     @Override
-                    public StyleableProperty<Number> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
                         return (StyleableProperty<Number>) n.viewAspectRatio;
                     }
                 };
@@ -3327,12 +3345,12 @@ public class Chart extends Pane {
                         (StyleConverter<?, TRANSFORMTYPE>) StyleConverter.getEnumConverter(TRANSFORMTYPE.class), TRANSFORMTYPE.LINEAR) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return true;
                     }
 
                     @Override
-                    public StyleableProperty<TRANSFORMTYPE> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<TRANSFORMTYPE> getStyleableProperty(Chart n) {
                         return (StyleableProperty<TRANSFORMTYPE>) n.xTransformType;
                     }
                 };
@@ -3342,27 +3360,28 @@ public class Chart extends Pane {
                         (StyleConverter<?, TRANSFORMTYPE>) StyleConverter.getEnumConverter(TRANSFORMTYPE.class), TRANSFORMTYPE.LINEAR) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return true;
                     }
 
                     @Override
-                    public StyleableProperty<TRANSFORMTYPE> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<TRANSFORMTYPE> getStyleableProperty(Chart n) {
                         return (StyleableProperty<TRANSFORMTYPE>) n.yTransformType;
                     }
                 };
 
         private static final CssMetaData<Chart, VIEWALIGNMENT> VIEWALIGN
                 = new CssMetaData<Chart, VIEWALIGNMENT>("-w-view-alignment",
-                        (StyleConverter<?, VIEWALIGNMENT>) StyleConverter.getEnumConverter(VIEWALIGNMENT.class), VIEWALIGNMENT.CENTER) {
+                        (StyleConverter<?, VIEWALIGNMENT>) StyleConverter.getEnumConverter(VIEWALIGNMENT.class),
+                        VIEWALIGNMENT.CENTER) {
 
                     @Override
-                    public boolean isSettable(Chart n) {
+                    public final boolean isSettable(Chart n) {
                         return true;
                     }
 
                     @Override
-                    public StyleableProperty<VIEWALIGNMENT> getStyleableProperty(Chart n) {
+                    public final StyleableProperty<VIEWALIGNMENT> getStyleableProperty(Chart n) {
                         return (StyleableProperty<VIEWALIGNMENT>) n.viewAlignment;
                     }
                 };
@@ -3394,6 +3413,9 @@ public class Chart extends Pane {
             styleables.add(MAJORGRIDCOLOR);
             styleables.add(MINORGRIDCOLOR);
 
+            styleables.add(MAJORXINTERVAL);
+            styleables.add(MAJORYINTERVAL);
+
             styleables.add(INNERAXISCOLOR);
             styleables.add(INNERAXISPAINTED);
             styleables.add(INNERAXISLABELLED);
@@ -3413,7 +3435,8 @@ public class Chart extends Pane {
             styleables.add(ALTFILLVERTICAL);
             styleables.add(ALTFILLHORIZONTAL);
 
-            //styleables.add(ALTFILLHORIZONTALFLAG);
+            styleables.add(VIEWALIGN);
+
             STYLEABLES = Collections.unmodifiableList(styleables);
         }
     }
@@ -3438,27 +3461,44 @@ public class Chart extends Pane {
     }
 
     /**
-     * Binding to support lazy evaluation of the major ticks on the xpos-axis
+     * Binding to support lazy evaluation of the major ticks on the x-axis
      */
-    public class MajorXInterval extends ObjectBinding<Double> {
+    public final class MajorXInterval extends ObjectBinding<Double> {
 
         /**
          * A user-specified constant value that will be used instead of the
          * automatically calculated value. Set this to Double.NaN to enable
          * auto-calculation.
          */
-        private double userSpecifiedValue = Double.NaN;
+        private StyleableDoubleProperty userSpecifiedValue = new StyleableDoubleProperty(Double.NaN) {
+
+            @Override
+            public final CssMetaData<Chart, Number> getCssMetaData() {
+                return Chart.StyleableProperties.MAJORXINTERVAL;
+            }
+
+            @Override
+            public final Object getBean() {
+                return Chart.MajorXInterval.this;
+            }
+
+            @Override
+            public final String getName() {
+                return "majorX";
+            }
+
+        };
 
         private MajorXInterval() {
             bind(xLeftProperty());
             bind(xRightProperty());
-            bind(yTopProperty());
-            bind(yBottomProperty());
+//            bind(yTopProperty());
+//            bind(yBottomProperty());
         }
 
         @Override
         protected Double computeValue() {
-            if (Double.isNaN(userSpecifiedValue)) {
+            if (Double.isNaN(userSpecifiedValue.get())) {
                 double width = Math.abs(getAxesBounds().getWidth());
                 double lg = Math.log10(width);
                 double rem = lg - Math.floor(lg);
@@ -3474,30 +3514,47 @@ public class Chart extends Pane {
                 }
                 return inc;
             } else {
-                return userSpecifiedValue;
+                return userSpecifiedValue.get();
             }
         }
 
-        public void reset() {
-            userSpecifiedValue = Double.NaN;
+        public final void reset() {
+            userSpecifiedValue.set(Double.NaN);
         }
 
     }
 
-    public class MajorYInterval extends ObjectBinding<Double> {
+    public final class MajorYInterval extends ObjectBinding<Double> {
 
-        private double userSpecifiedValue = Double.NaN;
+        private StyleableDoubleProperty userSpecifiedValue = new StyleableDoubleProperty(Double.NaN) {
+
+            @Override
+            public final CssMetaData<Chart, Number> getCssMetaData() {
+                return Chart.StyleableProperties.MAJORYINTERVAL;
+            }
+
+            @Override
+            public final Object getBean() {
+                return Chart.MajorYInterval.this;
+            }
+
+            @Override
+            public final String getName() {
+                return "majorY";
+            }
+
+        };
 
         private MajorYInterval() {
-            bind(xLeftProperty());
-            bind(xRightProperty());
+//            bind(xLeftProperty());
+//            bind(xRightProperty());
             bind(yTopProperty());
             bind(yBottomProperty());
         }
 
         @Override
         protected Double computeValue() {
-            if (Double.isNaN(userSpecifiedValue)) {
+            if (Double.isNaN(userSpecifiedValue.get())) {
                 double height = Math.abs(getAxesBounds().getHeight());
                 double lg = Math.log10(height);
                 double rem = lg - Math.floor(lg);
@@ -3513,12 +3570,12 @@ public class Chart extends Pane {
                 }
                 return inc;
             } else {
-                return userSpecifiedValue;
+                return userSpecifiedValue.get();
             }
         }
 
-        public void reset() {
-            userSpecifiedValue = Double.NaN;
+        public final void reset() {
+            userSpecifiedValue.set(Double.NaN);
         }
     }
 

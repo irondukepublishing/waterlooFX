@@ -25,8 +25,6 @@ package waterloo.fx.plot;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -152,8 +150,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     T visualElement;
 
-    //private final NumberFormat formatter = new DecimalFormat();
-    
+
     /**
      * When nodesNeedUpdate is true, nodes required by the plot will be
      * regenerated/reset before calling arrangePlot to layout those nodes.
@@ -459,28 +456,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
     };
 
-//    /**
-//     * The CSS styling index for the plot.
-//     *
-//     * When added to a chart or a PlotCollection, "plot-N" where N is the
-//     * plotSyleIndex will be added to the list of classes returned by
-//     * {@code getStyleClass}.
-//     */
-//    IntegerProperty plotStyleIndex = new SimpleIntegerProperty(-1) {
-//
-//        @Override
-//        public void set(int index) {
-//            if (index >= 0) {
-//                super.set(index);
-//                List<String> list = new ArrayList<>();
-//                list.addAll(getStyleClass());
-//                list.stream().filter((s) -> (s.startsWith("plot-"))).forEach((s) -> {
-//                    getStyleClass().remove(s);
-//                });
-//                getStyleClass().add("plot-" + index);
-//            }
-//        }
-//    };
     /**
      * Default constructor
      */
@@ -488,7 +463,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         super();
 
         setBackground(Background.EMPTY);
-//        getStyleClass().add("plot-");
 
         graphicsPane = new Pane();
         graphicsPane.setBackground(Background.EMPTY);
@@ -499,7 +473,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         annotationPane.setBackground(Background.EMPTY);
         getChildren().add(annotationPane);
         annotationPane.setPickOnBounds(false);
-//        annotationPane.getStyleClass().add("annotationpane");
 
         // Add a ListChangeListener to the x and y data.
         dataModel.getXData().addListener(this);
@@ -605,25 +578,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return list;
     }
 
-//    IntegerProperty plotStyleIndex() {
-//        return plotStyleIndex;
-//    }
-//
-//    public void setPlotStyleIndex(int index) {
-//        plotStyleIndex.set(index);
-//    }
-//    
-//    public int getPlotStyleIndex(){
-//        return plotStyleIndex.get();
-//    }
-//    public String getPlotStyle() {
-//        for (String s : getStyleClass()) {
-//            if (s.startsWith("plot-")) {
-//                return s;
-//            }
-//        }
-//        return "UNSET";
-//    }
     public VisualModel getVisualModel() {
         return visualModel;
     }
@@ -632,9 +586,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return dataModel;
     }
 
-//    public void setDataModel(DataModel model) {
-//        this.dataModel = model;
-//    }
     public String getXData() {
         return xData.get();
     }
@@ -730,15 +681,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         }
     }
 
-//    private static double[] cartesianToPolar(double x, double y) {
-//        double[] xy = new double[]{Math.hypot(x, y), Math.atan2(x, y)};
-//        return xy;
-//    }
-//
-//    private static double[] polarToCartesian(double x, double y) {
-//        double[] xy = new double[]{Math.cos(x) * y, Math.sin(x) * y};
-//        return xy;
-//    }
     //private final static Point2D zeroPoint = new Point2D(0,0);
     public final Point2D getInverse(Chart chart, double x, double y) {
         if (!chart.isPolar() && !dataModel.isDataPolar()) {
@@ -894,9 +836,9 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
     }
 
     /**
-     * Creates the visualElement(s) for the plot. These are created lazily -
-     * when the data in the data model is altered, the nodesNeedUpdate flag is
-     * set true.
+     * Creates the visualElement(s) for the plot. These will usually created
+     * lazily - when the data in the data model is altered, the nodesNeedUpdate
+     * flag is set true.
      *
      * @param chart
      */
@@ -1804,6 +1746,5 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         public ArrayList<Text> getLabels() {
             return labels;
         }
-
     }
 }
