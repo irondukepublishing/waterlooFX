@@ -39,6 +39,7 @@ import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableDoubleProperty;
+import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.geometry.Insets;
@@ -186,12 +187,43 @@ public final class Chart extends Pane {
      * Number of minor ticks/grids in the majorXInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
-    private int minorCountXHint = 4;
+    private StyleableIntegerProperty minorCountXHint = new StyleableIntegerProperty(4) {
+        @Override
+        public final CssMetaData<Chart, Number> getCssMetaData() {
+            return Chart.StyleableProperties.MINORCOUNTXHINT;
+        }
+
+        @Override
+        public final Object getBean() {
+            return Chart.this;
+        }
+
+        @Override
+        public final String getName() {
+            return "minorCountX";
+        }
+    };
     /**
      * Number of minor ticks/grids in the majorYInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
-    private int minorCountYHint = 4;
+    private StyleableIntegerProperty minorCountYHint = new StyleableIntegerProperty(4) {
+
+        @Override
+        public final CssMetaData<Chart, Number> getCssMetaData() {
+            return Chart.StyleableProperties.MINORCOUNTYHINT;
+        }
+
+        @Override
+        public final Object getBean() {
+            return Chart.this;
+        }
+
+        @Override
+        public final String getName() {
+            return "minorCountY";
+        }
+    };
 
     private double dragXStart = Double.NaN;
     private double dragYStart = Double.NaN;
@@ -322,7 +354,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Value for the ypos-axis at the bottom
+     * Value for the y-axis at the bottom of the view
      */
     private final StyleableDoubleProperty yBottom = new StyleableDoubleProperty(-1d) {
 
@@ -343,7 +375,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Value for the ypos-axis at the top
+     * Value for the y-axis at the top of the view
      */
     private final StyleableDoubleProperty yTop = new StyleableDoubleProperty(1d) {
 
@@ -364,7 +396,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Value for the origin on the xpos-axis. Internal axisSet are painted here.
+     * Value for the origin of the x-axis (i.e where it intersects the y-axis).
      */
     private final StyleableDoubleProperty xOrigin = new StyleableDoubleProperty(0d) {
 
@@ -385,7 +417,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Value for the origin on the xpos-axis. Internal axisSet are painted here.
+     * Value for the origin of the y-axis (i.e where it intersects the x-axis).
      */
     private final StyleableDoubleProperty yOrigin = new StyleableDoubleProperty(0d) {
 
@@ -406,7 +438,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * stroke width used to draw an internal axis
+     * Stroke width used to draw an axis
      */
     private final StyleableDoubleProperty axisStrokeWidth = new StyleableDoubleProperty(1d) {
 
@@ -426,6 +458,9 @@ public final class Chart extends Pane {
         }
 
     };
+    /**
+     * Stroke width used to draw an internal axis
+     */
     private final StyleableDoubleProperty innerAxisStrokeWidth = new StyleableDoubleProperty(1.1d) {
 
         @Override
@@ -445,7 +480,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * stroke width used to draw the minor grid
+     * Stroke width used to draw the minor grid
      */
     private final StyleableDoubleProperty minorGridStrokeWidth = new StyleableDoubleProperty(1.1d) {
 
@@ -465,6 +500,9 @@ public final class Chart extends Pane {
         }
 
     };
+    /**
+     * Stroke width used to draw the major grid
+     */
     private final StyleableDoubleProperty majorGridStrokeWidth = new StyleableDoubleProperty(1.3d) {
 
         @Override
@@ -486,7 +524,6 @@ public final class Chart extends Pane {
     /**
      * Set true to paint the minor grid
      */
-
     private final StyleableBooleanProperty minorGridPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
         @Override
@@ -527,7 +564,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * getParent true to paint the axisSet within the view
+     * Set true to paint the inner axis.
      */
     private final StyleableBooleanProperty innerAxisPainted = new StyleableBooleanProperty(Boolean.FALSE) {
 
@@ -737,7 +774,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Draw as polarProperty plot
+     * Draw as polar property. Set true for polar plot.
      */
     private final StyleableBooleanProperty polar = new StyleableBooleanProperty(Boolean.FALSE) {
 
@@ -758,7 +795,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Major grid color
+     * Major grid color as a {@code Paint} instance
      */
     private final StyleableObjectProperty<Paint> majorGridColor = new StyleableObjectProperty<Paint>(Color.SLATEBLUE) {
 
@@ -779,7 +816,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Minor grid color
+     * Minor grid color as a {@code Paint} instance
      */
     private final StyleableObjectProperty<Paint> minorGridColor = new StyleableObjectProperty<Paint>(Color.SLATEBLUE) {
 
@@ -800,7 +837,7 @@ public final class Chart extends Pane {
 
     };
     /**
-     * Inner axis color
+     * Inner axis color as a {@code Paint} instance
      */
     private final StyleableObjectProperty<Paint> innerAxisColor = new StyleableObjectProperty<Paint>(Color.BLACK) {
 
@@ -820,6 +857,9 @@ public final class Chart extends Pane {
         }
 
     };
+    /**
+     * Axis color as a {@code Paint} instance
+     */
     private final StyleableObjectProperty<Paint> axisColor = new StyleableObjectProperty<Paint>(Color.BLACK) {
 
         @Override
@@ -838,6 +878,10 @@ public final class Chart extends Pane {
         }
 
     };
+    /**
+     * Grid fill color as a {@code Paint} instance: alternate vertical grid
+     * elements will be filled.
+     */
     private final StyleableObjectProperty<Paint> altFillVertical = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
 
         @Override
@@ -856,6 +900,10 @@ public final class Chart extends Pane {
         }
 
     };
+    /**
+     * Grid fill color as a {@code Paint} instance: alternate horizontal grid
+     * elements will be filled.
+     */
     private final StyleableObjectProperty<Paint> altFillHorizontal = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
 
         @Override
@@ -953,7 +1001,9 @@ public final class Chart extends Pane {
         }
 
     };
-
+    /**
+     * For alignment of the view within the {@code Chart} area.
+     */
     private final StyleableObjectProperty<VIEWALIGNMENT> viewAlignment = new StyleableObjectProperty<VIEWALIGNMENT>(VIEWALIGNMENT.CENTER) {
         @Override
         public final Object getBean() {
@@ -2177,14 +2227,20 @@ public final class Chart extends Pane {
      * @return the interval.
      */
     public final int getMinorCountXHint() {
-        return minorCountXHint;
+        return minorCountXHint.get();
     }
 
+    /**
+     * Sets a hint for the number of minor ticks/grids to paint between major
+     * ticks/grids on the x-axis.
+     *
+     * @param minorCountX the number to paint
+     */
     public final void setMinorCountXHint(int minorCountX) {
-        if (minorCountX < 0) {
+        if (minorCountX < 1) {
             return;
         }
-        this.minorCountXHint = minorCountX;
+        minorCountXHint.set(minorCountX);
     }
 
     /**
@@ -2200,14 +2256,20 @@ public final class Chart extends Pane {
      * @return the interval.
      */
     public final int getMinorCountYHint() {
-        return minorCountYHint;
+        return minorCountYHint.get();
     }
 
+    /**
+     * Sets a hint for the number of minor ticks/grids to paint between major
+     * ticks/grids on the y-axis.
+     *
+     * @param minorCountY the number to paint
+     */
     public final void setMinorCountYHint(int minorCountY) {
-        if (minorCountY < 0) {
+        if (minorCountY < 1) {
             return;
         }
-        this.minorCountYHint = minorCountY;
+        minorCountYHint.set(minorCountY);
     }
 
     /**
@@ -2246,14 +2308,25 @@ public final class Chart extends Pane {
         return Math.max(getYTop(), getYBottom());
     }
 
+    /**
+     * Value for the origin of the x-axis (i.e where it intersects the y-axis).
+     */
     public final StyleableDoubleProperty xOriginProperty() {
         return xOrigin;
     }
 
+    /**
+     * Returns the value for the origin of the x-axis (i.e where it intersects
+     * the y-axis).
+     */
     public final double getXOrigin() {
         return xOrigin.doubleValue();
     }
 
+    /**
+     * Sets the value for the origin of the x-axis (i.e where it intersects the
+     * y-axis).
+     */
     public final void setXOrigin(double val) {
         xOrigin.set(val);
     }
@@ -2948,6 +3021,34 @@ public final class Chart extends Pane {
                         return (StyleableProperty<Number>) n.majorYInterval.userSpecifiedValue;
                     }
                 };
+        private static final CssMetaData<Chart, Number> MINORCOUNTXHINT
+                = new CssMetaData<Chart, Number>("-w-minor-count-x",
+                        StyleConverter.getSizeConverter(), 4) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.minorCountXHint != null && !n.minorCountXHint.isBound();
+                    }
+
+                    @Override
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Number>) n.minorCountXHint;
+                    }
+                };
+        private static final CssMetaData<Chart, Number> MINORCOUNTYHINT
+                = new CssMetaData<Chart, Number>("-w-minor-count-y",
+                        StyleConverter.getSizeConverter(), 4) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.minorCountYHint != null && !n.minorCountYHint.isBound();
+                    }
+
+                    @Override
+                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Number>) n.minorCountYHint;
+                    }
+                };
         private static final CssMetaData<Chart, Number> XORIGIN
                 = new CssMetaData<Chart, Number>("-w-xorigin",
                         StyleConverter.getSizeConverter(), 0d) {
@@ -3415,6 +3516,8 @@ public final class Chart extends Pane {
 
             styleables.add(MAJORXINTERVAL);
             styleables.add(MAJORYINTERVAL);
+            styleables.add(MINORCOUNTXHINT);
+            styleables.add(MINORCOUNTYHINT);
 
             styleables.add(INNERAXISCOLOR);
             styleables.add(INNERAXISPAINTED);
