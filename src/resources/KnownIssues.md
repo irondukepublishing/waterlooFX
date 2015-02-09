@@ -1,6 +1,6 @@
 ### Known Issues
 
-#### There are several issues related to bugs in Java 8.
+#### There are several issues related to bugs in old versions of Java 8.
 
 #####The following appear to be resolved at least as of 8u20ea build 10:
 
