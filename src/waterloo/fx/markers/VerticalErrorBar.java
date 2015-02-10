@@ -27,7 +27,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 
 /**
- * @Deprecated
+ * @deprecated
  * @author Malcolm Lidierth
  */
 public class VerticalErrorBar extends Path implements CenteredShapeInterface {

@@ -307,7 +307,7 @@ public class AxisSet {
             //MINOR GRID
             if (layer.isMinorGridPainted()) {
                 g.setStroke(layer.getMinorGridColor());
-                g.setLineWidth(layer.minorGridStrokeWidth());
+                g.setLineWidth(layer.getMinorGridStrokeWidth());
                 xTransform.getMinorTicks().stream().forEach((Double x) -> {
                     Point2D p0 = layer.toPixel(x, layer.getYBottom());
                     Point2D p1 = layer.toPixel(x, layer.getYTop());

@@ -2309,7 +2309,10 @@ public final class Chart extends Pane {
     }
 
     /**
-     * Value for the origin of the x-axis (i.e where it intersects the y-axis).
+     * Returns a {@code StyleableDoubleProperty} for the origin of the x-axis
+     * (i.e where it intersects the y-axis).
+     *
+     * @return the property
      */
     public final StyleableDoubleProperty xOriginProperty() {
         return xOrigin;
@@ -2318,6 +2321,8 @@ public final class Chart extends Pane {
     /**
      * Returns the value for the origin of the x-axis (i.e where it intersects
      * the y-axis).
+     *
+     * @return the value
      */
     public final double getXOrigin() {
         return xOrigin.doubleValue();
@@ -2326,49 +2331,112 @@ public final class Chart extends Pane {
     /**
      * Sets the value for the origin of the x-axis (i.e where it intersects the
      * y-axis).
+     *
+     * @param val the value
      */
     public final void setXOrigin(double val) {
         xOrigin.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableDoubleProperty} for the origin of the y-axis
+     * (i.e where it intersects the x-axis).
+     *
+     * @return the property
+     */
     public final StyleableDoubleProperty yOriginProperty() {
         return yOrigin;
     }
 
+    /**
+     * Returns the value for the origin of the y-axis (i.e where it intersects
+     * the x-axis).
+     *
+     * @return the value
+     */
     public final double getYOrigin() {
         return yOrigin.doubleValue();
     }
 
+    /**
+     * Sets the value for the origin of the y-axis (i.e where it intersects the
+     * x-axis).
+     *
+     * @param val the value
+     */
     public final void setYOrigin(double val) {
         yOrigin.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableDoubleProperty} for the stroke width of the
+     * inner axes, {@literal i.e.} the axes painted in the {@code Canvas} within
+     * the view.
+     *
+     * @return the property
+     */
     public final StyleableDoubleProperty innerAxisStrokeWidthProperty() {
         return innerAxisStrokeWidth;
     }
 
+    /**
+     * Returns the value for the stroke width of the inner axes, {@literal i.e.}
+     * the axes painted in the {@code Canvas} within the view.
+     *
+     * @return the value
+     */
     public final double getInnerAxisStrokeWidth() {
         return innerAxisStrokeWidth.doubleValue();
     }
 
+    /**
+     * Sets the value for the stroke width of the inner axes, {@literal i.e.}
+     * the axes painted in the {@code Canvas} within the view.
+     *
+     * @param val the value
+     */
     public final void setInnerAxisStrokeWidth(double val) {
         innerAxisStrokeWidth.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableDoubleProperty} for the stroke width of the
+     * axes, {@literal i.e.} the axes painted in the sides of the view.
+     *
+     * @return the property
+     */
     public final StyleableDoubleProperty axisStrokeWidthProperty() {
         return axisStrokeWidth;
     }
 
+    /**
+     * Returns a value for the stroke width of the axes, {@literal i.e.} the
+     * axes painted in the sides of the view
+     *
+     * @return the value
+     */
     public final double getAxisStrokeWidth() {
         return axisStrokeWidth.doubleValue();
     }
 
+    /**
+     * Sets the value for the stroke width of the axes, {@literal i.e.} the axes
+     * painted in the sides of the view
+     *
+     * @param val the value
+     */
     public final void setAxisStrokeWidth(double val) {
         axisStrokeWidth.set(val);
     }
 
-    public final double minorGridStrokeWidth() {
-        return minorGridStrokeWidth.doubleValue();
+    /**
+     * Returns a {@code StyleableDoubleProperty} for the minor grid stroke
+     * width.
+     *
+     * @return the property
+     */
+    public final StyleableDoubleProperty minorGridStrokeWidthProperty() {
+        return minorGridStrokeWidth;
     }
 
     public final double getMinorGridStrokeWidth() {
@@ -2379,6 +2447,12 @@ public final class Chart extends Pane {
         minorGridStrokeWidth.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableDoubleProperty} for the major grid stroke
+     * width.
+     *
+     * @return the property
+     */
     public final StyleableDoubleProperty majorGridStrokeWidthProperty() {
         return majorGridStrokeWidth;
     }
@@ -2391,6 +2465,12 @@ public final class Chart extends Pane {
         majorGridStrokeWidth.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the minor grid. If true,
+     * the grid will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty minorGridPaintedProperty() {
         return minorGridPainted;
     }
@@ -2408,6 +2488,12 @@ public final class Chart extends Pane {
         minorGridPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the major grid. If true,
+     * the grid will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty majorGridPaintedProperty() {
         return majorGridPainted;
     }
@@ -2420,6 +2506,12 @@ public final class Chart extends Pane {
         majorGridPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the inner axis. If true,
+     * the axis will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty innerAxisPaintedProperty() {
         return innerAxisPainted;
     }
@@ -2432,6 +2524,12 @@ public final class Chart extends Pane {
         innerAxisPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the inner axes labelling.
+     * If true, the axis will be labelled.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty innerAxisLabelledProperty() {
         return innerAxisLabelled;
     }
@@ -2444,6 +2542,12 @@ public final class Chart extends Pane {
         innerAxisLabelled.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the ledt axis. If true,
+     * the axis will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty leftAxisPaintedProperty() {
         return leftAxisPainted;
     }
@@ -2456,6 +2560,12 @@ public final class Chart extends Pane {
         leftAxisPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the right axis. If true,
+     * the axis will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty rightAxisPaintedProperty() {
         return rightAxisPainted;
     }
@@ -2468,6 +2578,12 @@ public final class Chart extends Pane {
         rightAxisPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the top axis. If true, the
+     * axis will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty topAxisPaintedProperty() {
         return topAxisPainted;
     }
@@ -2480,6 +2596,12 @@ public final class Chart extends Pane {
         topAxisPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the bottom axis. If true,
+     * the axis will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty bottomAxisPaintedProperty() {
         return bottomAxisPainted;
     }
@@ -2492,6 +2614,12 @@ public final class Chart extends Pane {
         bottomAxisPainted.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the left axis labels. If
+     * true, the labels will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty leftAxisLabelledProperty() {
         return leftAxisLabelled;
     }
@@ -2504,6 +2632,12 @@ public final class Chart extends Pane {
         leftAxisLabelled.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the right axis labels. If
+     * true, the labels will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty rightAxisLabelledProperty() {
         return rightAxisLabelled;
     }
@@ -2516,6 +2650,12 @@ public final class Chart extends Pane {
         rightAxisLabelled.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the top axis labels. If
+     * true, the labels will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty topAxisLabelledProperty() {
         return topAxisLabeled;
     }
@@ -2528,6 +2668,12 @@ public final class Chart extends Pane {
         topAxisLabeled.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for the bottom axis labels. If
+     * true, the labels will be painted.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty bottomAxisLabelledProperty() {
         return bottomAxisLabelled;
     }
@@ -2680,6 +2826,12 @@ public final class Chart extends Pane {
         yTop.unbindBidirectional(chart.xRight);
     }
 
+    /**
+     * Returns a {@code StyleableBooleanProperty} for polar coordinates. If
+     * true, polar coordinates will be used for drawing.
+     *
+     * @return the property
+     */
     public final StyleableBooleanProperty polarProperty() {
         return polar;
     }
@@ -2692,6 +2844,12 @@ public final class Chart extends Pane {
         polar.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableObjectProperty<Paint>} object for the color of
+     * the major grid lines
+     *
+     * @return the property
+     */
     public final StyleableObjectProperty<Paint> majorGridColorProperty() {
         return majorGridColor;
     }
@@ -2704,6 +2862,12 @@ public final class Chart extends Pane {
         majorGridColor.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableObjectProperty<Paint>} object for the color of
+     * the minor grid lines
+     *
+     * @return the property
+     */
     public final StyleableObjectProperty<Paint> minorGridColorProperty() {
         return minorGridColor;
     }
@@ -2716,6 +2880,12 @@ public final class Chart extends Pane {
         minorGridColor.set(val);
     }
 
+    /**
+     * Returns a {@code StyleableObjectProperty<Paint>} object for the color of
+     * the axes associated with this {@code Chart}
+     *
+     * @return the property
+     */
     public final StyleableObjectProperty<Paint> axisColorProperty() {
         return axisColor;
     }
@@ -2817,15 +2987,33 @@ public final class Chart extends Pane {
         return onXAxis(y) || onYAxis(x);
     }
 
-    public final void requestPaint() {
+    /**
+     * Requests that the {@code Chart} is repainted.
+     *
+     */
+    final void requestPaint() {
         requestLayout();
         axisSet.paintGrid(canvas.getGraphicsContext2D());
     }
 
+    /**
+     * Returns the position in chart coordinates on the x-axis given a pixel
+     * location in the {@code Chart}
+     *
+     * @param pixel a pixel location
+     * @return the x position in chart coordinates
+     */
     public final double toPositionX(double pixel) {
         return getXLeft() + pixel * (getXRight() - getXLeft()) / view.getWidth();
     }
 
+    /**
+     * Returns the position in chart coordinates on the y-axis given a pixel
+     * location in the {@code Chart}
+     *
+     * @param pixel a pixel location
+     * @return the y position in chart coordinates
+     */
     public final double toPositionY(double pixel) {
         return getYBottom() + (view.getHeight() - pixel) * (getYTop() - getYBottom()) / view.getHeight();
     }
