@@ -14,6 +14,7 @@
     <SCRIPT src="./java/dist/web-files/dtjava.js"></SCRIPT>
     <script>
         function launchApplication(jnlpfile) {
+
             dtjava.launch({
                         url: './java/dist/webDemos.jnlp'
                     },
@@ -52,7 +53,7 @@
         function onLoad() {
             if (dtjava.validate(platform) == null) {
                 javafxEmbed();
-                document.getElementById('javafx-app-placeholder').setAttribute("align", "center");
+
             } else {
                 document.getElementById('javafx-app-placeholder').innerHTML =
                         "<p style='color:white; background: black; font-weight: bolder'>Java 8+ is not available in this browser and charts will not be displayed</p>";
@@ -89,7 +90,7 @@
     </script>
 </head>
 
-<body>
+<body onshow="document.getElementById('javafx-app-placeholder').setAttribute('align', 'center');">
 
 <!-- HEADER -->
 <div id="header_wrap" class="outer">
