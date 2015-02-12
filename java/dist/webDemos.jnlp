@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="webDemos.jnlp">
+  <information>
+    <title>webDemos</title>
+    <vendor>ML</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="273876" download="eager" />
+    <jar href="webDemos.jar" size="3166" download="eager" />
+  </resources>
+<security>
+  <all-permissions/>
+</security>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="webDemos" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="waterloofx.FXMain"  name="webDemos" />
+  <update check="always"/>
+</jnlp>
