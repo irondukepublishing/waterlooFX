@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="waterlooFXDemo.jnlp">
+  <information>
+    <title>waterlooFXDemo</title>
+    <vendor>ML</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  <shortcut><desktop/></shortcut>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="273879" download="eager" />
+    <jar href="waterlooFXDemo.jar" size="126741" download="eager" />
+  </resources>
+<security>
+  <all-permissions/>
+</security>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="waterlooFXDemo" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="waterloo.fx.demo.WaterlooFXDemo"  name="waterlooFXDemo" />
+  <update check="always"/>
+</jnlp>
