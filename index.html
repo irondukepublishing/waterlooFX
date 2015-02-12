@@ -15,7 +15,7 @@
     <script>
         function launchApplication(jnlpfile) {
             dtjava.launch({
-                        url: './java/dist/webDemos.jnlp',
+                        url: './java/dist/webDemos.jnlp'
                     },
                     {
                         javafx: '8.0+'
@@ -27,9 +27,12 @@
     </script>
 
     <script>
+
+
         function javafxEmbed() {
             dtjava.embed(
                     {
+                        id: "myApp",
                         url: './java/dist/webDemos.jnlp',
                         placeholder: 'javafx-app-placeholder',
                         width: 400,
@@ -41,18 +44,47 @@
                     {}
             );
         }
+
+
         <!-- Embed FX application into web page once page is loaded -->
         var platform = new dtjava.Platform({'javafx': '8.0+'});
+
         function onLoad() {
             if (dtjava.validate(platform) == null) {
                 javafxEmbed();
+                document.getElementById('javafx-app-placeholder').setAttribute("align", "center");
             } else {
-                var el = document.getElementById('javafx-app-placeholder').innerHTML =
+                document.getElementById('javafx-app-placeholder').innerHTML =
                         "<p style='color:white; background: black; font-weight: bolder'>Java 8+ is not available in this browser and charts will not be displayed</p>";
             }
         }
+
         dtjava.addOnloadCallback(onLoad);
 
+        var clicked0 = function () {
+            var chart = document.getElementById('myApp');
+            chart.setMajorGridPainted();
+        }
+
+        var clicked1 = function () {
+            var chart = document.getElementById('myApp');
+            chart.setMinorGridPainted();
+        }
+
+        var clicked11 = function () {
+            var chart = document.getElementById('myApp');
+            chart.verticalFill();
+        }
+
+        var clicked12 = function () {
+            var chart = document.getElementById('myApp');
+            chart.horzFill();
+        }
+
+        var clicked2 = function () {
+            var chart = document.getElementById('myApp');
+            chart.setInnerAxisPainted();
+        }
 
     </script>
 </head>
@@ -82,12 +114,12 @@
 
 
     <div style="float: left; margin-top: 100px; margin-left: 50px;">
-        <h3>
+        <h4>
             Quick Links
             <ul>
                 <li>JavaDocs</li>
             </ul>
-        </h3>
+        </h4>
     </div>
 
     <section id="main_content" class="inner">
@@ -95,10 +127,32 @@
             <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
                 <span class="octicon octicon-link"></span></a>Welcome to waterlooFX.</h3>
 
-        <p>waterlooFX is a scientific charting library for Java 8+</p>
+        <p>waterlooFX is a scientific charting library for Java 8+.</p>
 
-        <div id='javafx-app-placeholder'></div>
+        <p>You can create waterlooFX charts programatically using Java (or any other JVM language).
+            Charts can also be created using the FXML markup language (for example
+            in <a href="http://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html">
+                Oracle's JavaFX Scene Builder)</a>.
+        </p>
 
+        <p>waterlooFX charts can also be deployed in web pages as below.</p>
+
+        <div align="center">
+
+            <div>
+                <input onclick="clicked0();" type="checkbox">Major Grid</input>
+                <input onclick="clicked1();" type="checkbox">Minor Grid</input>
+                <input onclick="clicked11();" type="checkbox">Vertical Grid Fill</input>
+                <input onclick="clicked12();" type="checkbox">Horizontal Grid Fill </input>
+                <input onclick="clicked2();" type="checkbox">Inner Axis</input>
+            </div>
+
+
+            <div id='javafx-app-placeholder' align="center">
+                //JavaFX goes here
+            </div>
+
+        </div>
 
         <p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
 
@@ -138,6 +192,7 @@
         <p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a>
             or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
     </section>
+
 </div>
 
 <!-- FOOTER  -->
