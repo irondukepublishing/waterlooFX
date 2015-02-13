@@ -44,7 +44,10 @@
                     },
                     {}
             );
+            var app = document.getElementById('myApp');
+            app.createChart("Demo.fxml");
         }
+
 
 
         <!-- Embed FX application into web page once page is loaded -->
@@ -53,7 +56,13 @@
         function onLoad() {
             if (dtjava.validate(platform) == null) {
                 javafxEmbed();
+/*                var app = document.getElementById('myApp');
+                if (app.isChartReady()==false) {
+                    document.getElementById('javafx-app-placeholder').innerHTML =
+                            "<p style='color:white; background: black; font-weight: bolder'>Try reloading</p>";
 
+                } else {
+                }*/
             } else {
                 document.getElementById('javafx-app-placeholder').innerHTML =
                         "<p style='color:white; background: black; font-weight: bolder'>Java 8+ is not available in this browser and charts will not be displayed</p>";
@@ -63,29 +72,33 @@
         dtjava.addOnloadCallback(onLoad);
 
         var clicked0 = function () {
-            var chart = document.getElementById('myApp');
-            chart.setMajorGridPainted();
+            var chart = document.getElementById('myApp').getChart();
+            chart.setMajorGridPainted(!chart.isMajorGridPainted());
+            chart.requestLayout();
         }
 
         var clicked1 = function () {
-            var chart = document.getElementById('myApp');
-            chart.setMinorGridPainted();
-        }
-
-        var clicked11 = function () {
-            var chart = document.getElementById('myApp');
-            chart.verticalFill();
-        }
-
-        var clicked12 = function () {
-            var chart = document.getElementById('myApp');
-            chart.horzFill();
+            var chart = document.getElementById('myApp').getChart();
+            chart.setMinorGridPainted(!chart.isMinorGridPainted());
+            chart.requestLayout();
         }
 
         var clicked2 = function () {
-            var chart = document.getElementById('myApp');
-            chart.setInnerAxisPainted();
+            var chart = document.getElementById('myApp').getChart();
+            chart.setInnerAxisPainted(!chart.isInnerAxisPainted());
+            chart.requestLayout();
         }
+
+        var clicked11 = function () {
+            var app = document.getElementById('myApp');
+            app.verticalFill();
+        }
+
+        var clicked12 = function () {
+            var app = document.getElementById('myApp');
+            app.horzFill();
+        }
+
 
     </script>
 </head>
@@ -124,22 +137,21 @@
     </div>
 
     <section id="main_content" class="inner">
-        <h3>
+        <h4>
             <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
-                <span class="octicon octicon-link"></span></a>Welcome to waterlooFX.</h3>
+                <span class="octicon octicon-link"></span></a>Scientific charting for desktop and web using JavaFX 8+.</h4>
 
-        <p>waterlooFX is a scientific charting library for Java 8+.</p>
+        <p></p>
 
-        <p>You can create waterlooFX charts programatically using Java (or any other JVM language).
-            Charts can also be created using the FXML markup language (for example
-            in <a href="http://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html">
-                Oracle's JavaFX Scene Builder)</a>.
-        </p>
-
-        <p>waterlooFX charts can also be deployed in web pages as below.</p>
+        <ul>
+            <li>Charts are fully customizable using CSS styling</li>
+            <li>Charts can be created and customized using the <a href="http://docs.oracle.com/javafx/2/fxml_get_started/jfxpub-fxml_get_started.htm">JavaFX FXML</a> markup language</li>
+            <li>Integrates fully into generic GUI designers such as <a href="http://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html"> Oracle JavaFX Scene Builder 2.0</a></li>
+            <li>Fully interactive charts with built-in mouse support</li>
+            <li>When deployed to the web, charts can be edited abd customised using JavaScript (as below).</li>
+        </ul>
 
         <div align="center">
-
             <div>
                 <input onclick="clicked0();" type="checkbox">Major Grid</input>
                 <input onclick="clicked1();" type="checkbox">Minor Grid</input>
@@ -161,38 +173,21 @@
             <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span
                     class="octicon octicon-link"></span></a>Designer Templates</h3>
 
-        <p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through
-            them. You can easily go back to edit your page before publishing. After publishing your page, you can
-            revisit the page generator and switch to another theme. Your Page content will be preserved if it remained
-            markdown format.</p>
 
         <h3>
             <a id="rather-drive-stick" class="anchor" href="#rather-drive-stick" aria-hidden="true"><span
                     class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
 
-        <p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your
-            repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support
-            Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it
-            easy to create site-wide headers and footers without having to copy them across every page. It also offers
-            intelligent blog support and other advanced templating features.</p>
 
         <h3>
             <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span
                     class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-        <p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate
-            a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub
-            Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>),
-            PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner
-            (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
         <h3>
             <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span
                     class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-        <p>Having trouble with Pages? Check out the documentation at <a href="https://help.github.com/pages">https://help.github.com/pages</a>
-            or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-    </section>
+         </section>
 
 </div>
 

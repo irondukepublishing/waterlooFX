@@ -13,6 +13,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
@@ -24,62 +25,80 @@ import waterloo.fx.plot.Chart;
  */
 public class FXMain extends Application {
 
-    Chart chart;
+    Chart chart=null;
+    Stage stage = null;
+    Pane pane;
 
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("Demo.fxml"));
-        Scene scene = new Scene(root);
+        this.stage = stage;
+    }
 
-        stage.setScene(scene);
-        
-        stage.show();
-        chart = ((Chart) root.lookup("#myChart"));
-
+    public Chart createChart(String file) throws IOException {
+        Platform.runLater(() -> {
+            stage.show();
+            Parent root = null;
+            try {
+                root = FXMLLoader.load(getClass().getResource(file));
+            } catch (IOException ex) {
+            }
+            if (root != null) {
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                chart = ((Chart) root.lookup("#myChart"));
+                root.requestLayout();
+            }
+        });
+        return chart;
     }
     
-    public Chart getChart(){
+    public boolean isChartReady(){
+        return chart!=null;
+    }
+
+    public Chart getChart() {
         return chart;
     }
 
-    public void setMajorGridPainted(){
+    public void setMajorGridPainted() {
         chart.setMajorGridPainted(!chart.isMajorGridPainted());
         chart.requestLayout();
     }
-    
-    public void setMinorGridPainted(){
+
+    public void setMinorGridPainted() {
         chart.setMinorGridPainted(!chart.isMinorGridPainted());
         chart.requestLayout();
     }
-    
-    public void setInnerAxisPainted(){
+
+    public void setInnerAxisPainted() {
         chart.setInnerAxisPainted(!chart.isInnerAxisPainted());
         chart.requestLayout();
     }
 
-    public void verticalFill(){
+    public void verticalFill() {
         Paint color = chart.getAltFillVertical();
-        if (color==Color.TRANSPARENT)
-                chart.setAltFillVertical(new Color(0f,0f,1f,0.05f));
-        else 
+        if (color == Color.TRANSPARENT) {
+            chart.setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
+        } else {
             chart.setAltFillVertical(Color.TRANSPARENT);
+        }
         chart.requestLayout();
     }
-    
-    public void horzFill(){
+
+    public void horzFill() {
         Paint color = chart.getAltFillHorizontal();
-        if (color==Color.TRANSPARENT)
-                chart.setAltFillHorizontal(new Color(0f,0f,1f,0.05f));
-        else 
+        if (color == Color.TRANSPARENT) {
+            chart.setAltFillHorizontal(new Color(0f, 0f, 1f, 0.05f));
+        } else {
             chart.setAltFillHorizontal(Color.TRANSPARENT);
+        }
         chart.requestLayout();
     }
 
-
-//    /**
-//     * @param args the command line arguments
-//     */
-//    public static void main(String[] args) {
-//        launch(args);
-//    }
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        Application.launch(args);
+    }
 }

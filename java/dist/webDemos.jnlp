@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="webDemos.jar" size="3812" download="eager" />
+    <jar href="webDemos.jar" size="4378" download="eager" />
     <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="273873" download="lazy" />
   </resources>
 <security>
