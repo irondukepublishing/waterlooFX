@@ -44,8 +44,6 @@
                     },
                     {}
             );
-            var app = document.getElementById('myApp');
-            app.createChart("Demo.fxml");
         }
 
 
@@ -56,13 +54,8 @@
         function onLoad() {
             if (dtjava.validate(platform) == null) {
                 javafxEmbed();
-/*                var app = document.getElementById('myApp');
-                if (app.isChartReady()==false) {
-                    document.getElementById('javafx-app-placeholder').innerHTML =
-                            "<p style='color:white; background: black; font-weight: bolder'>Try reloading</p>";
-
-                } else {
-                }*/
+                var app = document.getElementById('myApp');
+                app.createChart("Demo.fxml");
             } else {
                 document.getElementById('javafx-app-placeholder').innerHTML =
                         "<p style='color:white; background: black; font-weight: bolder'>Java 8+ is not available in this browser and charts will not be displayed</p>";

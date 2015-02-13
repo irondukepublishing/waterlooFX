@@ -32,11 +32,15 @@ public class FXMain extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         this.stage = stage;
+        Chart root=new Chart();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
+        root.requestLayout();
     }
 
     public Chart createChart(String file) throws IOException {
         Platform.runLater(() -> {
-            stage.show();
             Parent root = null;
             try {
                 root = FXMLLoader.load(getClass().getResource(file));
@@ -51,7 +55,7 @@ public class FXMain extends Application {
         });
         return chart;
     }
-    
+
     public boolean isChartReady(){
         return chart!=null;
     }
