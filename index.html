@@ -12,50 +12,29 @@
 
 
     <SCRIPT src="./java/dist/web-files/dtjava.js"></SCRIPT>
+    <SCRIPT src="./javascripts/waterlooFX.js"></SCRIPT>
     <script>
-        function launchApplication(jnlpfile) {
+        /*        function launchApplication(jnlpfile) {
 
-            dtjava.launch({
-                        url: './java/dist/webDemos.jnlp'
-                    },
-                    {
-                        javafx: '8.0+'
-                    },
-                    {}
-            );
-            return false;
-        }
-    </script>
-
-    <script>
-
-
-        function javafxEmbed() {
-            dtjava.embed(
-                    {
-                        id: "myApp",
-                        url: './java/dist/webDemos.jnlp',
-                        placeholder: 'javafx-app-placeholder',
-                        width: 400,
-                        height: 300
-                    },
-                    {
-                        javafx: '8.0+'
-                    },
-                    {}
-            );
-        }
-
+         dtjava.launch({
+         url: './java/dist/webDemos.jnlp',
+         },
+         {
+         javafx: '8.0+'
+         },
+         {}
+         );
+         return false;
+         }*/
 
 
         <!-- Embed FX application into web page once page is loaded -->
         var platform = new dtjava.Platform({'javafx': '8.0+'});
 
+
         function onLoad() {
             if (dtjava.validate(platform) == null) {
-                javafxEmbed();
-                var app = document.getElementById('myApp');
-                app.createChart("Demo.fxml");
+                wplot.javafxEmbed('myApp', 'Demo', './java/dist/webDemos.jnlp', 'javafx-app-placeholder', 400, 300);
             } else {
                 document.getElementById('javafx-app-placeholder').innerHTML =
                         "<p style='color:white; background: black; font-weight: bolder'>Java 8+ is not available in this browser and charts will not be displayed</p>";
@@ -120,49 +99,61 @@
 <div id="main_content_wrap" class="outer">
 
 
-    <div style="float: left; margin-top: 100px; margin-left: 50px;">
+<!--    <div style="float: left; margin-top: 100px; margin-left: 50px;">
         <h4>
             Quick Links
             <ul>
                 <li>JavaDocs</li>
             </ul>
         </h4>
-    </div>
+    </div>-->
 
     <section id="main_content" class="inner">
         <h4>
             <a id="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages" aria-hidden="true">
-                <span class="octicon octicon-link"></span></a>Scientific charting for desktop and web using JavaFX 8+.</h4>
+                <span class="octicon octicon-link"></span></a>Scientific charting for desktop and web using JavaFX 8+.
+        </h4>
 
         <p></p>
 
         <ul>
             <li>Charts are fully customizable using CSS styling</li>
-            <li>Charts can be created and customized using the <a href="http://docs.oracle.com/javafx/2/fxml_get_started/jfxpub-fxml_get_started.htm">JavaFX FXML</a> markup language</li>
-            <li>Integrates fully into generic GUI designers such as <a href="http://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html"> Oracle JavaFX Scene Builder 2.0</a></li>
+            <li>Charts can be created and customized using the <a
+                    href="http://docs.oracle.com/javafx/2/fxml_get_started/jfxpub-fxml_get_started.htm">JavaFX FXML</a>
+                markup language
+            </li>
+            <li>Integrates fully into generic GUI designers such as <a
+                    href="http://www.oracle.com/technetwork/java/javase/downloads/javafxscenebuilder-info-2157684.html">
+                Oracle JavaFX Scene Builder 2.0</a></li>
             <li>Fully interactive charts with built-in mouse support</li>
-            <li>When deployed to the web, charts can be edited abd customised using JavaScript (as below).</li>
+            <li>When deployed to the web, charts can be edited and customised using JavaScript (as below).</li>
         </ul>
 
+
         <div align="center">
-            <div>
-                <input onclick="clicked0();" type="checkbox">Major Grid</input>
-                <input onclick="clicked1();" type="checkbox">Minor Grid</input>
-                <input onclick="clicked11();" type="checkbox">Vertical Grid Fill</input>
-                <input onclick="clicked12();" type="checkbox">Horizontal Grid Fill </input>
-                <input onclick="clicked2();" type="checkbox">Inner Axis</input>
-            </div>
 
-
-            <div id='javafx-app-placeholder' align="center">
-                //JavaFX goes here
-            </div>
-
+        <div id='javafx-app-placeholder' align="center">
+            //JavaFX goes here
         </div>
 
-        <p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+        <div style="font-weight: bold">
+            <input onclick="clicked0();" type="checkbox">Major Grid</input>
+            <input onclick="clicked1();" type="checkbox">Minor Grid</input>
+            <input onclick="clicked11();" type="checkbox">Vertical Grid Fill</input>
+            <input onclick="clicked12();" type="checkbox">Horizontal Grid Fill </input>
+            <input onclick="clicked2();" type="checkbox">Inner Axis</input>
+        </div>
 
-        <h3>
+        <p style="font-style: italic">
+            Figure 1: A simple line plot. Shift the axes by holding the mouse down and dragging the chart.
+            The axes can also be expanded or shrunk when the mouse is over an axis.
+            The mouse wheel can also be used on most browsers (not Safari on Mac) to zoom the axes.
+            <br>
+            Use the HTML checkboxes above to add/remove decorations from the chart interactively.
+        </p>
+            </div>
+
+       <!-- <h3>
             <a id="designer-templates" class="anchor" href="#designer-templates" aria-hidden="true"><span
                     class="octicon octicon-link"></span></a>Designer Templates</h3>
 
@@ -179,8 +170,8 @@
         <h3>
             <a id="support-or-contact" class="anchor" href="#support-or-contact" aria-hidden="true"><span
                     class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-         </section>
+-->
+    </section>
 
 </div>
 

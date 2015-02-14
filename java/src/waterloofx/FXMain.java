@@ -5,18 +5,23 @@
  */
 package waterloofx;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import waterloo.fx.plot.Chart;
 
 /**
@@ -25,78 +30,66 @@ import waterloo.fx.plot.Chart;
  */
 public class FXMain extends Application {
 
-    Chart chart=null;
-    Stage stage = null;
-    Pane pane;
+    Parent root = null;
 
     @Override
     public void start(Stage stage) throws Exception {
-        this.stage = stage;
-        Chart root=new Chart();
+        String s = (String) getParameters().getNamed().get("fxml");
+        if (s == null || s.isEmpty()) {
+            s = "fxml/Demo.fxml";
+        } else if (!s.startsWith("fxml/")) {
+            s = "fxml/".concat(s);
+        }
+        if (!s.endsWith(".fxml")) {
+            s = s.concat(".fxml");
+        }
+        root = FXMLLoader.load(FXMain.class.getResource(s));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
-        root.requestLayout();
     }
 
-    public Chart createChart(String file) throws IOException {
-        Platform.runLater(() -> {
-            Parent root = null;
-            try {
-                root = FXMLLoader.load(getClass().getResource(file));
-            } catch (IOException ex) {
-            }
-            if (root != null) {
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                chart = ((Chart) root.lookup("#myChart"));
-                root.requestLayout();
-            }
-        });
-        return chart;
-    }
-
-    public boolean isChartReady(){
-        return chart!=null;
+    public boolean isRootReady() {
+        return root != null;
     }
 
     public Chart getChart() {
-        return chart;
+        return (Chart) root.lookup("#myChart");
     }
 
     public void setMajorGridPainted() {
-        chart.setMajorGridPainted(!chart.isMajorGridPainted());
-        chart.requestLayout();
+        getChart().setMajorGridPainted(!getChart().isMajorGridPainted());
+        getChart().requestLayout();
     }
 
     public void setMinorGridPainted() {
-        chart.setMinorGridPainted(!chart.isMinorGridPainted());
-        chart.requestLayout();
+        getChart().setMinorGridPainted(!getChart().isMinorGridPainted());
+        getChart().requestLayout();
     }
 
     public void setInnerAxisPainted() {
-        chart.setInnerAxisPainted(!chart.isInnerAxisPainted());
-        chart.requestLayout();
+        getChart().setInnerAxisPainted(!getChart().isInnerAxisPainted());
+        getChart().requestLayout();
     }
 
     public void verticalFill() {
-        Paint color = chart.getAltFillVertical();
+        Paint color = getChart().getAltFillVertical();
         if (color == Color.TRANSPARENT) {
-            chart.setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
+            getChart().setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
         } else {
-            chart.setAltFillVertical(Color.TRANSPARENT);
+            getChart().setAltFillVertical(Color.TRANSPARENT);
         }
-        chart.requestLayout();
+        getChart().requestLayout();
     }
 
     public void horzFill() {
-        Paint color = chart.getAltFillHorizontal();
+        Paint color = getChart().getAltFillHorizontal();
         if (color == Color.TRANSPARENT) {
-            chart.setAltFillHorizontal(new Color(0f, 0f, 1f, 0.05f));
+            getChart().setAltFillHorizontal(new Color(0f, 0f, 1f, 0.05f));
         } else {
-            chart.setAltFillHorizontal(Color.TRANSPARENT);
+            getChart().setAltFillHorizontal(Color.TRANSPARENT);
         }
-        chart.requestLayout();
+        getChart().requestLayout();
     }
 
     /**

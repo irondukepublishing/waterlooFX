@@ -7,14 +7,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Chart id="myChart" fx:id="myChart" XLeft="-6.0" XRight="6.0" YBottom="-6.0" YTop="6.0" bottomAxisTitle="X" leftAxisTitle="Y">
          <children>
             <LinePlot lineColor="#070707" lineWidth="1.5">
                <children>
-                  <ScatterPlot edgeColor="BLACK" edgeWidth="1.5" fill="#bdd5eb" />
+                  <ScatterPlot edgeColor="BLACK" edgeWidth="1.5" fill="#79b4e8" />
                </children>
             </LinePlot>
          </children>
