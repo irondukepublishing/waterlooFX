@@ -178,6 +178,38 @@ public class AxisSet {
             g.fillRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
         }
 
+        if (layer.getAltFillVertical() != Color.TRANSPARENT) {
+            g.setFill(layer.getAltFillVertical());
+            Point2D p2;
+            Point2D p3;
+            for (int k = 1; k < xTransform.get().size() - 1; k += 2) {
+                if (layer.isReverseX()) {
+                    p2 = layer.toPixel(xTransform.get().get(k + 1), layer.getYTop());
+                    p3 = layer.toPixel(xTransform.get().get(k), layer.getYBottom());
+                } else {
+                    p2 = layer.toPixel(xTransform.get().get(k), layer.getYTop());
+                    p3 = layer.toPixel(xTransform.get().get(k + 1), layer.getYBottom());
+                }
+                g.fillRect(p2.getX(), p2.getY(), p3.getX() - p2.getX(), p3.getY() - p2.getY());
+            }
+        }
+
+        if (layer.getAltFillHorizontal() != Color.TRANSPARENT) {
+            g.setFill(layer.getAltFillHorizontal());
+            Point2D p2;
+            Point2D p3;
+            for (int k = yTransform.get().size() - 2; k > 1; k -= 2) {
+                if (layer.isReverseY()) {
+                    p2 = layer.toPixel(layer.getXLeft(), yTransform.get().get(k - 1));
+                    p3 = layer.toPixel(layer.getXRight(), yTransform.get().get(k));
+                } else {
+                    p2 = layer.toPixel(layer.getXLeft(), yTransform.get().get(k));
+                    p3 = layer.toPixel(layer.getXRight(), yTransform.get().get(k - 1));
+                }
+                g.fillRect(p2.getX(), p2.getY(), p3.getX() - p2.getX(), p3.getY() - p2.getY());
+            }
+        }
+
         if (layer.isPolar()) {
             final Point2D p0 = layer.toPixel(0, 0);
             if (layer.isMajorGridPainted()) {
@@ -255,37 +287,6 @@ public class AxisSet {
 
         } else {
 
-            if (layer.getAltFillVertical() != Color.TRANSPARENT) {
-                g.setFill(layer.getAltFillVertical());
-                Point2D p2;
-                Point2D p3;
-                for (int k = 0; k < xTransform.get().size() - 1; k += 2) {
-                    if (layer.isReverseX()) {
-                        p2 = layer.toPixel(xTransform.get().get(k + 1), layer.getYTop());
-                        p3 = layer.toPixel(xTransform.get().get(k), layer.getYBottom());
-                    } else {
-                        p2 = layer.toPixel(xTransform.get().get(k), layer.getYTop());
-                        p3 = layer.toPixel(xTransform.get().get(k + 1), layer.getYBottom());
-                    }
-                    g.fillRect(p2.getX(), p2.getY(), p3.getX() - p2.getX(), p3.getY() - p2.getY());
-                }
-            }
-
-            if (layer.getAltFillHorizontal() != Color.TRANSPARENT) {
-                g.setFill(layer.getAltFillHorizontal());
-                Point2D p2;
-                Point2D p3;
-                for (int k = yTransform.get().size() - 1; k > 0; k -= 2) {
-                    if (layer.isReverseY()) {
-                        p2 = layer.toPixel(layer.getXLeft(), yTransform.get().get(k - 1));
-                        p3 = layer.toPixel(layer.getXRight(), yTransform.get().get(k));
-                    } else {
-                        p2 = layer.toPixel(layer.getXLeft(), yTransform.get().get(k));
-                        p3 = layer.toPixel(layer.getXRight(), yTransform.get().get(k - 1));
-                    }
-                    g.fillRect(p2.getX(), p2.getY(), p3.getX() - p2.getX(), p3.getY() - p2.getY());
-                }
-            }
             // MAJOR GRID 
             if (layer.isMajorGridPainted()) {
                 g.setStroke(layer.getMajorGridColor());
