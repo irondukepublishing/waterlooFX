@@ -71,6 +71,11 @@
             app.horzFill();
         }
 
+        var print = function () {
+            var app = document.getElementById('myApp');
+            app.print();
+        }
+
 
     </script>
 </head>
@@ -142,7 +147,11 @@
             <input onclick="clicked11();" type="checkbox">Vertical Grid Fill</input>
             <input onclick="clicked12();" type="checkbox">Horizontal Grid Fill </input>
             <input onclick="clicked2();" type="checkbox">Inner Axis</input>
+            <br>
+            <button onclick="print();">Print Chart</button>
         </div>
+
+
 
         <p style="font-style: italic">
             Figure 1: A simple line plot. Shift the axes by holding the mouse down and dragging the chart.

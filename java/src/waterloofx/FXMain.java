@@ -15,6 +15,7 @@ import java.net.URL;
 import javafx.application.Application;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXMLLoader;
+import javafx.print.PrinterJob;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -90,6 +91,16 @@ public class FXMain extends Application {
             getChart().setAltFillHorizontal(Color.TRANSPARENT);
         }
         getChart().requestLayout();
+    }
+
+    public void print() {
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job != null) {
+            boolean success = job.printPage(getChart());
+            if (success) {
+                job.endJob();
+            }
+        }
     }
 
     /**
