@@ -23,13 +23,16 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import waterloo.fx.plot.AbstractPlot;
+import waterloo.fx.plot.AbstractPlot.VisualModel;
 import waterloo.fx.plot.Chart;
+import waterloo.fx.plot.ScatterPlot;
 
 /**
  *
  * @author ML
  */
-public class FXMain extends Application {
+public class WaterlooFXJS extends Application {
 
     Parent root = null;
 
@@ -44,7 +47,7 @@ public class FXMain extends Application {
         if (!s.endsWith(".fxml")) {
             s = s.concat(".fxml");
         }
-        root = FXMLLoader.load(FXMain.class.getResource(s));
+        root = FXMLLoader.load(WaterlooFXJS.class.getResource(s));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
@@ -57,31 +60,35 @@ public class FXMain extends Application {
     public Chart getChart() {
         return (Chart) root.lookup("#myChart");
     }
-
-    public void setMajorGridPainted() {
-        getChart().setMajorGridPainted(!getChart().isMajorGridPainted());
-        getChart().requestLayout();
+    
+    public VisualModel newVisualModel(){
+        return new ScatterPlot().getVisualModel();
     }
-
-    public void setMinorGridPainted() {
-        getChart().setMinorGridPainted(!getChart().isMinorGridPainted());
-        getChart().requestLayout();
-    }
-
-    public void setInnerAxisPainted() {
-        getChart().setInnerAxisPainted(!getChart().isInnerAxisPainted());
-        getChart().requestLayout();
-    }
-
-    public void verticalFill() {
-        Paint color = getChart().getAltFillVertical();
-        if (color == Color.TRANSPARENT) {
-            getChart().setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
-        } else {
-            getChart().setAltFillVertical(Color.TRANSPARENT);
-        }
-        getChart().requestLayout();
-    }
+//
+//    public void setMajorGridPainted() {
+//        getChart().setMajorGridPainted(!getChart().isMajorGridPainted());
+//        getChart().requestLayout();
+//    }
+//
+//    public void setMinorGridPainted() {
+//        getChart().setMinorGridPainted(!getChart().isMinorGridPainted());
+//        getChart().requestLayout();
+//    }
+//
+//    public void setInnerAxisPainted() {
+//        getChart().setInnerAxisPainted(!getChart().isInnerAxisPainted());
+//        getChart().requestLayout();
+//    }
+//
+//    public void verticalFill() {
+//        Paint color = getChart().getAltFillVertical();
+//        if (color == Color.TRANSPARENT) {
+//            getChart().setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
+//        } else {
+//            getChart().setAltFillVertical(Color.TRANSPARENT);
+//        }
+//        getChart().requestLayout();
+//    }
 
     public void horzFill() {
         Paint color = getChart().getAltFillHorizontal();

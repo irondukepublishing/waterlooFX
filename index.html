@@ -11,30 +11,20 @@
     <title>waterlooFX</title>
 
 
-    <SCRIPT src="./java/dist/web-files/dtjava.js"></SCRIPT>
+    <SCRIPT src="./waterlooFXJS/dist/web-files/dtjava.js"></SCRIPT>
     <SCRIPT src="./javascripts/waterlooFX.js"></SCRIPT>
     <script>
-        /*        function launchApplication(jnlpfile) {
-
-         dtjava.launch({
-         url: './java/dist/webDemos.jnlp',
-         },
-         {
-         javafx: '8.0+'
-         },
-         {}
-         );
-         return false;
-         }*/
-
 
         <!-- Embed FX application into web page once page is loaded -->
         var platform = new dtjava.Platform({'javafx': '8.0+'});
-
+        var model=null;
 
         function onLoad() {
             if (dtjava.validate(platform) == null) {
-                wplot.javafxEmbed('myApp', 'Demo', './java/dist/webDemos.jnlp', 'javafx-app-placeholder', 400, 300);
+                wfxjs.embedFXML('myApp', 'Demo', './waterlooFXJS/dist/waterlooFXJS.jnlp', 'javafx-app-placeholder', 400, 300);
+                var model = new wfxjs.VisualModel('myApp');
+                window.alert(model.markerType);
+
             } else {
                 document.getElementById('javafx-app-placeholder').innerHTML =
                         "<p style='color:white; background: black; font-weight: bolder'>Java 8+ is not available in this browser and charts will not be displayed</p>";
