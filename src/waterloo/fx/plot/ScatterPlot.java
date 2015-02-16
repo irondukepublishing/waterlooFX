@@ -76,7 +76,7 @@ public class ScatterPlot extends AbstractPlot<ArrayList<Node>> implements Marker
      */
     public ScatterPlot(AbstractPlot p1) {
         this();
-        super.add(p1);
+        add(p1);
     }
 
     @Override

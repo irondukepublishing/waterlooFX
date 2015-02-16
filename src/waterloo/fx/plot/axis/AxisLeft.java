@@ -90,7 +90,7 @@ public class AxisLeft extends AbstractAxisRegion {
             addAxisLabel();
             getAxisLabel().setFont(getFont());
             getAxisLabel().setLayoutY(getHeight() / 2d);
-            getAxisLabel().setLayoutX(findMinX() - (getAxisLabel().prefWidth(0) / 2d) - 5d);
+            getAxisLabel().setLayoutX(findMinX() - (getAxisLabel().prefWidth(0) / 2d));
         } else {
             getTickLabels().stream().forEach(x -> getChildren().remove(x));
             removeAxisLabel();

@@ -36,6 +36,7 @@ import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.css.CssMetaData;
@@ -149,7 +150,6 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      *
      */
     T visualElement;
-
 
     /**
      * When nodesNeedUpdate is true, nodes required by the plot will be
@@ -927,13 +927,30 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         visualModel.setEdgeWidth(val);
     }
 
-    public MARKERTYPE getMarkerType() {
-        return visualModel.getMarkerType();
+    public  MARKERTYPE getMarkerType() {
+        return visualModel.markerType.get();
     }
+    
+    public void setMarkerType(MARKERTYPE markerType){
+        visualModel.markerType.set((MARKERTYPE)markerType);
+    }
+    
+    public String getMarkerTypeAsString(){
+        return "DO NOT EDIT: JS HACK";
+    }
+    
+    public void setMarkerTypeAsString(String markerType) {
+            visualModel.markerType.set(MARKERTYPE.valueOf(markerType));
+    }
+    
+//    public String getMarkerTypeAsString() {
+//        return visualModel.getMarkerType().toString();
+//    }
 
-    public void setMarkerType(MARKERTYPE type) {
-        visualModel.setMarkerType(type);
-    }
+//    public void setMarkerTypeAsString(String markerType) {
+//        visualModel.markerType.set(MARKERTYPE.valueOf(markerType));
+//    }
+    
 
     public void setLabels(Text... arr) {
         visualModel.getLabels().forEach(x -> annotationPane.getChildren().remove(x));
