@@ -8,6 +8,9 @@ package waterloofx;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -77,15 +80,28 @@ public class WaterlooFXJS extends Application {
         });
     }
 
-    public Object parseFXML(String s) throws IOException {
+    public Object parseFXML(String s) {
         // HACKS FOR JAVASCRIPT SUPPORT OF JAVA ENUMS
         s = s.replace("markerType=", "markerTypeAsString=");
         FXMLLoader loader = new FXMLLoader();
         InputStream stream;
-        //StringReader reader = new StringReader(s);
-        stream = new ByteArrayInputStream(s.getBytes("UTF-8"));
-        Object node = loader.load(stream);
-        stream.close();
+        try {
+            //StringReader reader = new StringReader(s);
+            stream = new ByteArrayInputStream(s.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ex) {
+            return ex.toString();
+        }
+        Object node;
+        try {
+            node = loader.load(stream);
+        } catch (IOException ex) {
+            return ex.toString();
+        }
+        try {
+            stream.close();
+        } catch (IOException ex) {
+            return ex.toString();
+        }
         return node;
     }
 

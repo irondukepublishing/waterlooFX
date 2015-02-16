@@ -100,7 +100,7 @@ wfxjs = function () {
                     javafx: '8.0+'
                 },
                 {
-                    //onDeployError: reportError
+                    onDeployError: reportError
                 }
             );
 

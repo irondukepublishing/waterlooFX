@@ -11,6 +11,6 @@
 <LinePlot XData="-5,-4,-3,-2,-1,0,1,2,3,4,5" YData="-4,-3,-2,-1,0,1,2,3,4,5,6" lineColor="BLUE"
           lineWidth="1.5" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <ScatterPlot markerType="SQUARE" xData="-5,-4,-3,-2,-1,0,1,2,3,4,5" yData="-4,-3,-2,-1,0,1,2,3,4,5,6" edgeColor="BLACK" edgeWidth="1.5" fill="ORANGE" />
+        <ScatterPlot xData="-5,-4,-3,-2,-1,0,1,2,3,4,5" yData="-4,-3,-2,-1,0,1,2,3,4,5,6" edgeColor="BLACK" edgeWidth="1.5" fill="ORANGE" />
     </children>
 </LinePlot>
