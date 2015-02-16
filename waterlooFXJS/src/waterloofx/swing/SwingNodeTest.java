@@ -23,26 +23,26 @@ public class SwingNodeTest extends Application {
     
     @Override
     public void start(Stage stage) {
-        SwingNode node = new SwingNode();
-        Pane pane= new Pane(node);
-        node.resize(400, 300);
-        EventQueue.invokeLater(() -> {
-            final JPanel p = new JPanel();
-            p.setPreferredSize(new Dimension(400, 300));
-            JButton b = new JButton("This is a button");
-            b.addActionListener((java.awt.event.ActionEvent e) -> {
-                EventQueue.invokeLater(() -> {
-                    p.setBackground(java.awt.Color.red);
-                    p.repaint();
-                });
-            });
-            node.setContent(p);
-            p.add(b);
-            p.revalidate();
-        });
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        stage.show();
+//        SwingNode node = new SwingNode();
+//        Pane pane= new Pane(node);
+//        node.resize(400, 300);
+//        EventQueue.invokeLater(() -> {
+//            final JPanel p = new JPanel();
+//            p.setPreferredSize(new Dimension(400, 300));
+//            JButton b = new JButton("This is a button");
+//            b.addActionListener((java.awt.event.ActionEvent e) -> {
+//                EventQueue.invokeLater(() -> {
+//                    p.setBackground(java.awt.Color.red);
+//                    p.repaint();
+//                });
+//            });
+//            node.setContent(p);
+//            p.add(b);
+//            p.revalidate();
+//        });
+//        Scene scene = new Scene(pane);
+//        stage.setScene(scene);
+//        stage.show();
     }
 
     /**

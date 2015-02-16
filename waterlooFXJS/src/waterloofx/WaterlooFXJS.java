@@ -78,27 +78,28 @@ public class WaterlooFXJS extends Application {
         });
     }
 
-    public Object parseFXML(String s) {
+    public Node parseFXML(String s) {
         // HACKS FOR JAVASCRIPT SUPPORT OF JAVA ENUMS
         s = s.replace("markerType=", "markerTypeAsString=");
         FXMLLoader loader = new FXMLLoader();
+              
         InputStream stream;
         try {
             //StringReader reader = new StringReader(s);
             stream = new ByteArrayInputStream(s.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            return ex.toString();
+            return null;
         }
-        Object node;
+        Node node=null;
         try {
             node = loader.load(stream);
         } catch (IOException ex) {
-            return ex.toString();
+            //return ex.toString();
         }
         try {
             stream.close();
         } catch (IOException ex) {
-            return ex.toString();
+            //return ex.toString();
         }
         return node;
     }
