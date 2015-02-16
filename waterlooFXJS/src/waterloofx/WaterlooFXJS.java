@@ -5,28 +5,35 @@
  */
 package waterloofx;
 
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.application.Application;
-import javafx.embed.swing.SwingNode;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.print.PrinterJob;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import waterloo.fx.plot.AbstractPlot;
 import waterloo.fx.plot.AbstractPlot.VisualModel;
-import waterloo.fx.plot.Chart;
-import waterloo.fx.plot.ScatterPlot;
+import waterloo.fx.plot.*;
 
 /**
  *
@@ -40,28 +47,64 @@ public class WaterlooFXJS extends Application {
     public void start(Stage stage) throws Exception {
         String s = (String) getParameters().getNamed().get("fxml");
         if (s == null || s.isEmpty()) {
-            s = "fxml/Demo.fxml";
+            Chart chart = new Chart();
+            chart.setId("myChart");
+            chart.setLeftAxisTitle("Y");
+            chart.setBottomAxisTitle("X");
+            root = new Pane(new Chart());
         } else if (!s.startsWith("fxml/")) {
             s = "fxml/".concat(s);
+            if (!s.endsWith(".fxml")) {
+                s = s.concat(".fxml");
+            }
+            root = FXMLLoader.load(WaterlooFXJS.class.getResource(s));
         }
-        if (!s.endsWith(".fxml")) {
-            s = s.concat(".fxml");
-        }
-        root = FXMLLoader.load(WaterlooFXJS.class.getResource(s));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
     }
 
-    public boolean isRootReady() {
-        return root != null;
+    public boolean isRootVisible() {
+        if (root == null) {
+            return false;
+        } else {
+            return root.isVisible();
+        }
     }
 
     public Chart getChart() {
         return (Chart) root.lookup("#myChart");
     }
-    
-    public VisualModel newVisualModel(){
+
+    public void add(Node node) throws InterruptedException {
+        int counter = 0;
+        if (!isRootVisible()) {
+            Thread.sleep(20L);
+            if (counter++ > 250) {
+                return;
+            }
+        }
+        Platform.runLater(() -> {
+            getChart().getChildren().add(node);
+            getChart().requestLayout();
+        });
+    }
+
+    public Object parseFXML(String s) throws IOException {
+        // HACKS FOR JAVASCRIPT SUPPORT OF JAVA ENUMS
+        s = s.replace("markerType=", "markerTypeAsString=");
+        FXMLLoader loader = new FXMLLoader();
+        InputStream stream;
+        //StringReader reader = new StringReader(s);
+        stream = new ByteArrayInputStream(s.getBytes("UTF-8"));
+        Object node = loader.load(stream);
+        stream.close();
+        return node;
+    }
+
+
+
+    public static VisualModel newVisualModel() {
         return new ScatterPlot().getVisualModel();
     }
 //
@@ -80,15 +123,16 @@ public class WaterlooFXJS extends Application {
 //        getChart().requestLayout();
 //    }
 //
-//    public void verticalFill() {
-//        Paint color = getChart().getAltFillVertical();
-//        if (color == Color.TRANSPARENT) {
-//            getChart().setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
-//        } else {
-//            getChart().setAltFillVertical(Color.TRANSPARENT);
-//        }
-//        getChart().requestLayout();
-//    }
+
+    public void verticalFill() {
+        Paint color = getChart().getAltFillVertical();
+        if (color == Color.TRANSPARENT) {
+            getChart().setAltFillVertical(new Color(0f, 0f, 1f, 0.05f));
+        } else {
+            getChart().setAltFillVertical(Color.TRANSPARENT);
+        }
+        getChart().requestLayout();
+    }
 
     public void horzFill() {
         Paint color = getChart().getAltFillHorizontal();
@@ -101,11 +145,15 @@ public class WaterlooFXJS extends Application {
     }
 
     public void print() {
+        Chart chart = getChart();
         PrinterJob job = PrinterJob.createPrinterJob();
-        if (job != null) {
-            boolean success = job.printPage(getChart());
+        if (job != null && chart != null) {
+            boolean success = job.showPageSetupDialog(null);
             if (success) {
-                job.endJob();
+                success = job.printPage(chart);
+                if (success) {
+                    job.endJob();
+                }
             }
         }
     }
