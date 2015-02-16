@@ -9,8 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -147,19 +145,19 @@ public class WaterlooFXJS extends Application {
         getChart().requestLayout();
     }
 
-    public void print() {
-        Chart chart = getChart();
-        PrinterJob job = PrinterJob.createPrinterJob();
-        if (job != null && chart != null) {
-            boolean success = job.showPageSetupDialog(null);
-            if (success) {
-                success = job.printPage(chart);
-                if (success) {
-                    job.endJob();
-                }
-            }
-        }
-    }
+//    public void print() {
+//        Chart chart = getChart();
+//        PrinterJob job = PrinterJob.createPrinterJob();
+//        if (job != null && chart != null) {
+//            boolean success = job.showPageSetupDialog(null);
+//            if (success) {
+//                success = job.printPage(chart);
+//                if (success) {
+//                    job.endJob();
+//                }
+//            }
+//        }
+//    }
 
     /**
      * @param args the command line arguments
