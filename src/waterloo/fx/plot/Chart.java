@@ -1321,6 +1321,8 @@ public final class Chart extends Pane {
         leftAxisPaintedProperty().addListener(axisPaintedListener);
         topAxisPaintedProperty().addListener(axisPaintedListener);
         bottomAxisPaintedProperty().addListener(axisPaintedListener);
+        
+        //view.getChildren().add(new CrossHair());
         requestLayout();
 
     }

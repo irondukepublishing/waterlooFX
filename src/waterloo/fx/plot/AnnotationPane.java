@@ -57,8 +57,8 @@ public class AnnotationPane extends Pane {
         getChildren().forEach(x -> {
             if (x instanceof Annotation) {
                 Annotation annotation = (Annotation) x;
-                if (getGraph() != null) {
-                    Point2D p0 = getGraph().toPixel(annotation.getX(), annotation.getY());
+                if (getChart() != null) {
+                    Point2D p0 = getChart().toPixel(annotation.getX(), annotation.getY());
                     annotation.setLayoutX(p0.getX());
                     annotation.setLayoutY(p0.getY());
                 }
@@ -67,7 +67,7 @@ public class AnnotationPane extends Pane {
         super.layoutChildren();
     }
 
-    private Chart getGraph() {
+    private Chart getChart() {
         Node parent = getParent();
         while (!(parent instanceof Chart) && parent != null) {
             parent = parent.getParent();
