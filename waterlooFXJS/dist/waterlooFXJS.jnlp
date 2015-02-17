@@ -7,9 +7,12 @@
     <offline-allowed/>
   </information>
   <resources>
+    <jfx:javafx-runtime version="8.0+" href="http://javadl.sun.com/webapps/download/GetFile/javafx-latest/windows-i586/javafx2.jnlp"/>
+  </resources>
+  <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="waterlooFXJS.jar" size="8366" download="eager" />
-    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="274142" download="lazy" />
+    <jar href="waterlooFXJS.jar" size="7208" download="eager" />
+    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="274139" download="lazy" />
   </resources>
 <security>
   <all-permissions/>
