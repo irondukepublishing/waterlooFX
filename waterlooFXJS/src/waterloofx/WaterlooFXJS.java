@@ -87,18 +87,18 @@ public class WaterlooFXJS extends Application {
             //StringReader reader = new StringReader(s);
             stream = new ByteArrayInputStream(s.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            return null;
+            return "WaterlooFXJS:".concat(ex.toString());
         }
         Node node=null;
         try {
             node = loader.load(stream);
         } catch (IOException ex) {
-            return ex;
+            return "WaterlooFXJS:".concat(ex.toString());
         }
         try {
             stream.close();
         } catch (IOException ex) {
-            return ex;
+            return "WaterlooFXJS:".concat(ex.toString());
         }
         return node;
     }

@@ -64,11 +64,11 @@ wfxjs = function () {
             client.send();
             var text = client.responseText;
             var object = app.parseFXML(text);
-            try {
-                // Will work if a Java Exception object has been returned...
-                alert(object.getMessage());
+            if (object instanceof String) {
+                // If a Java Exception object has been returned...
+                alert(object);
                 return null;
-            } catch (ex) {
+            } else {
                 //... otherwise return the node
                 return object;
             }
