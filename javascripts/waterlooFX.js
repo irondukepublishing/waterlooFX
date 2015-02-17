@@ -60,7 +60,7 @@ wfxjs = function () {
             var app = document.getElementById(appID);
             var client = new XMLHttpRequest();
             client.open('GET', url, false);
-            client.overrideMimeType("application/xml; charset=utf-8");
+            client.overrideMimeType("text/xml; charset=utf-8");
             client.send();
             var text = client.responseText;
             var object = app.parseFXML(text);
