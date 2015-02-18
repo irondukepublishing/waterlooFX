@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -65,6 +66,7 @@ import waterloo.fx.plot.axis.AxisLeft;
 import waterloo.fx.plot.axis.AxisRight;
 import waterloo.fx.plot.axis.AxisSet;
 import waterloo.fx.plot.axis.AxisTop;
+import waterloo.fx.plot.axis.CrossHair;
 import waterloo.fx.transforms.AbstractTransform;
 import waterloo.fx.transforms.Log10Transform;
 import waterloo.fx.transforms.LogTransform;
@@ -1020,6 +1022,27 @@ public final class Chart extends Pane {
         }
     };
 
+    StyleableBooleanProperty mousePositionDisplayed = new StyleableBooleanProperty(Boolean.FALSE) {
+        @Override
+        public final Object getBean() {
+            return Chart.this;
+        }
+
+        @Override
+        public final String getName() {
+            return "mousePositionD=";
+        }
+
+        @Override
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
+            return StyleableProperties.MOUSEPOSITION;
+        }
+    };
+
+    private CrossHair crossHair = null;
+    SimpleDoubleProperty mouseX = new SimpleDoubleProperty(Double.NaN);
+    SimpleDoubleProperty mouseY = new SimpleDoubleProperty(Double.NaN);
+
     /**
      * Default constructor.
      */
@@ -1112,6 +1135,8 @@ public final class Chart extends Pane {
                 if (m2.isStillSincePress()) {
                     return;
                 }
+                mouseX.set(m2.getX());
+                mouseY.set(m2.getY());
                 if (isInnerAxisPainted()) {
                     double x = toPositionX(m2.getX());
                     double y = toPositionY(m2.getY());
@@ -1173,6 +1198,11 @@ public final class Chart extends Pane {
                     dragYStart = m4.getY();
                 }
 
+            });
+            
+            view.setOnMouseExited((MouseEvent m5)->{
+                mouseX.set(Double.NaN);
+                mouseY.set(Double.NaN);
             });
 
             // Do this only of a Chart has been set as the root element.
@@ -1321,8 +1351,8 @@ public final class Chart extends Pane {
         leftAxisPaintedProperty().addListener(axisPaintedListener);
         topAxisPaintedProperty().addListener(axisPaintedListener);
         bottomAxisPaintedProperty().addListener(axisPaintedListener);
-        
-        //view.getChildren().add(new CrossHair());
+
+        //setMousePositionDisplayed(true);
         requestLayout();
 
     }
@@ -1350,6 +1380,36 @@ public final class Chart extends Pane {
      */
     public final static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
         return StyleableProperties.STYLEABLES;
+    }
+
+    public StyleableBooleanProperty mousePositionDisplay() {
+        return mousePositionDisplayed;
+    }
+
+    public void setMousePositionDisplayed(boolean flag) {
+        if (flag == true) {
+            if (crossHair == null) {
+                crossHair = new CrossHair(this);
+            }
+        } else {
+            if (crossHair != null) {
+                crossHair.unbind();
+                crossHair = null;
+            }
+        }
+        mousePositionDisplayed.set(flag);
+    }
+
+    public boolean isMousePositionDisplay() {
+        return mousePositionDisplayed.get();
+    }
+
+    public SimpleDoubleProperty mouseX() {
+        return mouseX;
+    }
+
+    public SimpleDoubleProperty mouseY() {
+        return mouseY;
     }
 
     /**
@@ -3673,6 +3733,20 @@ public final class Chart extends Pane {
                     @Override
                     public final StyleableProperty<VIEWALIGNMENT> getStyleableProperty(Chart n) {
                         return (StyleableProperty<VIEWALIGNMENT>) n.viewAlignment;
+                    }
+                };
+        private static final CssMetaData<Chart, Boolean> MOUSEPOSITION
+                = new CssMetaData<Chart, Boolean>("-w-mouse-position",
+                        StyleConverter.getBooleanConverter(), Boolean.FALSE) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.mousePositionDisplayed != null && !n.mousePositionDisplayed.isBound();
+                    }
+
+                    @Override
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Boolean>) n.mousePositionDisplayed;
                     }
                 };
 
