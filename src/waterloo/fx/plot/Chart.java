@@ -22,6 +22,8 @@
  */
 package waterloo.fx.plot;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +47,7 @@ import javafx.css.StyleableProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -60,6 +63,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import waterloo.fx.plot.axis.AbstractAxisRegion;
 import waterloo.fx.plot.axis.AxisBottom;
 import waterloo.fx.plot.axis.AxisLeft;
@@ -188,6 +192,11 @@ public final class Chart extends Pane {
      * Number of minor ticks/grids in the majorXInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
+
+    private NumberFormat formatter = new DecimalFormat();
+    private Text xPosText = null;
+    private Text yPosText = null;
+
     private StyleableIntegerProperty minorCountXHint = new StyleableIntegerProperty(4) {
         @Override
         public final CssMetaData<Chart, Number> getCssMetaData() {
@@ -1157,6 +1166,9 @@ public final class Chart extends Pane {
                 if (m4.isStillSincePress()) {
                     return;
                 }
+                mouseX.set(m4.getX());
+                mouseY.set(m4.getY());
+
                 double x = toPositionX(m4.getX());
                 double y = toPositionY(m4.getY());
                 deltaX = toPositionX(dragXStart) - toPositionX(m4.getX());
@@ -1199,8 +1211,8 @@ public final class Chart extends Pane {
                 }
 
             });
-            
-            view.setOnMouseExited((MouseEvent m5)->{
+
+            view.setOnMouseExited((MouseEvent m5) -> {
                 mouseX.set(Double.NaN);
                 mouseY.set(Double.NaN);
             });
@@ -1352,7 +1364,6 @@ public final class Chart extends Pane {
         topAxisPaintedProperty().addListener(axisPaintedListener);
         bottomAxisPaintedProperty().addListener(axisPaintedListener);
 
-        //setMousePositionDisplayed(true);
         requestLayout();
 
     }
@@ -1387,20 +1398,52 @@ public final class Chart extends Pane {
     }
 
     public void setMousePositionDisplayed(boolean flag) {
+        if (!Platform.isFxApplicationThread()){
+            Platform.runLater(() -> {
+                setMousePositionDisplayed(flag);
+            });
+            return;
+        }
+        mousePositionDisplayed.set(flag);
         if (flag == true) {
             if (crossHair == null) {
                 crossHair = new CrossHair(this);
+                if (xPosText == null) {
+                    xPosText = new Text();
+                    getChildren().add(xPosText);
+                    xPosText.setStyle("-fx-font-size: 8pt");
+                    xPosText.yProperty().bind(getView().layoutYProperty().add(-5d));
+                }
+                if (yPosText == null) {
+                    yPosText = new Text();
+                    getChildren().add(yPosText);
+                    yPosText.setStyle("-fx-font-size: 8pt");
+                    yPosText.setTextOrigin(VPos.CENTER);
+                    yPosText.yProperty().bind(mouseY().add(getView().layoutYProperty()));
+                    yPosText.xProperty().bind(getView().widthProperty().add(getView().layoutXProperty()).add(5d));
+                }
             }
         } else {
+            if (yPosText != null) {
+                getChildren().remove(xPosText);
+                //xPosText.xProperty().unbind();
+                xPosText.yProperty().unbind();
+                xPosText = null;
+            }
+            if (yPosText != null) {
+                getChildren().remove(yPosText);
+                yPosText.xProperty().unbind();
+                yPosText.yProperty().unbind();
+                yPosText = null;
+            }
             if (crossHair != null) {
                 crossHair.unbind();
                 crossHair = null;
             }
         }
-        mousePositionDisplayed.set(flag);
     }
 
-    public boolean isMousePositionDisplay() {
+    public boolean isMousePositionDisplayed() {
         return mousePositionDisplayed.get();
     }
 
@@ -2012,6 +2055,21 @@ public final class Chart extends Pane {
         axisRight.setLayoutY(view.getLayoutY());
         axisRight.setPrefWidth(Region.USE_COMPUTED_SIZE);
         axisRight.requestLayout();
+
+        if (isMousePositionDisplayed()){
+        if (xPosText != null && Double.isFinite(mouseX().get())) {
+            Point2D p = view.localToParent(mouseX().get(), -1);
+            xPosText.xProperty().set(p.getX() - (xPosText.prefWidth(-1) / 2d));
+            xPosText.textProperty().set(formatter.format(toPositionX(mouseX.get())));
+        } else {
+            xPosText.textProperty().set("");
+        }
+        if (yPosText != null && Double.isFinite(mouseY().get())) {
+            yPosText.textProperty().set(formatter.format(toPositionY(mouseY.get())));
+        } else {
+            yPosText.textProperty().set("");
+        }
+        }
 
     }
 
@@ -3156,6 +3214,20 @@ public final class Chart extends Pane {
      */
     public final Pane getAxisPane() {
         return axisPane;
+    }
+
+    /**
+     * @return the formatter
+     */
+    public NumberFormat getFormatter() {
+        return formatter;
+    }
+
+    /**
+     * @param formatter the formatter to set
+     */
+    public void setFormatter(NumberFormat formatter) {
+        this.formatter = formatter;
     }
 
     public static enum TRANSFORMTYPE {
