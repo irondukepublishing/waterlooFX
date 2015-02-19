@@ -71,6 +71,12 @@
             app.add(ob);
         }
 
+        var clicked3 = function () {
+            var chart = document.getElementById('myApp').getChart();
+            var flag=chart.isMousePositionDisplayed();
+            chart.setMousePositionDisplayed(!flag)
+        }
+
 
     </script>
 </head>
@@ -143,6 +149,8 @@
                 <input onclick="clicked11();" type="checkbox">Vertical Grid Fill</input>
                 <input onclick="clicked12();" type="checkbox">Horizontal Grid Fill </input>
                 <input onclick="clicked2();" type="checkbox">Inner Axis</input>
+                <br>
+                <input onclick="clicked3();" type="checkbox">Show mouse position</input>
                 <br>
                 <!--<button onclick="print();">Print Chart</button>-->
                 <button onclick="addPlot();">Add Another Plot</button>
