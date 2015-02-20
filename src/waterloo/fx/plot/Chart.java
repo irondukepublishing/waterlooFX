@@ -101,6 +101,8 @@ public final class Chart extends Pane {
      * calculated.
      */
     private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
+    
+    private static final Paint altFillColor=new Color(0f,0f,1f,0.2f);
 
     /**
      * Offset (in pixels) between the top axis and the view area.
@@ -468,6 +470,7 @@ public final class Chart extends Pane {
         }
 
     };
+
     /**
      * Stroke width used to draw an internal axis
      */
@@ -892,7 +895,8 @@ public final class Chart extends Pane {
      * Grid fill color as a {@code Paint} instance: alternate vertical grid
      * elements will be filled.
      */
-    private final StyleableObjectProperty<Paint> altFillVertical = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
+    private final StyleableObjectProperty<Paint> altFillVertical 
+            = new StyleableObjectProperty<Paint>(altFillColor) {
 
         @Override
         public final Object getBean() {
@@ -910,11 +914,49 @@ public final class Chart extends Pane {
         }
 
     };
+
+    private StyleableBooleanProperty altFillVerticalPainted 
+            = new StyleableBooleanProperty(Boolean.FALSE) {
+        @Override
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
+            return StyleableProperties.ALTFILLVERTICALPAINTED;
+        }
+
+        @Override
+        public final Object getBean() {
+            return Chart.this;
+        }
+
+        @Override
+        public final String getName() {
+            return "altFillVerticalPainted";
+        }
+    };
+
+    private StyleableBooleanProperty altFillHorizontalPainted
+            = new StyleableBooleanProperty(Boolean.FALSE) {
+        @Override
+        public final CssMetaData<Chart, Boolean> getCssMetaData() {
+            return StyleableProperties.ALTFILLHORIZONTALPAINTED;
+        }
+
+        @Override
+        public final Object getBean() {
+            return Chart.this;
+        }
+
+        @Override
+        public final String getName() {
+            return "altFillHorizontalPainted";
+        }
+    };
+
     /**
      * Grid fill color as a {@code Paint} instance: alternate horizontal grid
      * elements will be filled.
      */
-    private final StyleableObjectProperty<Paint> altFillHorizontal = new StyleableObjectProperty<Paint>(Color.TRANSPARENT) {
+    private final StyleableObjectProperty<Paint> altFillHorizontal
+            = new StyleableObjectProperty<Paint>(altFillColor) {
 
         @Override
         public final Object getBean() {
@@ -1398,7 +1440,7 @@ public final class Chart extends Pane {
     }
 
     public void setMousePositionDisplayed(boolean flag) {
-        if (!Platform.isFxApplicationThread()){
+        if (!Platform.isFxApplicationThread()) {
             Platform.runLater(() -> {
                 setMousePositionDisplayed(flag);
             });
@@ -2056,19 +2098,19 @@ public final class Chart extends Pane {
         axisRight.setPrefWidth(Region.USE_COMPUTED_SIZE);
         axisRight.requestLayout();
 
-        if (isMousePositionDisplayed()){
-        if (xPosText != null && Double.isFinite(mouseX().get())) {
-            Point2D p = view.localToParent(mouseX().get(), -1);
-            xPosText.xProperty().set(p.getX() - (xPosText.prefWidth(-1) / 2d));
-            xPosText.textProperty().set(formatter.format(toPositionX(mouseX.get())));
-        } else {
-            xPosText.textProperty().set("");
-        }
-        if (yPosText != null && Double.isFinite(mouseY().get())) {
-            yPosText.textProperty().set(formatter.format(toPositionY(mouseY.get())));
-        } else {
-            yPosText.textProperty().set("");
-        }
+        if (isMousePositionDisplayed()) {
+            if (xPosText != null && Double.isFinite(mouseX().get())) {
+                Point2D p = view.localToParent(mouseX().get(), -1);
+                xPosText.xProperty().set(p.getX() - (xPosText.prefWidth(-1) / 2d));
+                xPosText.textProperty().set(formatter.format(toPositionX(mouseX.get())));
+            } else {
+                xPosText.textProperty().set("");
+            }
+            if (yPosText != null && Double.isFinite(mouseY().get())) {
+                yPosText.textProperty().set(formatter.format(toPositionY(mouseY.get())));
+            } else {
+                yPosText.textProperty().set("");
+            }
         }
 
     }
@@ -3041,6 +3083,30 @@ public final class Chart extends Pane {
         altFillVertical.set(alternateBackground);
     }
 
+    public StyleableBooleanProperty altFillVerticalPainted() {
+        return altFillVerticalPainted;
+    }
+
+    public void setAltFillVerticalPainted(boolean flag) {
+        altFillVerticalPainted.set(flag);
+    }
+
+    public boolean isAltFillVerticalPainted() {
+        return altFillVerticalPainted.get();
+    }
+    
+    public StyleableBooleanProperty altFillHorizontalPainted() {
+        return altFillHorizontalPainted;
+    }
+
+    public void setAltFillHorizontalPainted(boolean flag) {
+        altFillHorizontalPainted.set(flag);
+    }
+
+    public boolean isAltFillHorizontalPainted() {
+        return altFillHorizontalPainted.get();
+    }
+
     /**
      * Property wrapping the Paint instance to use when filling alternate
      * horizontal major grid divisions.
@@ -3636,6 +3702,34 @@ public final class Chart extends Pane {
                         return (StyleableProperty<Boolean>) n.rightAxisLabelled;
                     }
                 };
+        private static final CssMetaData<Chart, Boolean> ALTFILLVERTICALPAINTED
+                = new CssMetaData<Chart, Boolean>("-w-fill-vertical-painted",
+                        StyleConverter.getBooleanConverter(), Boolean.FALSE) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.altFillVerticalPainted != null && !n.altFillVerticalPainted.isBound();
+                    }
+
+                    @Override
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Boolean>) n.altFillVerticalPainted;
+                    }
+                };
+        private static final CssMetaData<Chart, Boolean> ALTFILLHORIZONTALPAINTED
+                = new CssMetaData<Chart, Boolean>("-w-fill-horizontal-painted",
+                        StyleConverter.getBooleanConverter(), Boolean.FALSE) {
+
+                    @Override
+                    public final boolean isSettable(Chart n) {
+                        return n.altFillHorizontalPainted != null && !n.altFillHorizontalPainted.isBound();
+                    }
+
+                    @Override
+                    public final StyleableProperty<Boolean> getStyleableProperty(Chart n) {
+                        return (StyleableProperty<Boolean>) n.altFillHorizontalPainted;
+                    }
+                };
         private static final CssMetaData<Chart, Boolean> POLAR
                 = new CssMetaData<Chart, Boolean>("-w-polar",
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
@@ -3721,7 +3815,7 @@ public final class Chart extends Pane {
                 };
         private static final CssMetaData<Chart, Paint> ALTFILLVERTICAL
                 = new CssMetaData<Chart, Paint>("-w-alt-fill-vertical",
-                        StyleConverter.getPaintConverter(), Color.TRANSPARENT) {
+                        StyleConverter.getPaintConverter(), altFillColor) {
 
                     @Override
                     public final boolean isSettable(Chart n) {
@@ -3735,7 +3829,7 @@ public final class Chart extends Pane {
                 };
         private static final CssMetaData<Chart, Paint> ALTFILLHORIZONTAL
                 = new CssMetaData<Chart, Paint>("-w-alt-fill-horizontal",
-                        StyleConverter.getPaintConverter(), Color.TRANSPARENT) {
+                        StyleConverter.getPaintConverter(), altFillColor) {
 
                     @Override
                     public final boolean isSettable(Chart n) {
@@ -3872,6 +3966,8 @@ public final class Chart extends Pane {
 
             styleables.add(ALTFILLVERTICAL);
             styleables.add(ALTFILLHORIZONTAL);
+             styleables.add(ALTFILLVERTICALPAINTED);
+            styleables.add(ALTFILLHORIZONTALPAINTED);
 
             styleables.add(VIEWALIGN);
 

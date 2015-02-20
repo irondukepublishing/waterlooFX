@@ -178,7 +178,7 @@ public class AxisSet {
             g.fillRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
         }
 
-        if (layer.getAltFillVertical() != Color.TRANSPARENT) {
+        if (layer.isAltFillVerticalPainted() && layer.getAltFillVertical() != Color.TRANSPARENT) {
             g.setFill(layer.getAltFillVertical());
             Point2D p2;
             Point2D p3;
@@ -194,7 +194,7 @@ public class AxisSet {
             }
         }
 
-        if (layer.getAltFillHorizontal() != Color.TRANSPARENT) {
+        if (layer.isAltFillHorizontalPainted() && layer.getAltFillHorizontal() != Color.TRANSPARENT) {
             g.setFill(layer.getAltFillHorizontal());
             Point2D p2;
             Point2D p3;
