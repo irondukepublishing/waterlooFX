@@ -22,8 +22,6 @@ public class CrossHair extends Path {
 
     private Chart layer;
 
-    
-
     public CrossHair(Chart chart) {
         layer = chart;
         parentProperty().addListener((ObservableValue<? extends Parent> ov, Parent t, Parent t1) -> {
@@ -35,7 +33,8 @@ public class CrossHair extends Path {
             bind();
         });
         chart.getView().getChildren().add(this);
-        this.setStroke(Color.GREEN);
+        setStroke(Color.DARKGREEN);
+        getStyleClass().add("w-chart-crosshair");
     }
 
     private void bind() {
@@ -60,10 +59,6 @@ public class CrossHair extends Path {
         ((LineTo) getElements().get(3)).xProperty().unbind();
         ((LineTo) getElements().get(3)).yProperty().unbind();
         layer.getView().getChildren().remove(this);
-//        layer.getChildren().remove(xPosText);
-//        layer.getChildren().remove(yPosText);
-//        xPosText=null;
-//        yPosText=null;
     }
 
 }

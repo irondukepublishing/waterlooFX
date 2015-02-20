@@ -1057,10 +1057,10 @@ public final class Chart extends Pane {
      */
     public Chart() {
         super();
-        this.yTol = new Tolerance("Y");
-        this.xTol = new Tolerance("X");
-        this.majorYInterval = new MajorYInterval();
-        this.majorXInterval = new MajorXInterval();
+        yTol = new Tolerance("Y");
+        xTol = new Tolerance("X");
+        majorYInterval = new MajorYInterval();
+        majorXInterval = new MajorXInterval();
 
         setPrefWidth(500d);
         setPrefHeight(500d);
