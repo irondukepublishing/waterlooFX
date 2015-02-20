@@ -28,19 +28,19 @@
 
         var clicked0 = function () {
             var chart = document.getElementById('myApp').getChart();
-            chart.setMajorGridPainted(!chart.isMajorGridPainted());
+            chart.setMajorGridPainted(document.getElementById('majorGrid').checked);
             chart.requestLayout();
         }
 
         var clicked1 = function () {
             var chart = document.getElementById('myApp').getChart();
-            chart.setMinorGridPainted(!chart.isMinorGridPainted());
+            chart.setMinorGridPainted(document.getElementById('minorGrid').checked);
             chart.requestLayout();
         }
 
         var clicked2 = function () {
             var chart = document.getElementById('myApp').getChart();
-            chart.setInnerAxisPainted(!chart.isInnerAxisPainted());
+            chart.setInnerAxisPainted(document.getElementById('innerAxis').checked);
             chart.requestLayout();
         }
 
@@ -144,11 +144,11 @@
             </div>
 
             <div style="font-weight: bold">
-                <input onclick="clicked0();" type="checkbox">Major Grid</input>
-                <input onclick="clicked1();" type="checkbox">Minor Grid</input>
+                <input onclick="clicked0();" type="checkbox" id="majorGrid">Major Grid</input>
+                <input onclick="clicked1();" type="checkbox" id="minorGrid">Minor Grid</input>
                 <input onclick="clicked11();" type="checkbox">Vertical Grid Fill</input>
                 <input onclick="clicked12();" type="checkbox">Horizontal Grid Fill </input>
-                <input onclick="clicked2();" type="checkbox">Inner Axis</input>
+                <input onclick="clicked2();" type="checkbox" id="innerAxis">Inner Axis</input>
                 <br>
                 <input onclick="clicked3();" type="checkbox">Show mouse position</input>
                 <br>
