@@ -151,13 +151,15 @@
             </div>
 
             <div style="font-weight: bold">
-                <input onclick="majorGrid();" type="checkbox" id="majorGrid">Major Grid</input>
-                <input onclick="minorGrid();" type="checkbox" id="minorGrid">Minor Grid</input>
-                <input onclick="altFillV();" type="checkbox" id="altFillV">Vertical Grid Fill</input>
-                <input onclick="altFillH();" type="checkbox" id="altFillH">Horizontal Grid Fill </input>
-                <input onclick="innerAxis();" type="checkbox" id="innerAxis">Inner Axis</input>
+                // Note: use autocomplete="off" to stop Firefox reloading status from its cache
+                // This ensures boxes are unchecked on a page reload.
+                <input onclick="majorGrid();" type="checkbox" id="majorGrid" value=false autocomplete="off">Major Grid</input>
+                <input onclick="minorGrid();" type="checkbox" id="minorGrid" value=false autocomplete="off">Minor Grid</input>
+                <input onclick="altFillV();" type="checkbox" id="altFillV" value=false autocomplete="off">Vertical Grid Fill</input>
+                <input onclick="altFillH();" type="checkbox" id="altFillH" value=false autocomplete="off">Horizontal Grid Fill </input>
+                <input onclick="innerAxis();" type="checkbox" id="innerAxis" value=false autocomplete="off">Inner Axis</input>
                 <br>
-                <input onclick="clicked3();" type="checkbox">Show mouse position</input>
+                <input onclick="clicked3();" type="checkbox" value=false autocomplete="off">Show mouse position</input>
                 <br>
                 <button onclick="addPlot();">Add Another Plot</button>
                 <button onclick="addChart();">Add Another Chart</button>
