@@ -61,6 +61,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -70,7 +73,6 @@ import waterloo.fx.plot.axis.AxisLeft;
 import waterloo.fx.plot.axis.AxisRight;
 import waterloo.fx.plot.axis.AxisSet;
 import waterloo.fx.plot.axis.AxisTop;
-import waterloo.fx.plot.axis.CrossHair;
 import waterloo.fx.transforms.AbstractTransform;
 import waterloo.fx.transforms.Log10Transform;
 import waterloo.fx.transforms.LogTransform;
@@ -101,8 +103,8 @@ public final class Chart extends Pane {
      * calculated.
      */
     private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
-    
-    private static final Paint altFillColor=new Color(0f,0f,1f,0.2f);
+
+    private static final Paint altFillColor = new Color(0f, 0f, 1f, 0.2f);
 
     /**
      * Offset (in pixels) between the top axis and the view area.
@@ -895,61 +897,61 @@ public final class Chart extends Pane {
      * Grid fill color as a {@code Paint} instance: alternate vertical grid
      * elements will be filled.
      */
-    private final StyleableObjectProperty<Paint> altFillVertical 
+    private final StyleableObjectProperty<Paint> altFillVertical
             = new StyleableObjectProperty<Paint>(altFillColor) {
 
-        @Override
-        public final Object getBean() {
-            return Chart.this;
-        }
+                @Override
+                public final Object getBean() {
+                    return Chart.this;
+                }
 
-        @Override
-        public final String getName() {
-            return "altFillVertical";
-        }
+                @Override
+                public final String getName() {
+                    return "altFillVertical";
+                }
 
-        @Override
-        public final CssMetaData<? extends Styleable, Paint> getCssMetaData() {
-            return StyleableProperties.ALTFILLVERTICAL;
-        }
+                @Override
+                public final CssMetaData<? extends Styleable, Paint> getCssMetaData() {
+                    return StyleableProperties.ALTFILLVERTICAL;
+                }
 
-    };
+            };
 
-    private StyleableBooleanProperty altFillVerticalPainted 
+    private StyleableBooleanProperty altFillVerticalPainted
             = new StyleableBooleanProperty(Boolean.FALSE) {
-        @Override
-        public final CssMetaData<Chart, Boolean> getCssMetaData() {
-            return StyleableProperties.ALTFILLVERTICALPAINTED;
-        }
+                @Override
+                public final CssMetaData<Chart, Boolean> getCssMetaData() {
+                    return StyleableProperties.ALTFILLVERTICALPAINTED;
+                }
 
-        @Override
-        public final Object getBean() {
-            return Chart.this;
-        }
+                @Override
+                public final Object getBean() {
+                    return Chart.this;
+                }
 
-        @Override
-        public final String getName() {
-            return "altFillVerticalPainted";
-        }
-    };
+                @Override
+                public final String getName() {
+                    return "altFillVerticalPainted";
+                }
+            };
 
     private StyleableBooleanProperty altFillHorizontalPainted
             = new StyleableBooleanProperty(Boolean.FALSE) {
-        @Override
-        public final CssMetaData<Chart, Boolean> getCssMetaData() {
-            return StyleableProperties.ALTFILLHORIZONTALPAINTED;
-        }
+                @Override
+                public final CssMetaData<Chart, Boolean> getCssMetaData() {
+                    return StyleableProperties.ALTFILLHORIZONTALPAINTED;
+                }
 
-        @Override
-        public final Object getBean() {
-            return Chart.this;
-        }
+                @Override
+                public final Object getBean() {
+                    return Chart.this;
+                }
 
-        @Override
-        public final String getName() {
-            return "altFillHorizontalPainted";
-        }
-    };
+                @Override
+                public final String getName() {
+                    return "altFillHorizontalPainted";
+                }
+            };
 
     /**
      * Grid fill color as a {@code Paint} instance: alternate horizontal grid
@@ -958,22 +960,22 @@ public final class Chart extends Pane {
     private final StyleableObjectProperty<Paint> altFillHorizontal
             = new StyleableObjectProperty<Paint>(altFillColor) {
 
-        @Override
-        public final Object getBean() {
-            return Chart.this;
-        }
+                @Override
+                public final Object getBean() {
+                    return Chart.this;
+                }
 
-        @Override
-        public final String getName() {
-            return "altFillHorizontal";
-        }
+                @Override
+                public final String getName() {
+                    return "altFillHorizontal";
+                }
 
-        @Override
-        public final CssMetaData<? extends Styleable, Paint> getCssMetaData() {
-            return StyleableProperties.ALTFILLHORIZONTAL;
-        }
+                @Override
+                public final CssMetaData<? extends Styleable, Paint> getCssMetaData() {
+                    return StyleableProperties.ALTFILLHORIZONTAL;
+                }
 
-    };
+            };
 
     /**
      * The inner axes are those drawn within the plotting area of the chart.
@@ -1099,9 +1101,9 @@ public final class Chart extends Pane {
      */
     public Chart() {
         super();
-        
+
         getStyleClass().add("chart");
-        
+
         yTol = new Tolerance("Y");
         xTol = new Tolerance("X");
         majorYInterval = new MajorYInterval();
@@ -1453,37 +1455,38 @@ public final class Chart extends Pane {
         if (flag == true) {
             if (crossHair == null) {
                 crossHair = new CrossHair(this);
-                if (xPosText == null) {
-                    xPosText = new Text();
-                    getChildren().add(xPosText);
-                    xPosText.setStyle("-fx-font-size: 8pt");
-                    xPosText.yProperty().bind(getView().layoutYProperty().add(-5d));
-                }
-                if (yPosText == null) {
-                    yPosText = new Text();
-                    getChildren().add(yPosText);
-                    yPosText.setStyle("-fx-font-size: 8pt");
-                    yPosText.setTextOrigin(VPos.CENTER);
-                    yPosText.yProperty().bind(mouseY().add(getView().layoutYProperty()));
-                    yPosText.xProperty().bind(getView().widthProperty().add(getView().layoutXProperty()).add(5d));
-                }
             }
+            getView().getChildren().add(crossHair);
+            if (xPosText == null) {
+                xPosText = new Text();
+                xPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
+                xPosText.getStyleClass().add("xpostext");
+            }
+            getChildren().add(xPosText);
+            xPosText.yProperty().bind(getView().layoutYProperty().add(-5d));
+            
+            if (yPosText == null) {
+                yPosText = new Text();
+                yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
+                yPosText.getStyleClass().add("ypostext");
+            }
+            getChildren().add(yPosText);
+            yPosText.setTextOrigin(VPos.CENTER);
+            yPosText.yProperty().bind(mouseY().add(getView().layoutYProperty()));
+            yPosText.xProperty().bind(getView().widthProperty().add(getView().layoutXProperty()).add(5d));
         } else {
-            if (yPosText != null) {
+            if (xPosText != null) {
                 getChildren().remove(xPosText);
-                //xPosText.xProperty().unbind();
                 xPosText.yProperty().unbind();
-                xPosText = null;
             }
             if (yPosText != null) {
                 getChildren().remove(yPosText);
                 yPosText.xProperty().unbind();
                 yPosText.yProperty().unbind();
-                yPosText = null;
             }
             if (crossHair != null) {
                 crossHair.unbind();
-                crossHair = null;
+                getView().getChildren().remove(crossHair);
             }
         }
     }
@@ -3097,7 +3100,7 @@ public final class Chart extends Pane {
     public boolean isAltFillVerticalPainted() {
         return altFillVerticalPainted.get();
     }
-    
+
     public StyleableBooleanProperty altFillHorizontalPainted() {
         return altFillHorizontalPainted;
     }
@@ -3297,6 +3300,7 @@ public final class Chart extends Pane {
      */
     public void setFormatter(NumberFormat formatter) {
         this.formatter = formatter;
+
     }
 
     public static enum TRANSFORMTYPE {
@@ -4145,5 +4149,49 @@ public final class Chart extends Pane {
         }
 
     }
+    
+    public final class CrossHair extends Path {
+
+    private final Chart layer;
+
+    private CrossHair(Chart chart) {
+        layer = chart;
+        parentProperty().addListener((ObservableValue<? extends Parent> ov, Parent t, Parent t1) -> {
+            Pane pane = (Pane) getParent();
+            getElements().add(new MoveTo(0, layer.mouseY().get()+layer.getLayoutY()));
+            getElements().add(new LineTo(pane.getWidth(), layer.mouseY().get()+layer.getLayoutY()));
+            getElements().add(new MoveTo(layer.mouseX().get(), 0));
+            getElements().add(new LineTo(pane.getWidth() / 2d, pane.getHeight()));
+            bind();
+        });
+        setStroke(Color.DARKGREEN);
+        getStyleClass().add("crosshair");
+    }
+
+    private void bind() {
+        Pane pane = (Pane) getParent();
+        ((MoveTo) getElements().get(0)).yProperty().bind(layer.mouseY().add(layer.layoutYProperty()));
+
+        ((LineTo) getElements().get(1)).xProperty().bind(pane.widthProperty());
+        ((LineTo) getElements().get(1)).yProperty().bind(layer.mouseY().add(layer.layoutYProperty()));
+
+        ((MoveTo) getElements().get(2)).xProperty().bind(layer.mouseX());
+
+        ((LineTo) getElements().get(3)).xProperty().bind(layer.mouseX());
+        ((LineTo) getElements().get(3)).yProperty().bind(pane.heightProperty());
+        
+         }
+
+    private void unbind() {
+        ((MoveTo) getElements().get(0)).yProperty().unbind();
+        ((LineTo) getElements().get(1)).xProperty().unbind();
+        ((LineTo) getElements().get(1)).yProperty().unbind();
+        ((MoveTo) getElements().get(2)).xProperty().unbind();
+        ((LineTo) getElements().get(3)).xProperty().unbind();
+        ((LineTo) getElements().get(3)).yProperty().unbind();
+        layer.getView().getChildren().remove(this);
+    }
+
+}
 
 }
