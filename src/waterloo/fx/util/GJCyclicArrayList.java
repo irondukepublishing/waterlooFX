@@ -1,11 +1,11 @@
  /* 
 *
- * <http://waterloo.sourceforge.net/>
+ * <http://sigtool.github.io/waterlooFX/>
  *
  * Copyright King's College London  2014. 
  * Copyright Malcolm Lidierth 2014-.
  * 
- * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * @author Malcolm Lidierth <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
  * Project Waterloo is free software:  you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,7 +30,7 @@ import java.util.Arrays;
 /**
  *
  * @author Malcolm Lidierth <a
- * href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * @param <E>
  */
 public class GJCyclicArrayList<E> extends ObservableListWrapper<E> {

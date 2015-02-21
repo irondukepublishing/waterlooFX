@@ -1,11 +1,11 @@
  /* 
 *
- * <http://waterloo.sourceforge.net/>
+ * <http://sigtool.github.io/waterlooFX/>
  *
  * Copyright King's College London 2011-2014.
  * Copyright Malcolm Lidierth 2014.
  * 
- * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * @author Malcolm Lidierth <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
  * Project Waterloo is free software:  you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,7 +29,7 @@ import javafx.scene.paint.Color;
 /**
  *
  * @author Malcolm Lidierth <a
- * href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  */
 public final class GJUtilities {
 

@@ -34,7 +34,7 @@ public class CrossHair extends Path {
         });
         chart.getView().getChildren().add(this);
         setStroke(Color.DARKGREEN);
-        getStyleClass().add("w-chart-crosshair");
+        getStyleClass().add("crosshair");
     }
 
     private void bind() {

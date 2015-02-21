@@ -1,11 +1,11 @@
 /* 
  *
- * <http://waterloo.sourceforge.net/>
+ * <http://sigtool.github.io/waterlooFX/>
  *
  * Copyright King's College London  2013-2014. 
  * Copyright Malcolm Lidierth 2014-.
  * 
- * @author Malcolm Lidierth <a href="http://sourceforge.net/p/waterloo/discussion/"> [Contact]</a>
+ * @author Malcolm Lidierth <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
  * Project Waterloo is free software:  you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -1099,6 +1099,9 @@ public final class Chart extends Pane {
      */
     public Chart() {
         super();
+        
+        getStyleClass().add("chart");
+        
         yTol = new Tolerance("Y");
         xTol = new Tolerance("X");
         majorYInterval = new MajorYInterval();
@@ -3966,7 +3969,7 @@ public final class Chart extends Pane {
 
             styleables.add(ALTFILLVERTICAL);
             styleables.add(ALTFILLHORIZONTAL);
-             styleables.add(ALTFILLVERTICALPAINTED);
+            styleables.add(ALTFILLVERTICALPAINTED);
             styleables.add(ALTFILLHORIZONTALPAINTED);
 
             styleables.add(VIEWALIGN);
