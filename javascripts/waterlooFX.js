@@ -37,6 +37,33 @@ wfxjs = function () {
 
         },
 
+        /**
+         *
+         * @param appID
+         * @param selector
+         * @returns {*}
+         */
+        lookup: function (appID, selector){
+            var app = document.getElementById(appID);
+            return app.lookup(selector);
+        },
+
+        /**
+         *
+         * @param appID
+         * @param selector
+         * @returns {Array}
+         */
+        lookupAll: function (appID, selector) {
+            var app = document.getElementById(appID);
+            var list = app.lookupAll(selector);
+            var array = [];
+            for (var k=0; k<list.size(); k++){
+                array[k]=list.get(k);
+            }
+            return array;
+        },
+
         findCharts: function(jnlp){
             var nodes = document.getElementsByClassName("chart");
             for (var k=0; k<nodes.length; k++){
