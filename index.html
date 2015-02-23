@@ -24,8 +24,8 @@
             wfxjs.jnlp = './waterlooFXJS/dist/waterlooFXJS.jnlp';
             // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp
             wfxjs.embedFXML('myApp', 'Demo', 'javafx-app-placeholder', 400, 300);
-            //var apps = wfxjs.findCharts();
-            //apps[0].app.add(apps[0].object);
+/*            var apps = wfxjs.findCharts();
+            apps[0*/].app.add(apps[0].object);
         }
 
         dtjava.addOnloadCallback(onLoad);
@@ -188,20 +188,19 @@
             </p>
         </div>
 
-        <div class="chart" id="myFXML" style="width:400px; height:300px">
+<!--        <div class="chart" id="myFXML" style="width:400px; height:300px">
         <script type="text/xml">
-            <Chart id="myChart" fx:id="myChart" XLeft="-10.0" XRight="10.0" YBottom="-6.0" YTop="6.0" bottomAxisTitle="X1"
-                   leftAxisTitle="Y1" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+            <Chart XLeft="-10.0" XRight="10.0" YBottom="-6.0" YTop="6.0" bottomAxisTitle="X1" leftAxisTitle="Y1">
                 <children>
                     <LinePlot lineColor="BLUE" lineWidth="1.5">
                         <children>
-                            <ScatterPlot edgeColor="BLACK" edgeWidth="1.5" fill="ORANGE"/>
+                            <ScatterPlot edgeColor="BLUE" edgeWidth="1.5" fill="ORANGE"/>
                         </children>
                     </LinePlot>
                 </children>
             </Chart>
         </script>
-        </div>
+        </div>-->
 
 
     </section>

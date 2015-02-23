@@ -99,7 +99,6 @@ wfxjs = function () {
                 {
                     id: appID,
                     url: this.jnlp,
-                    //jnlp_content: this.jnlp_content,
                     placeholder: placeholder,
                     width: w,
                     height: h,
