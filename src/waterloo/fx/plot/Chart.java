@@ -57,6 +57,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -213,6 +214,8 @@ public final class Chart extends Pane {
     private NumberFormat formatter = new DecimalFormat();
     private Text xPosText = null;
     private Text yPosText = null;
+    private CursorTextBox xCursorText;
+    private CursorTextBox yCursorText;
 
     private StyleableIntegerProperty minorCountXHint = new StyleableIntegerProperty(4) {
         @Override
@@ -1475,32 +1478,43 @@ public final class Chart extends Pane {
                 crossHair = new CrossHair(this);
             }
             getView().getChildren().add(crossHair);
-            if (xPosText == null) {
+            if (xCursorText == null) {
                 xPosText = new Text();
+                xPosText.setTextOrigin(VPos.CENTER);
                 xPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
                 xPosText.getStyleClass().add("xpostext");
+                xCursorText = new CursorTextBox(xPosText);
             }
-            getChildren().add(xPosText);
-            xPosText.yProperty().bind(getView().layoutYProperty().add(-5d));
-
-            if (yPosText == null) {
+            getChildren().add(xCursorText);
+            xCursorText.layoutXProperty().bind(getView().layoutXProperty().add(mouseX).add(xCursorText.widthProperty().divide(2d).negate()));
+            xCursorText.layoutYProperty().bind(getView().layoutYProperty()
+                    .add(getView().heightProperty()
+                    .add(xCursorText.heightProperty().divide(2d).negate())));
+            if (yCursorText == null) {
                 yPosText = new Text();
+                yPosText.setTextOrigin(VPos.CENTER);
                 yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
                 yPosText.getStyleClass().add("ypostext");
+                yCursorText = new CursorTextBox(yPosText);
             }
-            getChildren().add(yPosText);
-            yPosText.setTextOrigin(VPos.CENTER);
-            yPosText.yProperty().bind(mouseY().add(getView().layoutYProperty()));
-            yPosText.xProperty().bind(getView().widthProperty().add(getView().layoutXProperty()).add(5d));
+            getChildren().add(yCursorText);
+            yCursorText.layoutXProperty().bind(getView().layoutXProperty()
+                    .add(yCursorText.widthProperty().negate().add(5d)));
+            yCursorText.layoutYProperty().bind(mouseY().add(getView().layoutYProperty().add(yCursorText.heightProperty().divide(2d).negate())));
+            
         } else {
-            if (xPosText != null) {
-                getChildren().remove(xPosText);
-                xPosText.yProperty().unbind();
+            if (xCursorText != null) {
+                getChildren().remove(xCursorText);
+                xCursorText.layoutYProperty().unbind();
+                xCursorText=null;
+                xPosText=null;
             }
-            if (yPosText != null) {
-                getChildren().remove(yPosText);
-                yPosText.xProperty().unbind();
-                yPosText.yProperty().unbind();
+            if (yCursorText != null) {
+                getChildren().remove(yCursorText);
+                yCursorText.layoutXProperty().unbind();
+                yCursorText.layoutYProperty().unbind();
+                yCursorText=null;
+                yPosText=null;
             }
             if (crossHair != null) {
                 crossHair.unbind();
@@ -2135,17 +2149,21 @@ public final class Chart extends Pane {
         axisRight.requestLayout();
 
         if (isMousePositionDisplayed()) {
-            if (xPosText != null && Double.isFinite(mouseX().get())) {
+            if (xCursorText != null && Double.isFinite(mouseX().get())) {
                 Point2D p = view.localToParent(mouseX().get(), -1);
-                xPosText.xProperty().set(p.getX() - (xPosText.prefWidth(-1) / 2d));
+                //xPosText.xProperty().set(p.getX() + 10d);
                 xPosText.textProperty().set(formatter.format(toPositionX(mouseX.get())));
+                //xCursorText.setVisible(true);
             } else {
                 xPosText.textProperty().set("");
+                //xCursorText.setVisible(false);
             }
-            if (yPosText != null && Double.isFinite(mouseY().get())) {
+            if (yCursorText != null && Double.isFinite(mouseY().get())) {
                 yPosText.textProperty().set(formatter.format(toPositionY(mouseY.get())));
+                //yCursorText.setVisible(true);
             } else {
                 yPosText.textProperty().set("");
+                //yCursorText.setVisible(false);
             }
         }
 
@@ -4220,6 +4238,19 @@ public final class Chart extends Pane {
             layer.getView().getChildren().remove(this);
         }
 
+    }
+    
+    private class CursorTextBox extends HBox {
+        private CursorTextBox(Text text){
+            super(text);  
+            this.setMouseTransparent(true);
+            if(text.getText().isEmpty()){
+                text.setText("0.000");
+            }
+            this.setPrefSize(text.prefWidth(-1d), text.prefHeight(-1d));
+            setStyle("-fx-background-color: white; -fx-border-style: solid; -fx-border-color: black");
+            text.setText("");
+        }
     }
 
 }
