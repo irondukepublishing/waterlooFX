@@ -1,9 +1,42 @@
+/*
+
+ Copyright (c) 2015, Malcolm Lidierth
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification, are permitted provided
+ that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and
+ the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions
+ and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse
+ or promote products derived from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
 /**
- * Created by ML on 14/02/2015.
+ * JavaScript support for using the waterlooFX charting library.
+ *
+ * Requirements:
+ * <ul>
+ * <li>JavaFX 8+ browser plugin support (presently available for IE, Firefox and Safari).</li>
+ * <li>dtjava.js - </li>
+ * <li>A compatible jnlp file that supports the methods used herein. waterlooFXJS.jnlp is provided
+ * as standard.<li>
+ * </ul>
  */
-
 var wfxjs;
-
 wfxjs = function () {
 
     //var jnlp_content = 'dPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPGpubHAgc3BlYz0iMS4wIiB4bWxuczpqZng9Imh0dHA6Ly9qYXZhZnguY29tIiBocmVmPSJ3YXRlcmxvb0ZYSlMuam5scCI+CiAgPGluZm9ybWF0aW9uPgogICAgPHRpdGxlPndhdGVybG9vRlhKUzwvdGl0bGU+CiAgICA8dmVuZG9yPk1MPC92ZW5kb3I+CiAgICA8ZGVzY3JpcHRpb24+bnVsbDwvZGVzY3JpcHRpb24+CiAgICA8b2ZmbGluZS1hbGxvd2VkLz4KICA8L2luZm9ybWF0aW9uPgogIDxyZXNvdXJjZXM+CiAgICA8amZ4OmphdmFmeC1ydW50aW1lIHZlcnNpb249IjguMCsiIGhyZWY9Imh0dHA6Ly9qYXZhZGwuc3VuLmNvbS93ZWJhcHBzL2Rvd25sb2FkL0dldEZpbGUvamF2YWZ4LWxhdGVzdC93aW5kb3dzLWk1ODYvamF2YWZ4Mi5qbmxwIi8+CiAgPC9yZXNvdXJjZXM+CiAgPHJlc291cmNlcz4KICAgIDxqMnNlIHZlcnNpb249IjEuNisiIGhyZWY9Imh0dHA6Ly9qYXZhLnN1bi5jb20vcHJvZHVjdHMvYXV0b2RsL2oyc2UiLz4KICAgIDxqYXIgaHJlZj0id2F0ZXJsb29GWEpTLmphciIgc2l6ZT0iNzkyNSIgZG93bmxvYWQ9ImVhZ2VyIiAvPgogICAgPGphciBocmVmPSJsaWIvd2F0ZXJsb29GWC0wLjgtU05BUFNIT1QuamFyIiBzaXplPSIyODM2MTAiIGRvd25sb2FkPSJsYXp5IiAvPgogIDwvcmVzb3VyY2VzPgo8c2VjdXJpdHk+CiAgPGFsbC1wZXJtaXNzaW9ucy8+Cjwvc2VjdXJpdHk+CiAgPGFwcGxldC1kZXNjICB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgbWFpbi1jbGFzcz0iY29tLmphdmFmeC5tYWluLk5vSmF2YUZYRmFsbGJhY2siICBuYW1lPSJ3YXRlcmxvb0ZYSlMiID4KICAgIDxwYXJhbSBuYW1lPSJyZXF1aXJlZEZYVmVyc2lvbiIgdmFsdWU9IjguMCsiLz4KICA8L2FwcGxldC1kZXNjPgogIDxqZng6amF2YWZ4LWRlc2MgIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBtYWluLWNsYXNzPSJ3YXRlcmxvb2Z4LldhdGVybG9vRlhKUyIgIG5hbWU9IndhdGVybG9vRlhKUyIgLz4KICA8dXBkYXRlIGNoZWNrPSJhbHdheXMiLz4KPC9qbmxwPgo='
@@ -166,7 +199,7 @@ wfxjs = function () {
             }
             return array;
         }
-    }
+    };
 
 
 }();
