@@ -57,9 +57,18 @@ public class AxisRight extends AbstractAxisRegion {
      */
     @Override
     public final double computePrefWidth(double h) {
-        double p = findMaxX();
-        p += getAxisLabel().prefHeight(-1d) + 5d;
-        return Math.max(p, 50);
+        double w = findMinX();
+        if (getTickLabels().size() > 0) {
+            for (TickLabel text : getTickLabels()) {
+                w = Math.max(w, text.getBoundsInParent().getWidth());
+            }
+        } else {
+            Text t = new Text("000");
+            t.setFont(getFont());
+            w = t.prefWidth(-1d);
+        }
+        w += getAxisLabel().prefHeight(-1d) + 5d;
+        return Math.max(w, Chart.getDefaultInsets().getRight());
     }
 
     private void doLayout() {
@@ -76,7 +85,7 @@ public class AxisRight extends AbstractAxisRegion {
                 });
                 addAxisLabel();
                 getAxisLabel().setFont(getFont());
-                getAxisLabel().setLayoutX(5d + findMaxX() - getAxisLabel().prefWidth(-1d) / 2d + getAxisLabel().prefHeight(-1d));
+                getAxisLabel().setLayoutX(5d + findMinX() - getAxisLabel().prefWidth(-1d) / 2d + getAxisLabel().prefHeight(-1d));
                 getAxisLabel().setLayoutY(getHeight() / 2d);
             }
         } else {
@@ -94,20 +103,28 @@ public class AxisRight extends AbstractAxisRegion {
         doLayout();
         super.layoutChildren();
     }
-
-    private double findMaxX() {
-        double maxx = Double.NEGATIVE_INFINITY;
+    
+    private double findMinX() {
+        double minx = Double.POSITIVE_INFINITY;
         for (Text text : getTickLabels()) {
-            maxx = Math.max(maxx, text.prefWidth(-1d));
+            minx = Math.min(minx, text.prefWidth(-1d));
         }
-        if (Double.isFinite(maxx)) {
-            return maxx;
-        } else {
-            Text t = new Text("000");
-            t.setFont(getFont());
-            return t.prefWidth(-1d);
-        }
+        return minx;
     }
+
+//    private double findMaxX() {
+//        double maxx = Double.NEGATIVE_INFINITY;
+//        for (Text text : getTickLabels()) {
+//            maxx = Math.max(maxx, text.prefWidth(-1d));
+//        }
+//        if (Double.isFinite(maxx)) {
+//            return maxx;
+//        } else {
+//            Text t = new Text("000");
+//            t.setFont(getFont());
+//            return t.prefWidth(-1d);
+//        }
+//    }
 
     private void computeValue() {
         getTickLabels().stream().forEach((TickLabel x) -> {

@@ -69,7 +69,7 @@ public class AxisLeft extends AbstractAxisRegion {
             w = t.prefWidth(-1d);
         }
         w += getAxisLabel().prefHeight(-1d) + 5d;
-        return Math.max(w, 50);
+        return Math.max(w, Chart.getDefaultInsets().getLeft());
     }
 
     private void doLayout() {

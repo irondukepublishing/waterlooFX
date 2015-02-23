@@ -61,7 +61,7 @@ public class AxisTop extends AbstractAxisRegion {
         if (getTickLabels().size() > 0) {
             return getAxisLabel().prefHeight(-1d) * 3d;
         } else {
-            return 50d;
+            return Chart.getDefaultInsets().getTop();
         }
     }
 

@@ -31,6 +31,7 @@ import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -100,11 +101,23 @@ public final class Chart extends Pane {
 
     /**
      * Singleton instance used as the standard Insets before the padding can be
-     * calculated.
+     * calculated and to set a minimum spacing.
      */
-    private static final Insets defaultInsets = new Insets(50, 50, 50, 50);
+    private static Insets defaultInsets = new Insets(30, 30, 30, 30);
 
-    private static final Paint altFillColor = new Color(0f, 0f, 1f, 0.2f);
+    private static final Paint altFillColor = new Color(0f, 0f, 1f, 0.1f);
+    
+
+    /**
+     * @return the defaultInsets
+     */
+    public static Insets getDefaultInsets() {
+        return defaultInsets;
+    }
+    
+    public static void setDefaultInsets(Insets insets){
+        defaultInsets=insets;
+    }
 
     /**
      * Offset (in pixels) between the top axis and the view area.
@@ -1158,112 +1171,10 @@ public final class Chart extends Pane {
         axisPane.getChildren().add(axisBottom);
         axisSet = new AxisSet(axisRight, axisTop, axisLeft, axisBottom);
 
+        installMouseListeners();
+
         // Add the scene dimension listener
         ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
-            // Scrolling via mouse wheel or touch-enabled device
-            view.setOnScroll((ScrollEvent t0) -> {
-
-                if (t0.isInertia() || t0.getDeltaY() == 0) {
-                    return;
-                } else {
-                    double xdiff = Math.signum(t0.getDeltaY()) * (getXMax() - getXMin());
-                    double ydiff = Math.signum(t0.getDeltaY()) * (getYMax() - getYMin());
-                    setXLeft(getXLeft() - xdiff / 50.0);
-                    setXRight(getXRight() + xdiff / 50.0);
-                    setYBottom(getYBottom() - ydiff / 50.0);
-                    setYTop(getYTop() + ydiff / 50.0);
-                }
-                requestLayout();
-            });
-
-            view.setOnMousePressed((MouseEvent m0) -> {
-                dragXStart = m0.getX();
-                dragYStart = m0.getY();
-            });
-
-            view.setOnMouseReleased((MouseEvent m1) -> {
-                dragXStart = Double.NaN;
-                dragYStart = Double.NaN;
-                view.setCursor(Cursor.DEFAULT);
-            });
-
-            view.setOnMouseMoved((MouseEvent m2) -> {
-                if (m2.isStillSincePress()) {
-                    return;
-                }
-                mouseX.set(m2.getX());
-                mouseY.set(m2.getY());
-                if (isInnerAxisPainted()) {
-                    double x = toPositionX(m2.getX());
-                    double y = toPositionY(m2.getY());
-                    if (atOrigin(x, y)) {
-                        view.setCursor(Cursor.HAND);
-                    } else if (onXAxis(y)) {
-                        view.setCursor(Cursor.E_RESIZE);
-                    } else if (onYAxis(x)) {
-                        view.setCursor(Cursor.N_RESIZE);
-                    } else {
-                        view.setCursor(Cursor.DEFAULT);
-                    }
-                }
-            });
-
-            view.setOnMouseDragged((MouseEvent m4) -> {
-
-                if (m4.isStillSincePress()) {
-                    return;
-                }
-                mouseX.set(m4.getX());
-                mouseY.set(m4.getY());
-
-                double x = toPositionX(m4.getX());
-                double y = toPositionY(m4.getY());
-                deltaX = toPositionX(dragXStart) - toPositionX(m4.getX());
-                deltaY = toPositionY(dragYStart) - toPositionY(m4.getY());
-
-                if (view.getCursor().equals(Cursor.HAND)) {
-                    setXOrigin(getXOrigin() - deltaX);
-                    setYOrigin(getYOrigin() - deltaY);
-                    dragXStart = m4.getX();
-                    dragYStart = m4.getY();
-                    requestPaint();
-                } else if (!onAxis(x, y)) {
-                    double xl = getXLeft() + deltaX;
-                    double xr = getXRight() + deltaX;
-                    setXLeft(xl);
-                    setXRight(xr);
-                    dragXStart = m4.getX();
-
-                    double yt = getYTop() + deltaY;
-                    double yb = getYBottom() + deltaY;
-                    setYTop(yt);
-                    setYBottom(yb);
-                    dragYStart = m4.getY();
-                    requestLayout();
-
-                } else if (onXAxis(y)) {
-                    if (x >= getXOrigin()) {
-                        setXRight(getXRight() + deltaX);
-                    } else {
-                        setXLeft(getXLeft() + deltaX);
-                    }
-                    dragXStart = m4.getX();
-                } else if (onYAxis(x)) {
-                    if (y >= getYOrigin()) {
-                        setYTop(getYTop() + deltaY);
-                    } else {
-                        setYBottom(getYBottom() + deltaY);
-                    }
-                    dragYStart = m4.getY();
-                }
-
-            });
-
-            view.setOnMouseExited((MouseEvent m5) -> {
-                mouseX.set(Double.NaN);
-                mouseY.set(Double.NaN);
-            });
-
             // Do this only of a Chart has been set as the root element.
             // This sets the Chart to resize with the scene.
             if (t1 != null && this.equals(t1.getRoot())) {
@@ -1431,6 +1342,113 @@ public final class Chart extends Pane {
         layer.setPadding(getPadding());
     }
 
+    private void installMouseListeners() {
+        // Scrolling via mouse wheel or touch-enabled device
+        view.setOnScroll((ScrollEvent t0) -> {
+
+            if (t0.isInertia() || t0.getDeltaY() == 0) {
+                return;
+            } else {
+                double xdiff = Math.signum(t0.getDeltaY()) * (getXMax() - getXMin());
+                double ydiff = Math.signum(t0.getDeltaY()) * (getYMax() - getYMin());
+                setXLeft(getXLeft() - xdiff / 50.0);
+                setXRight(getXRight() + xdiff / 50.0);
+                setYBottom(getYBottom() - ydiff / 50.0);
+                setYTop(getYTop() + ydiff / 50.0);
+            }
+            requestLayout();
+        });
+
+        view.setOnMousePressed((MouseEvent m0) -> {
+            dragXStart = m0.getX();
+            dragYStart = m0.getY();
+        });
+
+        view.setOnMouseReleased((MouseEvent m1) -> {
+            dragXStart = Double.NaN;
+            dragYStart = Double.NaN;
+            view.setCursor(Cursor.DEFAULT);
+        });
+
+        view.setOnMouseMoved((MouseEvent m2) -> {
+            if (m2.isStillSincePress()) {
+                return;
+            }
+            mouseX.set(m2.getX());
+            mouseY.set(m2.getY());
+            if (isInnerAxisPainted()) {
+                double x = toPositionX(m2.getX());
+                double y = toPositionY(m2.getY());
+                if (atOrigin(x, y)) {
+                    view.setCursor(Cursor.HAND);
+                } else if (onXAxis(y)) {
+                    view.setCursor(Cursor.E_RESIZE);
+                } else if (onYAxis(x)) {
+                    view.setCursor(Cursor.N_RESIZE);
+                } else {
+                    view.setCursor(Cursor.DEFAULT);
+                }
+            }
+        });
+
+        view.setOnMouseDragged((MouseEvent m4) -> {
+
+            if (m4.isStillSincePress()) {
+                return;
+            }
+            mouseX.set(m4.getX());
+            mouseY.set(m4.getY());
+
+            double x = toPositionX(m4.getX());
+            double y = toPositionY(m4.getY());
+            deltaX = toPositionX(dragXStart) - toPositionX(m4.getX());
+            deltaY = toPositionY(dragYStart) - toPositionY(m4.getY());
+
+            if (view.getCursor().equals(Cursor.HAND)) {
+                setXOrigin(getXOrigin() - deltaX);
+                setYOrigin(getYOrigin() - deltaY);
+                dragXStart = m4.getX();
+                dragYStart = m4.getY();
+                requestPaint();
+            } else if (!onAxis(x, y)) {
+                double xl = getXLeft() + deltaX;
+                double xr = getXRight() + deltaX;
+                setXLeft(xl);
+                setXRight(xr);
+                dragXStart = m4.getX();
+
+                double yt = getYTop() + deltaY;
+                double yb = getYBottom() + deltaY;
+                setYTop(yt);
+                setYBottom(yb);
+                dragYStart = m4.getY();
+                requestLayout();
+
+            } else if (onXAxis(y)) {
+                if (x >= getXOrigin()) {
+                    setXRight(getXRight() + deltaX);
+                } else {
+                    setXLeft(getXLeft() + deltaX);
+                }
+                dragXStart = m4.getX();
+            } else if (onYAxis(x)) {
+                if (y >= getYOrigin()) {
+                    setYTop(getYTop() + deltaY);
+                } else {
+                    setYBottom(getYBottom() + deltaY);
+                }
+                dragYStart = m4.getY();
+            }
+
+        });
+
+        view.setOnMouseExited((MouseEvent m5) -> {
+            mouseX.set(Double.NaN);
+            mouseY.set(Double.NaN);
+        });
+
+    }
+
     /**
      * @return The CssMetaData associated with this class, which may include the
      * CssMetaData of its super classes.
@@ -1464,7 +1482,7 @@ public final class Chart extends Pane {
             }
             getChildren().add(xPosText);
             xPosText.yProperty().bind(getView().layoutYProperty().add(-5d));
-            
+
             if (yPosText == null) {
                 yPosText = new Text();
                 yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
@@ -1711,7 +1729,19 @@ public final class Chart extends Pane {
                         yt = Math.max(yt, g.axisTop.computePrefHeight(-1d) + g.yTopOffset);
                     }
                 }
-                return new Insets(yt + 5, xr + 5, yb + 5, xl + 5);
+                if (!isLeftAxisPainted()){
+                    xl=5d;
+                }
+                if (!isRightAxisPainted()){
+                    xr=5d;
+                }
+                if (!isTopAxisPainted()){
+                    yt=5d;
+                }
+                if (!isBottomAxisPainted()){
+                    yb=5d;
+                }
+                return new Insets(yt, xr, yb, xl);
             }
         }
     }
@@ -4041,18 +4071,7 @@ public final class Chart extends Pane {
         protected Double computeValue() {
             if (Double.isNaN(userSpecifiedValue.get())) {
                 double width = Math.abs(getAxesBounds().getWidth());
-                double lg = Math.log10(width);
-                double rem = lg - Math.floor(lg);
-                double scope = Math.pow(10, rem);
-                double scale = Math.pow(10, Math.floor(lg));
-                double inc;
-                if (scope > 5) {
-                    inc = scale;
-                } else if (scope > 2) {
-                    inc = scale / 2d;
-                } else {
-                    inc = scale / 5d;
-                }
+                double inc = calcSpacing(width, getPixelWidth());
                 return inc;
             } else {
                 return userSpecifiedValue.get();
@@ -4097,18 +4116,7 @@ public final class Chart extends Pane {
         protected Double computeValue() {
             if (Double.isNaN(userSpecifiedValue.get())) {
                 double height = Math.abs(getAxesBounds().getHeight());
-                double lg = Math.log10(height);
-                double rem = lg - Math.floor(lg);
-                double scope = Math.pow(10, rem);
-                double scale = Math.pow(10, Math.floor(lg));
-                double inc;
-                if (scope > 5) {
-                    inc = scale;
-                } else if (scope > 2) {
-                    inc = scale / 2d;
-                } else {
-                    inc = scale / 5d;
-                }
+                double inc = calcSpacing(height, getPixelHeight());
                 return inc;
             } else {
                 return userSpecifiedValue.get();
@@ -4118,6 +4126,26 @@ public final class Chart extends Pane {
         public final void reset() {
             userSpecifiedValue.set(Double.NaN);
         }
+    }
+
+    private double calcSpacing(double value, double minspace) {
+        double lg = Math.log10(value);
+        double rem = lg - Math.floor(lg);
+        double scope = Math.pow(10, rem);
+        double scale = Math.pow(10, Math.floor(lg));
+        if (scope >= 5) {
+            scope = scale;
+        } else if (scope >= 2) {
+            scope = scale / 2d;
+        } else {
+            scope = scale / 5d;
+        }
+        return scope;
+//        if (scope >= minspace * 100) {
+//            return scope;
+//        } else {
+//            return calcSpacing(value*1.2, minspace);
+//        }
     }
 
     /**
@@ -4149,49 +4177,49 @@ public final class Chart extends Pane {
         }
 
     }
-    
+
     public final class CrossHair extends Path {
 
-    private final Chart layer;
+        private final Chart layer;
 
-    private CrossHair(Chart chart) {
-        layer = chart;
-        parentProperty().addListener((ObservableValue<? extends Parent> ov, Parent t, Parent t1) -> {
+        private CrossHair(Chart chart) {
+            layer = chart;
+            parentProperty().addListener((ObservableValue<? extends Parent> ov, Parent t, Parent t1) -> {
+                Pane pane = (Pane) getParent();
+                getElements().add(new MoveTo(0, layer.mouseY().get() + layer.getLayoutY()));
+                getElements().add(new LineTo(pane.getWidth(), layer.mouseY().get() + layer.getLayoutY()));
+                getElements().add(new MoveTo(layer.mouseX().get(), 0));
+                getElements().add(new LineTo(pane.getWidth() / 2d, pane.getHeight()));
+                bind();
+            });
+            setStroke(Color.DARKGREEN);
+            getStyleClass().add("crosshair");
+        }
+
+        private void bind() {
             Pane pane = (Pane) getParent();
-            getElements().add(new MoveTo(0, layer.mouseY().get()+layer.getLayoutY()));
-            getElements().add(new LineTo(pane.getWidth(), layer.mouseY().get()+layer.getLayoutY()));
-            getElements().add(new MoveTo(layer.mouseX().get(), 0));
-            getElements().add(new LineTo(pane.getWidth() / 2d, pane.getHeight()));
-            bind();
-        });
-        setStroke(Color.DARKGREEN);
-        getStyleClass().add("crosshair");
+            ((MoveTo) getElements().get(0)).yProperty().bind(layer.mouseY().add(layer.layoutYProperty()));
+
+            ((LineTo) getElements().get(1)).xProperty().bind(pane.widthProperty());
+            ((LineTo) getElements().get(1)).yProperty().bind(layer.mouseY().add(layer.layoutYProperty()));
+
+            ((MoveTo) getElements().get(2)).xProperty().bind(layer.mouseX());
+
+            ((LineTo) getElements().get(3)).xProperty().bind(layer.mouseX());
+            ((LineTo) getElements().get(3)).yProperty().bind(pane.heightProperty());
+
+        }
+
+        private void unbind() {
+            ((MoveTo) getElements().get(0)).yProperty().unbind();
+            ((LineTo) getElements().get(1)).xProperty().unbind();
+            ((LineTo) getElements().get(1)).yProperty().unbind();
+            ((MoveTo) getElements().get(2)).xProperty().unbind();
+            ((LineTo) getElements().get(3)).xProperty().unbind();
+            ((LineTo) getElements().get(3)).yProperty().unbind();
+            layer.getView().getChildren().remove(this);
+        }
+
     }
-
-    private void bind() {
-        Pane pane = (Pane) getParent();
-        ((MoveTo) getElements().get(0)).yProperty().bind(layer.mouseY().add(layer.layoutYProperty()));
-
-        ((LineTo) getElements().get(1)).xProperty().bind(pane.widthProperty());
-        ((LineTo) getElements().get(1)).yProperty().bind(layer.mouseY().add(layer.layoutYProperty()));
-
-        ((MoveTo) getElements().get(2)).xProperty().bind(layer.mouseX());
-
-        ((LineTo) getElements().get(3)).xProperty().bind(layer.mouseX());
-        ((LineTo) getElements().get(3)).yProperty().bind(pane.heightProperty());
-        
-         }
-
-    private void unbind() {
-        ((MoveTo) getElements().get(0)).yProperty().unbind();
-        ((LineTo) getElements().get(1)).xProperty().unbind();
-        ((LineTo) getElements().get(1)).yProperty().unbind();
-        ((MoveTo) getElements().get(2)).xProperty().unbind();
-        ((LineTo) getElements().get(3)).xProperty().unbind();
-        ((LineTo) getElements().get(3)).yProperty().unbind();
-        layer.getView().getChildren().remove(this);
-    }
-
-}
 
 }

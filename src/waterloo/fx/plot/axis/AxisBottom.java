@@ -59,9 +59,10 @@ public class AxisBottom extends AbstractAxisRegion {
     @Override
     public double computePrefHeight(double w) {
         if (getTickLabels().size() > 0) {
-            return getTickLabels().get(0).getBoundsInParent().getMaxY() + getAxisLabel().prefHeight(-1);
+            return getTickLabels().get(0).getBoundsInParent().getMaxY()
+                    + getAxisLabel().prefHeight(-1);
         } else {
-            return 50d;
+            return Chart.getDefaultInsets().getBottom();
         }
     }
 
