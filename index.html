@@ -20,8 +20,12 @@
         var model = null;
 
         function onLoad() {
-            wfxjs.embedFXML('myApp', 'Demo', './waterlooFXJS/dist/waterlooFXJS.jnlp', 'javafx-app-placeholder', 400, 300);
-            //wfxjs.findCharts('./waterlooFXJS/dist/waterlooFXJS.jnlp');
+            // Set the location of the jnlp file
+            wfxjs.jnlp = './waterlooFXJS/dist/waterlooFXJS.jnlp';
+            // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp
+            wfxjs.embedFXML('myApp', 'Demo', 'javafx-app-placeholder', 400, 300);
+            //var apps = wfxjs.findCharts();
+            //apps[0].app.add(apps[0].object);
         }
 
         dtjava.addOnloadCallback(onLoad);
@@ -56,33 +60,33 @@
             chart.requestLayout();
         }
 
-//        var print = function () {
-//            var app = document.getElementById('myApp');
-//            app.print();
-//        }
+        //        var print = function () {
+        //            var app = document.getElementById('myApp');
+        //            app.print();
+        //        }
 
         var addChart = function () {
             var app = document.getElementById('myApp');
-            var ob = wfxjs.parseFXML('myApp', './FXML/newChart.fxml');
+            var ob = wfxjs.parseFXMLFile('myApp', './FXML/newChart.fxml');
             app.add(ob);
         }
 
         var addPlot = function () {
             var app = document.getElementById('myApp');
-            var ob = wfxjs.parseFXML('myApp', './FXML/newLine.fxml');
+            var ob = wfxjs.parseFXMLFile('myApp', './FXML/newLine.fxml');
             app.add(ob);
         }
 
         var clicked3 = function () {
             var chart = document.getElementById('myApp').getChart();
-            var flag=chart.isMousePositionDisplayed();
+            var flag = chart.isMousePositionDisplayed();
             chart.setMousePositionDisplayed(!flag)
         }
 
-//        var doCss = function (){
-//            var set = wfxjs.lookupAll('myApp', '.plot');
-//            alert(set[0]);
-//        }
+        //        var doCss = function (){
+        //            var set = wfxjs.lookupAll('myApp', '.plot');
+        //            alert(set[0]);
+        //        }
 
 
     </script>
@@ -140,7 +144,9 @@
                 Oracle JavaFX Scene Builder 2.0</a></li>
             <li>Fully interactive charts with built-in mouse support</li>
             <li>When deployed to the web, charts can be edited and customised using JavaScript (as below).</li>
-            <li>The accompanying JavaScript (waterlooFX.js) allows charts and plots to be created in a web page without any Java programming</li>
+            <li>The accompanying JavaScript (waterlooFX.js) allows charts and plots to be created in a web page without
+                any Java programming
+            </li>
         </ul>
 
 
@@ -153,11 +159,16 @@
             <div style="font-weight: bold">
                 <!--Note: use autocomplete="off" to stop Firefox reloading status from its cache-->
                 <!--This ensures boxes are unchecked on a page reload.-->
-                <input onclick="majorGrid();" type="checkbox" id="majorGrid" value=false autocomplete="off">Major Grid</input>
-                <input onclick="minorGrid();" type="checkbox" id="minorGrid" value=false autocomplete="off">Minor Grid</input>
-                <input onclick="altFillV();" type="checkbox" id="altFillV" value=false autocomplete="off">Vertical Grid Fill</input>
-                <input onclick="altFillH();" type="checkbox" id="altFillH" value=false autocomplete="off">Horizontal Grid Fill </input>
-                <input onclick="innerAxis();" type="checkbox" id="innerAxis" value=false autocomplete="off">Inner Axis</input>
+                <input onclick="majorGrid();" type="checkbox" id="majorGrid" value=false autocomplete="off">Major
+                Grid</input>
+                <input onclick="minorGrid();" type="checkbox" id="minorGrid" value=false autocomplete="off">Minor
+                Grid</input>
+                <input onclick="altFillV();" type="checkbox" id="altFillV" value=false autocomplete="off">Vertical Grid
+                Fill</input>
+                <input onclick="altFillH();" type="checkbox" id="altFillH" value=false autocomplete="off">Horizontal
+                Grid Fill </input>
+                <input onclick="innerAxis();" type="checkbox" id="innerAxis" value=false autocomplete="off">Inner
+                Axis</input>
                 <br>
                 <input onclick="clicked3();" type="checkbox" value=false autocomplete="off">Show mouse position</input>
                 <br>
@@ -175,6 +186,21 @@
                 these are standard HTML checkboxes displayed in the browser rather than JavaFX components. They use
                 JavaScript callbacks to communicate with Java.
             </p>
+        </div>
+
+        <div class="chart" id="myFXML" style="width:400px; height:300px">
+        <script type="text/xml">
+            <Chart id="myChart" fx:id="myChart" XLeft="-10.0" XRight="10.0" YBottom="-6.0" YTop="6.0" bottomAxisTitle="X1"
+                   leftAxisTitle="Y1" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+                <children>
+                    <LinePlot lineColor="BLUE" lineWidth="1.5">
+                        <children>
+                            <ScatterPlot edgeColor="BLACK" edgeWidth="1.5" fill="ORANGE"/>
+                        </children>
+                    </LinePlot>
+                </children>
+            </Chart>
+        </script>
         </div>
 
 

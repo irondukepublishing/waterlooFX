@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -58,25 +60,20 @@ public class WaterlooFXJS extends Application {
             + "<?import javafx.scene.control.*?>\n"
             + "<?import javafx.scene.layout.*?>";
 
-    Parent root = null;
-    Chart chart = null;
+    Pane root = null;
 
     @Override
     public void start(Stage stage) throws Exception {
         String s = (String) getParameters().getNamed().get("fxml");
         if (s == null || s.isEmpty()) {
-            chart = new Chart();
-            chart.setId("myChart");
-            chart.setLeftAxisTitle("Y");
-            chart.setBottomAxisTitle("X");
-            root = new Pane(new Chart());
+            root = new Pane();
+            root.setPrefSize(400, 300);
         } else if (!s.startsWith("fxml/")) {
             s = "fxml/".concat(s);
             if (!s.endsWith(".fxml")) {
                 s = s.concat(".fxml");
             }
             root = FXMLLoader.load(WaterlooFXJS.class.getResource(s));
-            chart = (Chart) root.lookup("#myChart");
         }
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -89,7 +86,7 @@ public class WaterlooFXJS extends Application {
         });
     }
 
-    private Object runAndWait(Callable callable) throws InterruptedException, ExecutionException {
+    private static Object runAndWait(Callable callable) throws InterruptedException, ExecutionException {
         FutureTask<Object> future = new FutureTask(callable);
         Platform.runLater(future);
         return future.get();
@@ -161,21 +158,36 @@ public class WaterlooFXJS extends Application {
     }
 
     public Chart getChart() {
-        return chart;
+        Node node = root.lookup(".chart");
+        if (node==null){
+            return null;
+        } else {
+            return (Chart) node;
+        }
     }
 
-    public void add(Node node) throws InterruptedException, ExecutionException {
+    public void add(Node node){
         if (!isRootVisible()) {
-            // If the root is not yet visible, use runAndWait. Seems to be required
-            // sometimes for Firefox when a page is first loaded.
-            runAndWait(() -> {
-                add(node);
-                return null;
-            });
+            try {
+                // If the root is not yet visible, use runAndWait. Seems to be required
+                // sometimes for Firefox when a page is first loaded.
+                runAndWait(() -> {
+                    add(node);
+                    return null;
+                });
+            } catch (InterruptedException | ExecutionException ex) {
+            } finally {
+                return;
+            }
         }
         Platform.runLater(() -> {
-            getChart().getChildren().add(node);
-            getChart().requestLayout();
+            if (getChart() != null) {
+                getChart().getChildren().add(node);
+                getChart().requestLayout();
+            } else {
+                root.getChildren().add(node);
+                root.requestLayout();
+            }
         });
     }
 
@@ -190,19 +202,28 @@ public class WaterlooFXJS extends Application {
      * @return A JavaFX {@code Node} or a {@code String} describing an
      * exception.
      */
-    public Object parseFXML(String fxmlContent) {
+    public static Object parseFXML(String fxmlContent) {
 
         // HACKS FOR JAVASCRIPT SUPPORT OF JAVA ENUMS
         fxmlContent = fxmlContent.replace("markerType=", "markerTypeAsString=");
 
+        // Make sure we have the header info for the FXML loader. Can omit this
+        // with inlined code in the HTML.
+        if (!fxmlContent.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")) {
+            fxmlContent = String.format("%s", fxmlHeader).concat(fxmlContent);
+        }
+
+//        fxmlContent = fxmlContent.replace("scatterplot", "ScatterPlot");
+//        fxmlContent = fxmlContent.replace("lineplot", "LinePlot");
         FXMLLoader loader = new FXMLLoader();
         InputStream stream;
         try {
             //StringReader reader = new StringReader(fxmlContent);
             stream = new ByteArrayInputStream(fxmlContent.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            return "WaterlooFXJS:".concat(ex.toString());
+            return "WaterlooFXJS:".concat(ex.toString().concat(fxmlContent));
         }
+
         Node node;
         try {
             node = loader.load(stream);
@@ -215,6 +236,7 @@ public class WaterlooFXJS extends Application {
             return "WaterlooFXJS:".concat(ex.toString());
         }
         return node;
+
     }
 
     public static VisualModel newVisualModel() {

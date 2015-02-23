@@ -3,87 +3,63 @@
  */
 
 var wfxjs;
+
 wfxjs = function () {
+
+    //var jnlp_content = 'dPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPGpubHAgc3BlYz0iMS4wIiB4bWxuczpqZng9Imh0dHA6Ly9qYXZhZnguY29tIiBocmVmPSJ3YXRlcmxvb0ZYSlMuam5scCI+CiAgPGluZm9ybWF0aW9uPgogICAgPHRpdGxlPndhdGVybG9vRlhKUzwvdGl0bGU+CiAgICA8dmVuZG9yPk1MPC92ZW5kb3I+CiAgICA8ZGVzY3JpcHRpb24+bnVsbDwvZGVzY3JpcHRpb24+CiAgICA8b2ZmbGluZS1hbGxvd2VkLz4KICA8L2luZm9ybWF0aW9uPgogIDxyZXNvdXJjZXM+CiAgICA8amZ4OmphdmFmeC1ydW50aW1lIHZlcnNpb249IjguMCsiIGhyZWY9Imh0dHA6Ly9qYXZhZGwuc3VuLmNvbS93ZWJhcHBzL2Rvd25sb2FkL0dldEZpbGUvamF2YWZ4LWxhdGVzdC93aW5kb3dzLWk1ODYvamF2YWZ4Mi5qbmxwIi8+CiAgPC9yZXNvdXJjZXM+CiAgPHJlc291cmNlcz4KICAgIDxqMnNlIHZlcnNpb249IjEuNisiIGhyZWY9Imh0dHA6Ly9qYXZhLnN1bi5jb20vcHJvZHVjdHMvYXV0b2RsL2oyc2UiLz4KICAgIDxqYXIgaHJlZj0id2F0ZXJsb29GWEpTLmphciIgc2l6ZT0iNzkyNSIgZG93bmxvYWQ9ImVhZ2VyIiAvPgogICAgPGphciBocmVmPSJsaWIvd2F0ZXJsb29GWC0wLjgtU05BUFNIT1QuamFyIiBzaXplPSIyODM2MTAiIGRvd25sb2FkPSJsYXp5IiAvPgogIDwvcmVzb3VyY2VzPgo8c2VjdXJpdHk+CiAgPGFsbC1wZXJtaXNzaW9ucy8+Cjwvc2VjdXJpdHk+CiAgPGFwcGxldC1kZXNjICB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgbWFpbi1jbGFzcz0iY29tLmphdmFmeC5tYWluLk5vSmF2YUZYRmFsbGJhY2siICBuYW1lPSJ3YXRlcmxvb0ZYSlMiID4KICAgIDxwYXJhbSBuYW1lPSJyZXF1aXJlZEZYVmVyc2lvbiIgdmFsdWU9IjguMCsiLz4KICA8L2FwcGxldC1kZXNjPgogIDxqZng6amF2YWZ4LWRlc2MgIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBtYWluLWNsYXNzPSJ3YXRlcmxvb2Z4LldhdGVybG9vRlhKUyIgIG5hbWU9IndhdGVybG9vRlhKUyIgLz4KICA8dXBkYXRlIGNoZWNrPSJhbHdheXMiLz4KPC9qbmxwPgo='
 
 
     return {
 
-
         /**
-         *
-         * @param appID
-         * @constructor
+         * Location of the Java jnlp file.
+         * Set this to the appropriate location for the host web-site.
+         * The value can be changed from a web-page using
+         *       wfxjs.jnlp = file_specifier_string
          */
-        VisualModel: function (appID) {
-            // Get a VisualModel with default settings from the app.
-            var app = document.getElementById(appID);
-            if (app == undefined || app == null) {
-                window.alert('wfxjs.VisualModel: App is not installed or nor yet ready (id = ' + appID + ')');
-                return;
-            }
-            var model = app.newVisualModel();
-            /**
-             * @property lineColor
-             * @type string
-             */
-            this.lineColor = model.getLineColor();
-            /**
-             * @property lineWidth
-             * @type double
-             */
-            this.lineWidth = model.getLineWidth();
-            this.fill = model.getFill();
-            this.markerType = model.getMarkerType();
+        jnlp: './waterlooFXJS/dist/waterlooFXJS.jnlp',
 
-        },
 
-        /**
-         *
-         * @param appID
-         * @param selector
-         * @returns {*}
-         */
-        lookup: function (appID, selector){
-            var app = document.getElementById(appID);
-            return app.lookup(selector);
-        },
 
-        /**
-         *
-         * @param appID
-         * @param selector
-         * @returns {Array}
-         */
-        lookupAll: function (appID, selector) {
-            var app = document.getElementById(appID);
-            var list = app.lookupAll(selector);
-            var array = [];
-            for (var k=0; k<list.size(); k++){
-                array[k]=list.get(k);
-            }
-            return array;
-        },
-
-        findCharts: function(jnlp){
+        findCharts: function () {
+            var apps = [{app:null, object:null}];
             var nodes = document.getElementsByClassName("chart");
-            for (var k=0; k<nodes.length; k++){
+            for (var k = 0; k < nodes.length; k++) {
                 var node = document.getElementById(nodes[k].id);
-                var fxml = node.innerHTML;
-                alert(fxml);
-                var appID="app".concat(k);
-                this.embedFXML(appID, '', jnlp, node, 200, 200);
-                if (fxml!=null && fxml!=undefined){
-                    var object = this.parseFXML(appID, fxml);
-                    print(object);
-                    document.getElementById(appID).add(object);
-                }
+                var w = node.style.width;
+                if (w<=0) w=400;
+                var h = node.style.height;
+                if (h<=0) h=300;
+                var fxml = node.textContent;
+                // Create an app with the same id as the HTML node
+                this.embedFXML(node, '', node, w, h);
+                // Retrieve the app
+                var app = document.getElementById(node);
+                // Parse the FXML
+                var object=app.parseFXML(fxml);
+                // Add the node
+                //app.add(object);
+                apps[k].app=app;
+                apps[k].object=object;
             }
+            return apps;
         },
 
 
         // SUPPORT FOR FXML
 
-        parseFXML: function (appID, url) {
+        /**
+         * This parses the content of an FXML file on the server specified as a URL
+         * and returns the specified {@code JavaFX Node} tree.
+         *
+         * The returned root {@code Node} can be added to the tree of an existing app
+         * created using the {@code embedFXML} method.
+         *
+         * @param appID
+         * @param url
+         * @returns {*}
+         */
+        parseFXMLFile: function (appID, url) {
             var app = document.getElementById(appID);
             var client = new XMLHttpRequest();
             client.open('GET', url, false);
@@ -92,7 +68,7 @@ wfxjs = function () {
             var text = client.responseText;
             var object = app.parseFXML(text);
             if (object instanceof String) {
-                // If a Java Exception object has been returned...
+                // If a Java Exception has occurred, ......
                 alert(object);
                 return null;
             } else {
@@ -118,11 +94,12 @@ wfxjs = function () {
          * @param w width of the content
          * @param h height of the content
          */
-        embedFXML: function (appID, fxmlFile, url, placeholder, w, h) {
+        embedFXML: function (appID, fxmlFile, placeholder, w, h) {
             dtjava.embed(
                 {
                     id: appID,
-                    url: url,
+                    url: this.jnlp,
+                    //jnlp_content: this.jnlp_content,
                     placeholder: placeholder,
                     width: w,
                     height: h,
@@ -161,6 +138,34 @@ wfxjs = function () {
                 }
             }
 
+        },
+
+
+        /**
+         *
+         * @param appID
+         * @param selector
+         * @returns {*}
+         */
+        lookup: function (appID, selector) {
+            var app = document.getElementById(appID);
+            return app.lookup(selector);
+        },
+
+        /**
+         *
+         * @param appID
+         * @param selector
+         * @returns {Array}
+         */
+        lookupAll: function (appID, selector) {
+            var app = document.getElementById(appID);
+            var list = app.lookupAll(selector);
+            var array = [];
+            for (var k = 0; k < list.size(); k++) {
+                array[k] = list.get(k);
+            }
+            return array;
         }
     }
 
