@@ -32,8 +32,7 @@
  * <ul>
  * <li>JavaFX 8+ browser plugin support (presently available for IE, Firefox and Safari).</li>
  * <li>dtjava.js - </li>
- * <li>A compatible jnlp file that supports the methods used herein. waterlooFXJS.jnlp is provided
- * as standard.<li>
+ * <li>A compatible jnlp file that supports the methods used herein. waterlooFXJS.jnlp is provided as standard.</li>
  * </ul>
  */
 var wfxjs;
@@ -122,7 +121,6 @@ wfxjs = function () {
          *
          * @param appID Element id to assign to the app
          * @param fxmlFile the FXML file to use from the app
-         * @param url for the jnlp file
          * @param placeholder id for element in the document where content should be added
          * @param w width of the content
          * @param h height of the content

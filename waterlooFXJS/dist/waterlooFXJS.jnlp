@@ -11,8 +11,8 @@
   </resources>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="waterlooFXJS.jar" size="8646" download="eager" />
-    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="284017" download="lazy" />
+    <jar href="waterlooFXJS.jar" size="12546" download="eager" />
+    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="285153" download="lazy" />
   </resources>
 <security>
   <all-permissions/>
