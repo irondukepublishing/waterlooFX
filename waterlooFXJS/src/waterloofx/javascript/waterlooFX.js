@@ -54,7 +54,7 @@ wfxjs = function () {
 
 
         findCharts: function () {
-            var apps = [{app:null, object:null}];
+            var apps = [{app:null, object:null, fxml:''}];
             var nodes = document.getElementsByClassName("chart");
             for (var k = 0; k < nodes.length; k++) {
                 var node = document.getElementById(nodes[k].id);
@@ -73,6 +73,7 @@ wfxjs = function () {
                 //app.add(object);
                 apps[k].app=app;
                 apps[k].object=object;
+                apps[k].fxml=fxml;
             }
             return apps;
         },
