@@ -32,6 +32,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Polyline;
 import javafx.scene.text.Font;
@@ -263,7 +264,7 @@ public abstract class AbstractAxisRegion extends Region {
      * Returns the {@code Font} associated with the {@code Chart} in the
      * {@code layer} property.
      *
-     * @return the layer
+     * @return the Font
      */
     public Font getFont() {
         return Font.font(getLayer().fontProperty().get().getFamily(),
@@ -348,6 +349,7 @@ public abstract class AbstractAxisRegion extends Region {
 
         private final Polyline value = new Polyline();
 
+
         public LineClass(Chart layer) {
             super();
             this.layer = layer;
@@ -370,6 +372,7 @@ public abstract class AbstractAxisRegion extends Region {
                     bind(layer.yBottomProperty());
                     bind(prefHeightProperty());
             }
+            
 
             ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
                 value.setOnMouseEntered((MouseEvent m0) -> {

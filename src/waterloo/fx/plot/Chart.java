@@ -30,11 +30,14 @@ import java.util.Collections;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.FontCssMetaData;
 import javafx.css.StyleConverter;
@@ -107,7 +110,6 @@ public final class Chart extends Pane {
     private static Insets defaultInsets = new Insets(30, 30, 30, 30);
 
     private static final Paint altFillColor = new Color(0f, 0f, 1f, 0.1f);
-    
 
     /**
      * @return the defaultInsets
@@ -115,9 +117,9 @@ public final class Chart extends Pane {
     public static Insets getDefaultInsets() {
         return defaultInsets;
     }
-    
-    public static void setDefaultInsets(Insets insets){
-        defaultInsets=insets;
+
+    public static void setDefaultInsets(Insets insets) {
+        defaultInsets = insets;
     }
 
     /**
@@ -211,7 +213,7 @@ public final class Chart extends Pane {
      * <strong>This is a hint, not all AxesSets support its use.</strong>
      */
 
-    private NumberFormat formatter = new DecimalFormat();
+    private static NumberFormat formatter = new DecimalFormat();
     private Text xPosText = null;
     private Text yPosText = null;
     private CursorTextBox xCursorText;
@@ -1325,6 +1327,7 @@ public final class Chart extends Pane {
         topAxisPaintedProperty().addListener(axisPaintedListener);
         bottomAxisPaintedProperty().addListener(axisPaintedListener);
 
+        this.setMousePositionDisplayed(true);
         requestLayout();
 
     }
@@ -1479,46 +1482,50 @@ public final class Chart extends Pane {
             }
             getView().getChildren().add(crossHair);
             if (xCursorText == null) {
-                xPosText = new Text();
+                xPosText = new Text("X");
                 xPosText.setTextOrigin(VPos.CENTER);
                 xPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
                 xPosText.getStyleClass().add("xpostext");
                 xCursorText = new CursorTextBox(xPosText);
-            }
-            getChildren().add(xCursorText);
-            xCursorText.layoutXProperty().bind(getView().layoutXProperty().add(mouseX).add(xCursorText.widthProperty().divide(2d).negate()));
-            xCursorText.layoutYProperty().bind(getView().layoutYProperty()
-                    .add(getView().heightProperty()
-                    .add(xCursorText.heightProperty().divide(2d).negate())));
-            if (yCursorText == null) {
-                yPosText = new Text();
-                yPosText.setTextOrigin(VPos.CENTER);
-                yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
-                yPosText.getStyleClass().add("ypostext");
-                yCursorText = new CursorTextBox(yPosText);
-            }
-            getChildren().add(yCursorText);
-            yCursorText.layoutXProperty().bind(getView().layoutXProperty()
-                    .add(yCursorText.widthProperty().negate().add(5d)));
-            yCursorText.layoutYProperty().bind(mouseY().add(getView().layoutYProperty().add(yCursorText.heightProperty().divide(2d).negate())));
-            
-        } else {
-            if (xCursorText != null) {
-                getChildren().remove(xCursorText);
-                xCursorText.layoutYProperty().unbind();
-                xCursorText=null;
-                xPosText=null;
-            }
-            if (yCursorText != null) {
-                getChildren().remove(yCursorText);
-                yCursorText.layoutXProperty().unbind();
-                yCursorText.layoutYProperty().unbind();
-                yCursorText=null;
-                yPosText=null;
-            }
-            if (crossHair != null) {
-                crossHair.unbind();
-                getView().getChildren().remove(crossHair);
+                xPosText.textProperty().bind(mouseTextBinding(0, this, mouseX));
+
+                getChildren().add(xCursorText);
+                xCursorText.layoutXProperty().bind(getView().layoutXProperty().add(mouseX).add(xCursorText.widthProperty().divide(2d).negate()));
+                xCursorText.layoutYProperty().bind(getView().layoutYProperty()
+                        .add(getView().heightProperty()
+                                .add(xCursorText.heightProperty().divide(2d).negate())));
+                if (yCursorText == null) {
+                    yPosText = new Text();
+                    yPosText.setTextOrigin(VPos.CENTER);
+                    yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
+                    yPosText.getStyleClass().add("ypostext");
+                    yCursorText = new CursorTextBox(yPosText);
+                    yPosText.textProperty().bind(mouseTextBinding(1, this, mouseY));
+
+                    getChildren().add(yCursorText);
+                    yCursorText.layoutXProperty().bind(getView().layoutXProperty()
+                            .add(yCursorText.widthProperty().negate().add(5d)));
+                    yCursorText.layoutYProperty().bind(mouseY().add(getView().layoutYProperty().add(yCursorText.heightProperty().divide(2d).negate())));
+
+                } else {
+                    if (xCursorText != null) {
+                        getChildren().remove(xCursorText);
+                        xCursorText.layoutYProperty().unbind();
+                        xCursorText = null;
+                        xPosText = null;
+                    }
+                    if (yCursorText != null) {
+                        getChildren().remove(yCursorText);
+                        yCursorText.layoutXProperty().unbind();
+                        yCursorText.layoutYProperty().unbind();
+                        yCursorText = null;
+                        yPosText = null;
+                    }
+                    if (crossHair != null) {
+                        crossHair.unbind();
+                        getView().getChildren().remove(crossHair);
+                    }
+                }
             }
         }
     }
@@ -1743,17 +1750,17 @@ public final class Chart extends Pane {
                         yt = Math.max(yt, g.axisTop.computePrefHeight(-1d) + g.yTopOffset);
                     }
                 }
-                if (!isLeftAxisPainted()){
-                    xl=5d;
+                if (!isLeftAxisPainted()) {
+                    xl = 5d;
                 }
-                if (!isRightAxisPainted()){
-                    xr=5d;
+                if (!isRightAxisPainted()) {
+                    xr = 5d;
                 }
-                if (!isTopAxisPainted()){
-                    yt=5d;
+                if (!isTopAxisPainted()) {
+                    yt = 5d;
                 }
-                if (!isBottomAxisPainted()){
-                    yb=5d;
+                if (!isBottomAxisPainted()) {
+                    yb = 5d;
                 }
                 return new Insets(yt, xr, yb, xl);
             }
@@ -2148,25 +2155,26 @@ public final class Chart extends Pane {
         axisRight.setPrefWidth(Region.USE_COMPUTED_SIZE);
         axisRight.requestLayout();
 
-        if (isMousePositionDisplayed()) {
-            if (xCursorText != null && Double.isFinite(mouseX().get())) {
-                Point2D p = view.localToParent(mouseX().get(), -1);
-                //xPosText.xProperty().set(p.getX() + 10d);
-                xPosText.textProperty().set(formatter.format(toPositionX(mouseX.get())));
-                //xCursorText.setVisible(true);
-            } else {
-                xPosText.textProperty().set("");
-                //xCursorText.setVisible(false);
-            }
-            if (yCursorText != null && Double.isFinite(mouseY().get())) {
-                yPosText.textProperty().set(formatter.format(toPositionY(mouseY.get())));
-                //yCursorText.setVisible(true);
-            } else {
-                yPosText.textProperty().set("");
-                //yCursorText.setVisible(false);
-            }
-        }
-
+//        xPosText.textProperty().get();
+//        yPosText.getText();
+//        if (isMousePositionDisplayed()) {
+//            if (xCursorText != null && Double.isFinite(mouseX().get())) {
+//                Point2D p = view.localToParent(mouseX().get(), -1);
+//                //xPosText.xProperty().set(p.getX() + 10d);
+//                xPosText.textProperty().set(formatter.format(toPositionX(mouseX.get())));
+//                //xCursorText.setVisible(true);
+//            } else {
+//                xPosText.textProperty().set("");
+//                //xCursorText.setVisible(false);
+//            }
+//            if (yCursorText != null && Double.isFinite(mouseY().get())) {
+//                yPosText.textProperty().set(formatter.format(toPositionY(mouseY.get())));
+//                //yCursorText.setVisible(true);
+//            } else {
+//                yPosText.textProperty().set("");
+//                //yCursorText.setVisible(false);
+//            }
+//        }
     }
 
     /**
@@ -4239,12 +4247,13 @@ public final class Chart extends Pane {
         }
 
     }
-    
+
     private class CursorTextBox extends HBox {
-        private CursorTextBox(Text text){
-            super(text);  
+
+        private CursorTextBox(Text text) {
+            super(text);
             this.setMouseTransparent(true);
-            if(text.getText().isEmpty()){
+            if (text.getText().isEmpty()) {
                 text.setText("0.000");
             }
             this.setPrefSize(text.prefWidth(-1d), text.prefHeight(-1d));
@@ -4253,4 +4262,33 @@ public final class Chart extends Pane {
         }
     }
 
+    private static StringExpression mouseTextBinding(int axis, final Chart chart, final SimpleDoubleProperty obs) {
+        return new StringBinding() {
+
+            {
+                super.bind(obs);
+            }
+
+            @Override
+            public void dispose() {
+                super.unbind(obs);
+            }
+
+            @Override
+            protected String computeValue() {
+                final Double value = obs.getValue();
+                if (axis == 0) {
+                    return (Double.isFinite(value)) ? formatter.format(chart.toPositionX(value)) : "";
+                } else {
+                    return (Double.isFinite(value)) ? formatter.format(chart.toPositionY(value)) : "";
+                }
+            }
+
+            @Override
+            public ObservableList<ObservableValue<?>> getDependencies() {
+                return FXCollections.<ObservableValue<?>>singletonObservableList(obs);
+            }
+        };
+
+    }
 }
