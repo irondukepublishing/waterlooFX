@@ -203,11 +203,11 @@ public final class Chart extends Pane {
     /**
      * Interval between major ticks/grids in axis coordinates for the x-axis
      */
-    private final MajorXInterval majorXInterval;
+    private final MajorTickIntervalBinding majorXInterval;
     /**
      * Interval between major ticks/grids in axis coordinates for the y-axis
      */
-    private final MajorYInterval majorYInterval;
+    private final MajorTickIntervalBinding majorYInterval;
     /**
      * Number of minor ticks/grids in the majorXInterval.
      * <strong>This is a hint, not all AxesSets support its use.</strong>
@@ -1124,8 +1124,41 @@ public final class Chart extends Pane {
 
         yTol = new Tolerance("Y");
         xTol = new Tolerance("X");
-        majorYInterval = new MajorYInterval();
-        majorXInterval = new MajorXInterval();
+        majorYInterval = MajorTickIntervalBinding.setupMajorYInterval(this, new StyleableDoubleProperty(Double.NaN) {
+
+            @Override
+            public final CssMetaData<Chart, Number> getCssMetaData() {
+                return Chart.StyleableProperties.MAJORYINTERVAL;
+            }
+
+            @Override
+            public final Object getBean() {
+                return this;
+            }
+
+            @Override
+            public final String getName() {
+                return "majorY";
+            }
+        });
+
+        majorXInterval = MajorTickIntervalBinding.setupMajorXInterval(this, new StyleableDoubleProperty(Double.NaN) {
+
+            @Override
+            public final CssMetaData<Chart, Number> getCssMetaData() {
+                return StyleableProperties.MAJORXINTERVAL;
+            }
+
+            @Override
+            public final Object getBean() {
+                return this;
+            }
+
+            @Override
+            public final String getName() {
+                return "majorX";
+            }
+        });
 
         setPrefWidth(500d);
         setPrefHeight(500d);
@@ -1327,7 +1360,6 @@ public final class Chart extends Pane {
         topAxisPaintedProperty().addListener(axisPaintedListener);
         bottomAxisPaintedProperty().addListener(axisPaintedListener);
 
-        this.setMousePositionDisplayed(true);
         requestLayout();
 
     }
@@ -1387,14 +1419,22 @@ public final class Chart extends Pane {
                 double y = toPositionY(m2.getY());
                 if (atOrigin(x, y)) {
                     view.setCursor(Cursor.HAND);
+                    return;
                 } else if (onXAxis(y)) {
                     view.setCursor(Cursor.E_RESIZE);
+                    return;
                 } else if (onYAxis(x)) {
                     view.setCursor(Cursor.N_RESIZE);
-                } else {
-                    view.setCursor(Cursor.DEFAULT);
+                    return;
                 }
             }
+
+            if (isMousePositionDisplayed()) {
+                view.setCursor(Cursor.CROSSHAIR);
+            } else {
+                view.setCursor(Cursor.DEFAULT);
+            }
+
         });
 
         view.setOnMouseDragged((MouseEvent m4) -> {
@@ -1448,9 +1488,16 @@ public final class Chart extends Pane {
 
         });
 
+        view.setOnMouseEntered((MouseEvent m4) -> {
+            mouseX.set(m4.getX());
+            mouseY.set(m4.getY());
+            view.setCursor(Cursor.DEFAULT);
+        });
+
         view.setOnMouseExited((MouseEvent m5) -> {
             mouseX.set(Double.NaN);
             mouseY.set(Double.NaN);
+            view.setCursor(Cursor.DEFAULT);
         });
 
     }
@@ -1494,38 +1541,36 @@ public final class Chart extends Pane {
                 xCursorText.layoutYProperty().bind(getView().layoutYProperty()
                         .add(getView().heightProperty()
                                 .add(xCursorText.heightProperty().divide(2d).negate())));
-                if (yCursorText == null) {
-                    yPosText = new Text();
-                    yPosText.setTextOrigin(VPos.CENTER);
-                    yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
-                    yPosText.getStyleClass().add("ypostext");
-                    yCursorText = new CursorTextBox(yPosText);
-                    yPosText.textProperty().bind(mouseTextBinding(1, this, mouseY));
-
-                    getChildren().add(yCursorText);
-                    yCursorText.layoutXProperty().bind(getView().layoutXProperty()
-                            .add(yCursorText.widthProperty().negate().add(5d)));
-                    yCursorText.layoutYProperty().bind(mouseY().add(getView().layoutYProperty().add(yCursorText.heightProperty().divide(2d).negate())));
-
-                } else {
-                    if (xCursorText != null) {
-                        getChildren().remove(xCursorText);
-                        xCursorText.layoutYProperty().unbind();
-                        xCursorText = null;
-                        xPosText = null;
-                    }
-                    if (yCursorText != null) {
-                        getChildren().remove(yCursorText);
-                        yCursorText.layoutXProperty().unbind();
-                        yCursorText.layoutYProperty().unbind();
-                        yCursorText = null;
-                        yPosText = null;
-                    }
-                    if (crossHair != null) {
-                        crossHair.unbind();
-                        getView().getChildren().remove(crossHair);
-                    }
-                }
+            }
+            if (yCursorText == null) {
+                yPosText = new Text();
+                yPosText.setTextOrigin(VPos.CENTER);
+                yPosText.setStyle("-fx-font-size: 8pt; -fx-font-style: italic;");
+                yPosText.getStyleClass().add("ypostext");
+                yCursorText = new CursorTextBox(yPosText);
+                yPosText.textProperty().bind(mouseTextBinding(1, this, mouseY));
+                getChildren().add(yCursorText);
+                yCursorText.layoutXProperty().bind(getView().layoutXProperty()
+                        .add(yCursorText.widthProperty().negate().add(5d)));
+                yCursorText.layoutYProperty().bind(mouseY().add(getView().layoutYProperty().add(yCursorText.heightProperty().divide(2d).negate())));
+            }
+        } else {
+            if (xCursorText != null) {
+                getChildren().remove(xCursorText);
+                xCursorText.layoutYProperty().unbind();
+                xCursorText = null;
+                xPosText = null;
+            }
+            if (yCursorText != null) {
+                getChildren().remove(yCursorText);
+                yCursorText.layoutXProperty().unbind();
+                yCursorText.layoutYProperty().unbind();
+                yCursorText = null;
+                yPosText = null;
+            }
+            if (crossHair != null) {
+                crossHair.unbind();
+                getView().getChildren().remove(crossHair);
             }
         }
     }
@@ -2407,7 +2452,7 @@ public final class Chart extends Pane {
         if (majorX <= 0.0) {
             majorX = 1e-15;
         }
-        majorXInterval.userSpecifiedValue.set(majorX);
+        majorXInterval.getUserSpecifiedValue().set(majorX);
     }
 
     /**
@@ -2434,7 +2479,7 @@ public final class Chart extends Pane {
         if (majorY <= 0.0) {
             majorY = 1e-15;
         }
-        majorYInterval.userSpecifiedValue.set(majorY);
+        majorYInterval.getUserSpecifiedValue().set(majorY);
     }
 
     /**
@@ -3347,15 +3392,15 @@ public final class Chart extends Pane {
     /**
      * @return the formatter
      */
-    public NumberFormat getFormatter() {
+    public static final NumberFormat getFormatter() {
         return formatter;
     }
 
     /**
      * @param formatter the formatter to set
      */
-    public void setFormatter(NumberFormat formatter) {
-        this.formatter = formatter;
+    public static final void setFormatter(NumberFormat formatter) {
+        Chart.formatter = formatter;
 
     }
 
@@ -3454,7 +3499,7 @@ public final class Chart extends Pane {
 
                     @Override
                     public final StyleableProperty<Number> getStyleableProperty(Chart n) {
-                        return (StyleableProperty<Number>) n.majorXInterval.userSpecifiedValue;
+                        return (StyleableProperty<Number>) n.majorXInterval.getUserSpecifiedValue();
                     }
                 };
         private static final CssMetaData<Chart, Number> MAJORYINTERVAL
@@ -3468,7 +3513,7 @@ public final class Chart extends Pane {
 
                     @Override
                     public final StyleableProperty<Number> getStyleableProperty(Chart n) {
-                        return (StyleableProperty<Number>) n.majorYInterval.userSpecifiedValue;
+                        return (StyleableProperty<Number>) n.majorYInterval.getUserSpecifiedValue();
                     }
                 };
         private static final CssMetaData<Chart, Number> MINORCOUNTXHINT
@@ -4057,104 +4102,9 @@ public final class Chart extends Pane {
         }
     }
 
-    /**
-     * Binding to support lazy evaluation of the major ticks on the x-axis
-     */
-    public final class MajorXInterval extends ObjectBinding<Double> {
 
-        /**
-         * A user-specified constant value that will be used instead of the
-         * automatically calculated value. Set this to Double.NaN to enable
-         * auto-calculation.
-         */
-        private StyleableDoubleProperty userSpecifiedValue = new StyleableDoubleProperty(Double.NaN) {
 
-            @Override
-            public final CssMetaData<Chart, Number> getCssMetaData() {
-                return Chart.StyleableProperties.MAJORXINTERVAL;
-            }
-
-            @Override
-            public final Object getBean() {
-                return Chart.MajorXInterval.this;
-            }
-
-            @Override
-            public final String getName() {
-                return "majorX";
-            }
-
-        };
-
-        private MajorXInterval() {
-            bind(xLeftProperty());
-            bind(xRightProperty());
-//            bind(yTopProperty());
-//            bind(yBottomProperty());
-        }
-
-        @Override
-        protected Double computeValue() {
-            if (Double.isNaN(userSpecifiedValue.get())) {
-                double width = Math.abs(getAxesBounds().getWidth());
-                double inc = calcSpacing(width, getPixelWidth());
-                return inc;
-            } else {
-                return userSpecifiedValue.get();
-            }
-        }
-
-        public final void reset() {
-            userSpecifiedValue.set(Double.NaN);
-        }
-
-    }
-
-    public final class MajorYInterval extends ObjectBinding<Double> {
-
-        private StyleableDoubleProperty userSpecifiedValue = new StyleableDoubleProperty(Double.NaN) {
-
-            @Override
-            public final CssMetaData<Chart, Number> getCssMetaData() {
-                return Chart.StyleableProperties.MAJORYINTERVAL;
-            }
-
-            @Override
-            public final Object getBean() {
-                return Chart.MajorYInterval.this;
-            }
-
-            @Override
-            public final String getName() {
-                return "majorY";
-            }
-
-        };
-
-        private MajorYInterval() {
-//            bind(xLeftProperty());
-//            bind(xRightProperty());
-            bind(yTopProperty());
-            bind(yBottomProperty());
-        }
-
-        @Override
-        protected Double computeValue() {
-            if (Double.isNaN(userSpecifiedValue.get())) {
-                double height = Math.abs(getAxesBounds().getHeight());
-                double inc = calcSpacing(height, getPixelHeight());
-                return inc;
-            } else {
-                return userSpecifiedValue.get();
-            }
-        }
-
-        public final void reset() {
-            userSpecifiedValue.set(Double.NaN);
-        }
-    }
-
-    private double calcSpacing(double value, double minspace) {
+    double calcSpacing(double value, double minspace) {
         double lg = Math.log10(value);
         double rem = lg - Math.floor(lg);
         double scope = Math.pow(10, rem);
@@ -4204,7 +4154,7 @@ public final class Chart extends Pane {
 
     }
 
-    public final class CrossHair extends Path {
+    public static class CrossHair extends Path {
 
         private final Chart layer;
 
@@ -4248,7 +4198,7 @@ public final class Chart extends Pane {
 
     }
 
-    private class CursorTextBox extends HBox {
+    private static class CursorTextBox extends HBox {
 
         private CursorTextBox(Text text) {
             super(text);
@@ -4262,16 +4212,12 @@ public final class Chart extends Pane {
         }
     }
 
-    private static StringExpression mouseTextBinding(int axis, final Chart chart, final SimpleDoubleProperty obs) {
+    private static StringExpression mouseTextBinding(int axis, final Chart chart,
+            final SimpleDoubleProperty obs) {
         return new StringBinding() {
 
             {
                 super.bind(obs);
-            }
-
-            @Override
-            public void dispose() {
-                super.unbind(obs);
             }
 
             @Override
@@ -4282,6 +4228,11 @@ public final class Chart extends Pane {
                 } else {
                     return (Double.isFinite(value)) ? formatter.format(chart.toPositionY(value)) : "";
                 }
+            }
+
+            @Override
+            public void dispose() {
+                super.unbind(obs);
             }
 
             @Override
