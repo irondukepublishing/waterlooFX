@@ -1796,16 +1796,16 @@ public final class Chart extends Pane {
                     }
                 }
                 if (!isLeftAxisPainted()) {
-                    xl = 5d;
+                    xl = 7d;
                 }
                 if (!isRightAxisPainted()) {
-                    xr = 5d;
+                    xr = 7d;
                 }
                 if (!isTopAxisPainted()) {
-                    yt = 5d;
+                    yt = 7d;
                 }
                 if (!isBottomAxisPainted()) {
-                    yb = 5d;
+                    yb = 7d;
                 }
                 return new Insets(yt, xr, yb, xl);
             }
