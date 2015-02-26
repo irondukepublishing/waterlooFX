@@ -67,7 +67,8 @@ wfxjs = function () {
 
 
         /**
-         * Scans the document for elements of class chart and embeds the associated FXML.
+         * Scans the document for elements of class chart and embeds the associated FXML
+         * into the document.
          *
          * @returns {{app: {}, object: {}, fxml: string}[]}
          */
@@ -126,25 +127,34 @@ wfxjs = function () {
 
         /**
          * This parses the content of an FXML file on the server specified as a URL
-         * and adds the root {@code JavaFX Node} to the content of the specified app.
+         * and adds the root JavaFX Node to the content of the specified app by calling the
+         * app.add(node) method.
          *
-         * @param app application created by prior call to dtjava.embed
+         * @param app application created by prior call to dtjava.embed.
          * @param url location of the FXML file
+         * @param onError user specified callback function to be invoked if an error occurs.
+         * The function takes one parameter: the returned status.
          * @param onSuccess user specified callback function to be invoked after content is sent
          * to be added to the app. The function takes app and a reference to the created JavaFX
          * object as parameters.
          */
-        addFXMLFile: function (app, url, onSuccess) {
+        addFXMLFile: function (app, url, onError, onSuccess) {
             var client = new XMLHttpRequest();
             // Change to asynchronous XMLHttpRequest; otherwise blocked on Windows
             // Only checked on Mac so far (26.02.2015)
             client.onreadystatechange = function () {
-                if (client.readyState == 4 && client.status == 200) {
-                    var text = client.responseText;
-                    var object = app.parseFXML(text);
-                    app.add(object);
-                    if (onSuccess) {
-                        onSuccess(app, object);
+                if (client.readyState == 4) {
+                    if (client.status == 200) {
+                        var text = client.responseText;
+                        var object = app.parseFXML(text);
+                        app.add(object);
+                        if (onSuccess) {
+                            onSuccess(app, object);
+                        }
+                    } else {
+                        if (onError) {
+                            onError(client.status);
+                        }
                     }
                 }
             };
@@ -213,7 +223,9 @@ wfxjs = function () {
                 }
             }
 
-        },
+        }
+
+        ,
 
 
         /**
@@ -225,7 +237,8 @@ wfxjs = function () {
         lookup: function (appID, selector) {
             var app = document.getElementById(appID);
             return app.lookup(selector);
-        },
+        }
+        ,
 
         /**
          *
