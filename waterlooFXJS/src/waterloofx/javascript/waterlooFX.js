@@ -223,9 +223,7 @@ wfxjs = function () {
                 }
             }
 
-        }
-
-        ,
+        },
 
 
         /**
@@ -237,8 +235,7 @@ wfxjs = function () {
         lookup: function (appID, selector) {
             var app = document.getElementById(appID);
             return app.lookup(selector);
-        }
-        ,
+        },
 
         /**
          *
