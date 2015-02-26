@@ -23,7 +23,7 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+ */
 
 /**
  * JavaScript support for using the waterlooFX charting library.
@@ -52,28 +52,27 @@ wfxjs = function () {
         jnlp: './waterlooFXJS/dist/waterlooFXJS.jnlp',
 
 
-
         findCharts: function () {
-            var apps = [{app:null, object:null, fxml:''}];
+            var apps = [{app: null, object: null, fxml: ''}];
             var nodes = document.getElementsByClassName("chart");
             for (var k = 0; k < nodes.length; k++) {
                 var node = document.getElementById(nodes[k].id);
                 var w = node.style.width;
-                if (w<=0) w=400;
+                if (w <= 0) w = 400;
                 var h = node.style.height;
-                if (h<=0) h=300;
+                if (h <= 0) h = 300;
                 var fxml = node.textContent;
                 // Create an app with the same id as the HTML node
                 this.embedFXML(node, '', node, w, h);
                 // Retrieve the app
                 var app = document.getElementById(node);
                 // Parse the FXML
-                var object=app.parseFXML(fxml);
+                var object = app.parseFXML(fxml);
                 // Add the node
                 //app.add(object);
-                apps[k].app=app;
-                apps[k].object=object;
-                apps[k].fxml=fxml;
+                apps[k].app = app;
+                apps[k].object = object;
+                apps[k].fxml = fxml;
             }
             return apps;
         },
@@ -94,7 +93,7 @@ wfxjs = function () {
             var client = new XMLHttpRequest();
             // Change to asynchronous XMLHttpRequest; otherwise blocked on Windows
             // Only checked on Mac so far (26.020.2015)
-            client.onreadystatechange = function() {
+            client.onreadystatechange = function () {
                 if (client.readyState == 4 && client.status == 200) {
                     var text = client.responseText;
                     var object = app.parseFXML(text);
@@ -145,7 +144,7 @@ wfxjs = function () {
             function reportError(app, r) {
                 //ovewrite behavior for unsupported browser
                 var a = app.placeholder;
-                if (a != null && r.isUnsupportedBrowser()) {
+                if (a != null) {
                     var p = document.createElement('div');
                     p.id = "splash";
                     p.style.width = app.width;
@@ -153,15 +152,12 @@ wfxjs = function () {
                     p.style.background = "black";
                     p.style.color = "white";
                     p.appendChild(
-                        document.createTextNode("Charts not available: this browser is not supported."));
+                        document.createTextNode("Charts not available: this browser is not supported.")
+                    );
                     //clear embedded application placeholder
                     while (a.hasChildNodes()) a.removeChild(a.firstChild);
                     //show custom message
                     a.appendChild(p);
-                } else {
-                    //use default handlers otherwise
-                    var def = new dtjava.Callbacks();
-                    return def.onDeployError(app, r);
                 }
             }
 
