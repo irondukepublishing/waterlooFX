@@ -29,67 +29,67 @@
         function onLoad() {
             // Set the location of the jnlp file
             wfxjs.jnlp = './waterlooFXJS/dist/waterlooFXJS.jnlp';
-            // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp
-            wfxjs.embedFXML('myApp', 'Demo', 'javafx-app-placeholder', 400, 300);
-//            var apps = wfxjs.findCharts();
-//            apps[0].app.add(apps[0].object);
+            // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp.
+            // The app is returned in mainApp which has global scope on the page
+            mainApp=wfxjs.embed('myApp', 'Demo');
+            //var apps = wfxjs.init('./waterlooFXJS/dist/waterlooFXJS.jnlp');
         }
 
         dtjava.addOnloadCallback(onLoad);
 
         var majorGrid = function () {
-            var chart = document.getElementById('myApp').getChart();
+            var chart = mainApp.getChart();
             chart.setMajorGridPainted(document.getElementById('majorGrid').checked);
             chart.requestLayout();
         }
 
         var minorGrid = function () {
-            var chart = document.getElementById('myApp').getChart();
+            var chart = mainApp.getChart();
             chart.setMinorGridPainted(document.getElementById('minorGrid').checked);
             chart.requestLayout();
         }
 
         var innerAxis = function () {
-            var chart = document.getElementById('myApp').getChart();
+            var chart = mainApp.getChart();
             chart.setInnerAxisPainted(document.getElementById('innerAxis').checked);
             chart.requestLayout();
         }
 
         var altFillV = function () {
-            var chart = document.getElementById('myApp').getChart();
+            var chart = mainApp.getChart();
             chart.setAltFillVerticalPainted(document.getElementById('altFillV').checked);
             chart.requestLayout();
         }
 
         var altFillH = function () {
-            var chart = document.getElementById('myApp').getChart();
+            var chart = mainApp.getChart();
             chart.setAltFillHorizontalPainted(document.getElementById('altFillH').checked);
             chart.requestLayout();
         }
 
         //        var print = function () {
-        //            var app = document.getElementById('myApp');
+        //            var app = mainApp;
         //            app.print();
         //        }
 
         var addChart = function () {
-            var app = document.getElementById('myApp');
-            var ob = wfxjs.parseFXMLFile('myApp', './FXML/newChart.fxml');
+            var app = mainApp;
+            wfxjs.addFXMLFile(mainApp, './FXML/newChart.fxml');
         }
 
         var addPlot = function () {
-            var app = document.getElementById('myApp');
-            var ob = wfxjs.parseFXMLFile('myApp', './FXML/newLine.fxml');
+            var app = mainApp;
+            wfxjs.addFXMLFile(mainApp, './FXML/newLine.fxml');
         }
 
         var clicked3 = function () {
-            var chart = document.getElementById('myApp').getChart();
+            var chart = mainApp.getChart();
             var flag = chart.isMousePositionDisplayed();
             chart.setMousePositionDisplayed(!flag)
         }
 
         //        var doCss = function (){
-        //            var set = wfxjs.lookupAll('myApp', '.plot');
+        //            var set = wfxjs.lookupAll(mainApp, '.plot');
         //            alert(set[0]);
         //        }
 
@@ -157,7 +157,7 @@
 
         <div align="center">
 
-            <div id='javafx-app-placeholder' align="center">
+            <div id='myApp' align="center">
                 //JavaFX goes here
             </div>
 
@@ -194,6 +194,7 @@
         </div>
 
 <!--
+
         <div class="chart" id="myFXML" style="width:400px; height:300px">
         <script type="text/xml">
             <Chart XLeft="-10.0" XRight="10.0" YBottom="-6.0" YTop="6.0" bottomAxisTitle="X1" leftAxisTitle="Y1">

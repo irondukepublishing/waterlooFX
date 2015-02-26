@@ -51,28 +51,72 @@ wfxjs = function () {
          */
         jnlp: './waterlooFXJS/dist/waterlooFXJS.jnlp',
 
+        /**
+         * Initialises the system invoking the specified Java jnlp file then scans the document
+         * for elements of class chart and embeds the associated FXML.
+         *
+         * @param jnlp
+         * @returns {{app: null, object: null, fxml: string}[]}
+         */
+        init: function (jnlp) {
+            if (jnlp) {
+                this.jnlp = jnlp;
+            }
+            return this.findCharts();
+        },
 
+
+        /**
+         * Scans the document for elements of class chart and embeds the associated FXML.
+         *
+         * @returns {{app: {}, object: {}, fxml: string}[]}
+         */
         findCharts: function () {
-            var apps = [{app: null, object: null, fxml: ''}];
+            var apps = [{id: '', app: {}, object: {}, fxml: ''}];
+            // Look for elements of class chart or fxml in the document
             var nodes = document.getElementsByClassName("chart");
             for (var k = 0; k < nodes.length; k++) {
                 var node = document.getElementById(nodes[k].id);
-                var w = node.style.width;
-                if (w <= 0) w = 400;
-                var h = node.style.height;
-                if (h <= 0) h = 300;
-                var fxml = node.textContent;
-                // Create an app with the same id as the HTML node
-                this.embedFXML(node, '', node, w, h);
-                // Retrieve the app
-                var app = document.getElementById(node);
-                // Parse the FXML
-                var object = app.parseFXML(fxml);
-                // Add the node
-                //app.add(object);
-                apps[k].app = app;
-                apps[k].object = object;
-                apps[k].fxml = fxml;
+                if (node) {
+                    var fxml = node.textContent;
+                    // Create an app with the same id as the HTML node
+                    var app = this.embed(node.id, '');
+                    // Invoke Java to parse the FXML
+                    var object = app.parseFXML(fxml);
+                    // Add the node
+                    app.add(object);
+                    apps[k].id = app.id;
+                    apps[k].app = app;
+                    apps[k].object = object;
+                    apps[k].fxml = fxml;
+                }
+            }
+            return apps;
+        },
+
+        /**
+         * Scans the document for elements of class fxml and embeds the associated FXML.
+         *
+         * @returns {{app: {}, object: {}, fxml: string}[]}
+         */
+        findFXML: function () {
+            var apps = [{app: {}, object: {}, fxml: ''}];
+            // Look for elements of class chart or fxml in the document
+            var nodes = document.getElementsByClassName("fxml");
+            for (var k = 0; k < nodes.length; k++) {
+                var node = document.getElementById(nodes[k].id);
+                if (node) {
+                    var fxml = node.textContent;
+                    // Create an app with the same id as the HTML node
+                    var app = this.embed(node.id, '');
+                    // Invoke Java to parse the FXML
+                    var object = app.parseFXML(fxml);
+                    // Add the node
+                    app.add(object);
+                    apps[k].app = app;
+                    apps[k].object = object;
+                    apps[k].fxml = fxml;
+                }
             }
             return apps;
         },
@@ -82,24 +126,28 @@ wfxjs = function () {
 
         /**
          * This parses the content of an FXML file on the server specified as a URL
-         * and adds the root {@code JavaFX Node}.
+         * and adds the root {@code JavaFX Node} to the content of the specified app.
          *
-         *
-         * @param appID
-         * @param url
+         * @param app application created by prior call to dtjava.embed
+         * @param url location of the FXML file
+         * @param onSuccess user specified callback function to be invoked after content is sent
+         * to be added to the app. The function takes app and a reference to the created JavaFX
+         * object as parameters.
          */
-        parseFXMLFile: function (appID, url) {
-            var app = document.getElementById(appID);
+        addFXMLFile: function (app, url, onSuccess) {
             var client = new XMLHttpRequest();
             // Change to asynchronous XMLHttpRequest; otherwise blocked on Windows
-            // Only checked on Mac so far (26.020.2015)
+            // Only checked on Mac so far (26.02.2015)
             client.onreadystatechange = function () {
                 if (client.readyState == 4 && client.status == 200) {
                     var text = client.responseText;
                     var object = app.parseFXML(text);
                     app.add(object);
+                    if (onSuccess) {
+                        onSuccess(app, object);
+                    }
                 }
-            }
+            };
             client.open('GET', url, true);
             client.overrideMimeType("text/xml; charset=utf-8");
             client.send();
@@ -107,21 +155,27 @@ wfxjs = function () {
 
 
         /**
-         * Embeds the contents of an fxml file contained in the specified jnlp file
-         * in the document at the specified location and launched the app in the page.
-         *
-         * The app can then be located in the page with document.getElementById(appID)
+         * Embeds the contents of an fxml file in the document at the specified location
+         * and launches the app in the page.
          *
          * This includes in-built error handling to replace charts with an HTML text message
          * when Java/JavaFX is not supported.
          *
-         * @param appID Element id to assign to the app
-         * @param fxmlFile the FXML file to use from the app
          * @param placeholder id for element in the document where content should be added
-         * @param w width of the content
-         * @param h height of the content
+         * @param fxmlFile the FXML file to use for the app
+         * @return a reference to the created applet: the document element id will be app_placeholder.
          */
-        embedFXML: function (appID, fxmlFile, placeholder, w, h) {
+        embed: function (placeholder, fxmlFile) {
+            var node = document.getElementById(placeholder);
+            var w = 0;
+            var h = 0;
+            if (node && node.style) {
+                w = node.style.width;
+                h = node.style.height;
+            }
+            if (w <= 0) w = 400;
+            if (h <= 0) h = 300;
+            var appID = "app_".concat(placeholder);
             dtjava.embed(
                 {
                     id: appID,
@@ -140,9 +194,9 @@ wfxjs = function () {
                     onDeployError: reportError
                 }
             );
+            return document.getElementById(appID);
 
             function reportError(app, r) {
-                //ovewrite behavior for unsupported browser
                 var a = app.placeholder;
                 if (a != null) {
                     var p = document.createElement('div');
@@ -154,9 +208,7 @@ wfxjs = function () {
                     p.appendChild(
                         document.createTextNode("Charts not available: this browser is not supported.")
                     );
-                    //clear embedded application placeholder
                     while (a.hasChildNodes()) a.removeChild(a.firstChild);
-                    //show custom message
                     a.appendChild(p);
                 }
             }
