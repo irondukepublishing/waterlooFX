@@ -1,7 +1,13 @@
-/*
+/**
 
+ JavaScript support for using the waterlooFX charting library.
+ <p>
  Copyright (c) 2015, Malcolm Lidierth
  All rights reserved.
+ </p>
+
+
+<p>
 
  Redistribution and use in source and binary forms, with or without modification, are permitted provided
  that the following conditions are met:
@@ -23,18 +29,18 @@
  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- */
+ </p>
 
-/**
- * JavaScript support for using the waterlooFX charting library.
- *
- * Requirements:
- * <ul>
- * <li>JavaFX 8+ browser plugin support (presently available for IE, Firefox and Safari).</li>
- * <li>dtjava.js - </li>
- * <li>A compatible jnlp file that supports the methods used herein. waterlooFXJS.jnlp is provided as standard.</li>
- * </ul>
- */
+ <p>
+ Requirements:
+ <ul>
+ <li>JavaFX 8+ browser plugin support (presently available for IE, Firefox and Safari).</li>
+ <li>dtjava.js - Oracle supplied JavaScript file form the Java Deployment Toolkit.
+ A copy of this will be generated from your IDE when you create a web deployable jnlp file.</li>
+ <li>A compatible jnlp file that supports the methods used herein. waterlooFXJS.jnlp is provided as standard.</li>
+ </ul>
+ </p>
+*/
 var wfxjs;
 wfxjs = function () {
 
@@ -74,7 +80,7 @@ wfxjs = function () {
          */
         findCharts: function () {
             var apps = [{id: '', app: {}, object: {}, fxml: ''}];
-            // Look for elements of class chart or fxml in the document
+            // Look for elements of class chart in the HTML document
             var nodes = document.getElementsByClassName("chart");
             for (var k = 0; k < nodes.length; k++) {
                 var node = document.getElementById(nodes[k].id);
@@ -102,7 +108,7 @@ wfxjs = function () {
          */
         findFXML: function () {
             var apps = [{app: {}, object: {}, fxml: ''}];
-            // Look for elements of class chart or fxml in the document
+            // Look for elements of class fxml in the HTML document
             var nodes = document.getElementsByClassName("fxml");
             for (var k = 0; k < nodes.length; k++) {
                 var node = document.getElementById(nodes[k].id);
