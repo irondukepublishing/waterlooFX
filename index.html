@@ -31,8 +31,8 @@
             wfxjs.jnlp = './waterlooFXJS/dist/waterlooFXJS.jnlp';
             // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp
             wfxjs.embedFXML('myApp', 'Demo', 'javafx-app-placeholder', 400, 300);
-/*            var apps = wfxjs.findCharts();
-            apps[0].app.add(apps[0].object);*/
+//            var apps = wfxjs.findCharts();
+//            apps[0].app.add(apps[0].object);
         }
 
         dtjava.addOnloadCallback(onLoad);
@@ -75,13 +75,11 @@
         var addChart = function () {
             var app = document.getElementById('myApp');
             var ob = wfxjs.parseFXMLFile('myApp', './FXML/newChart.fxml');
-            app.add(ob);
         }
 
         var addPlot = function () {
             var app = document.getElementById('myApp');
             var ob = wfxjs.parseFXMLFile('myApp', './FXML/newLine.fxml');
-            app.add(ob);
         }
 
         var clicked3 = function () {
@@ -187,7 +185,7 @@
             <p style="font-style: italic">
                 Figure 1: A simple line plot. Shift the axes by holding the mouse down and dragging the chart.
                 The axes can also be expanded or shrunk when the mouse is over an axis.
-                The mouse wheel can also be used on most browsers (not Safari on Mac) to zoom the axes.
+                The mouse wheel can also be used on some browsers (not Chrome or Safari) to zoom the axes.
                 <br>
                 Use the checkboxes above to add/remove decorations from the chart interactively. Note that
                 these are standard HTML checkboxes displayed in the browser rather than JavaFX components. They use
@@ -195,7 +193,8 @@
             </p>
         </div>
 
-<!--        <div class="chart" id="myFXML" style="width:400px; height:300px">
+<!--
+        <div class="chart" id="myFXML" style="width:400px; height:300px">
         <script type="text/xml">
             <Chart XLeft="-10.0" XRight="10.0" YBottom="-6.0" YTop="6.0" bottomAxisTitle="X1" leftAxisTitle="Y1">
                 <children>
@@ -207,7 +206,8 @@
                 </children>
             </Chart>
         </script>
-        </div>-->
+        </div>
+-->
 
 
     </section>

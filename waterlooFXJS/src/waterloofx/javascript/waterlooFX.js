@@ -83,31 +83,27 @@ wfxjs = function () {
 
         /**
          * This parses the content of an FXML file on the server specified as a URL
-         * and returns the specified {@code JavaFX Node} tree.
+         * and adds the root {@code JavaFX Node}.
          *
-         * The returned root {@code Node} can be added to the tree of an existing app
-         * created using the {@code embedFXML} method.
          *
          * @param appID
          * @param url
-         * @returns {*}
          */
         parseFXMLFile: function (appID, url) {
             var app = document.getElementById(appID);
             var client = new XMLHttpRequest();
-            client.open('GET', url, false);
+            // Change to asynchronous XMLHttpRequest; otherwise blocked on Windows
+            // Only checked on Mac so far (26.020.2015)
+            client.onreadystatechange = function() {
+                if (client.readyState == 4 && client.status == 200) {
+                    var text = client.responseText;
+                    var object = app.parseFXML(text);
+                    app.add(object);
+                }
+            }
+            client.open('GET', url, true);
             client.overrideMimeType("text/xml; charset=utf-8");
             client.send();
-            var text = client.responseText;
-            var object = app.parseFXML(text);
-            if (object instanceof String) {
-                // If a Java Exception has occurred, ......
-                alert(object);
-                return null;
-            } else {
-                //... otherwise return the node
-                return object;
-            }
         },
 
 
