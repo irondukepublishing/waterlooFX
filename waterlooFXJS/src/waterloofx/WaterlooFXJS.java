@@ -26,19 +26,18 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -63,11 +62,14 @@ public class WaterlooFXJS extends Application {
     Pane root = null;
 
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) throws MalformedURLException, IOException  {
         String s = (String) getParameters().getNamed().get("fxml");
         if (s == null || s.isEmpty()) {
             root = new Pane();
             root.setPrefSize(400, 300);
+        } else if (s.startsWith("http://")) {
+            URL url = new URL(s);
+            root = FXMLLoader.load(url);
         } else if (!s.startsWith("fxml/")) {
             s = "fxml/".concat(s);
             if (!s.endsWith(".fxml")) {
@@ -159,14 +161,18 @@ public class WaterlooFXJS extends Application {
 
     public Chart getChart() {
         Node node = root.lookup(".chart");
-        if (node==null){
+        if (node == null) {
             return null;
         } else {
             return (Chart) node;
         }
     }
 
-    public void add(Node node){
+    public URL getURL(String s) throws MalformedURLException {
+        return new URL(s);
+    }
+
+    public void add(Node node) {
         if (!isRootVisible()) {
             try {
                 // If the root is not yet visible, use runAndWait. Seems to be required

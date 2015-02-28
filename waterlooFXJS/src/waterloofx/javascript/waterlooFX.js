@@ -53,9 +53,9 @@ wfxjs = function () {
          * Location of the Java jnlp file.
          * Set this to the appropriate location for the host web-site.
          * The value can be changed from a web-page using
-         *       wfxjs.jnlp = file_specifier_string
+         *       wfxjs.jnlpFile = file_specifier_string
          */
-        jnlp: './waterlooFXJS/dist/waterlooFXJS.jnlp',
+        jnlpFile: './waterlooFXJS/dist/waterlooFXJS.jnlp',
 
         /**
          * Initialises the system invoking the specified Java jnlp file then scans the document
@@ -64,12 +64,46 @@ wfxjs = function () {
          * @param jnlp
          * @returns {{app: null, object: null, fxml: string}[]}
          */
-        init: function (jnlp) {
-            if (jnlp) {
-                this.jnlp = jnlp;
+        init: function (jnlpFile) {
+            if (jnlpFile) {
+                this.jnlpFile = jnlpFile;
             }
             return this.findCharts();
         },
+
+        showXML: function (url, onError, onSuccess) {
+            var client = new XMLHttpRequest();
+            // Change to asynchronous XMLHttpRequest; otherwise blocked on Windows
+            // Only checked on Mac so far (26.02.2015)
+            client.onreadystatechange = function () {
+                if (client.readyState == 4) {
+                    if (client.status == 200) {
+                        var text = client.responseXML;
+                        if (onSuccess) {
+                            onSuccess(text);
+                        } else {
+                            window.alert(text.getElementsByTagName("type")[0].g);
+                        }
+                    } else {
+                        if (onError) {
+                            onError(client.status);
+                        }
+                    }
+                }
+            };
+            client.open('GET', url, true);
+            client.send();
+        },
+
+/*        rulesCssForClass: function (clazz) {
+                var styledElement = document.getElementsByClassName(clazz);
+                if (styledElement != undefined && styledElement.length>0) {
+                    window.alert(styledElement[0].style);
+                    return styledElement[0].style;
+                } else {
+                    return null;
+                }
+        },*/
 
 
         /**
@@ -195,7 +229,7 @@ wfxjs = function () {
             dtjava.embed(
                 {
                     id: appID,
-                    url: this.jnlp,
+                    url: this.jnlpFile,
                     placeholder: placeholder,
                     width: w,
                     height: h,

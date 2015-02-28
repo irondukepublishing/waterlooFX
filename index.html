@@ -28,10 +28,11 @@
 
         function onLoad() {
             // Set the location of the jnlp file
-            wfxjs.jnlp = './waterlooFXJS/dist/waterlooFXJS.jnlp';
+            wfxjs.jnlpFile = './waterlooFXJS/dist/waterlooFXJS.jnlp';
             // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp.
             // The app is returned in mainApp which has global scope on the page
             mainApp=wfxjs.embed('myApp', 'Demo');
+            //window.alert(mainApp.getURL('http://localhost:63342/web/src/waterloofx/src/fxml/Chart.fxml'));
             //var apps = wfxjs.init('./waterlooFXJS/dist/waterlooFXJS.jnlp');
         }
 
@@ -78,6 +79,7 @@
         }
 
         var addPlot = function () {
+            // wfxjs.rulesCssForClass('inner');
             var app = mainApp;
             wfxjs.addFXMLFile(mainApp, './FXML/newLine.fxml');
         }
