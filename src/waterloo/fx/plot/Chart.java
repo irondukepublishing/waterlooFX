@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
@@ -48,6 +51,7 @@ import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -72,6 +76,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import waterloo.fx.plot.axis.AbstractAxisRegion;
 import waterloo.fx.plot.axis.AxisBottom;
 import waterloo.fx.plot.axis.AxisLeft;
@@ -1378,6 +1383,13 @@ public final class Chart extends Pane {
         getChildren().add(layer);
         setPadding(computeRequiredInsets());
         layer.setPadding(getPadding());
+    }
+
+    public void show() {
+        Stage stage;
+        stage = new Stage();
+        stage.setScene(new Scene(this, 500, 500));
+        stage.show();
     }
 
     private void installMouseListeners() {
@@ -4101,8 +4113,6 @@ public final class Chart extends Pane {
             return new Rectangle2D(getXMin(), getYMin(), getXMax() - getXMin(), getYMax() - getYMin());
         }
     }
-
-
 
     double calcSpacing(double value, double minspace) {
         double lg = Math.log10(value);

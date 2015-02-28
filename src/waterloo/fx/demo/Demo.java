@@ -49,11 +49,12 @@ public class Demo extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         System.err.println(System.getProperty("java.version"));
-
+        Chart g = new Chart();
+        
         Pane p=new Pane();
         System.out.println(p.getStyleClass());
         //GJChart g1 = new Chart();
-        Chart g = new Chart();
+        
         System.out.println(g.getStyleClass());
         //g.getChildren().add(g1);
 
@@ -144,6 +145,9 @@ public class Demo extends Application {
         System.err.println(g.getView().getPrefWidth()/2d);
         System.err.println(g.getView().getPrefHeight()/2d);
         System.err.println(g.toPositionX(g.toPixel(0d,0d).getX()));
+        
+        Chart g2=new Chart();
+        g2.show();
 
     }
 
