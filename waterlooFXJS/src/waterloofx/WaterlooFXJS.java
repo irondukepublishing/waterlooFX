@@ -22,6 +22,7 @@
  */
 package waterloofx;
 
+import java.awt.EventQueue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,15 +35,20 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import waterloo.fx.plot.AbstractPlot.VisualModel;
-import waterloo.fx.plot.*;
+import waterloo.fx.plot.Chart;
+import waterloo.fx.plot.ScatterPlot;
 
 /**
  *
@@ -50,36 +56,92 @@ import waterloo.fx.plot.*;
  */
 public class WaterlooFXJS extends Application {
 
+    private static final AtomicBoolean isFXInitialised = new AtomicBoolean(false);
+
     private static final String fxmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             + "\n"
             + "<?import waterloo.fx.plot.*?>\n"
             + "<?import java.lang.*?>\n"
             + "<?import java.util.*?>\n"
+            + "<?import javafx.embed.swing.*?>\n"
             + "<?import javafx.scene.*?>\n"
             + "<?import javafx.scene.control.*?>\n"
+            + "<?import javafx.scene.shape.*?>\n"
             + "<?import javafx.scene.layout.*?>";
 
     Pane root = null;
 
     @Override
-    public void start(Stage stage) throws MalformedURLException, IOException  {
+    public void start(Stage stage) {
+        // Optional parameters supplied from dtjava.js
+        // Reference to the xml file
         String s = (String) getParameters().getNamed().get("fxml");
+        String css = (String) getParameters().getNamed().get("css");
+
         if (s == null || s.isEmpty()) {
             root = new Pane();
             root.setPrefSize(400, 300);
-        } else if (s.startsWith("http://")) {
-            URL url = new URL(s);
-            root = FXMLLoader.load(url);
-        } else if (!s.startsWith("fxml/")) {
-            s = "fxml/".concat(s);
+        } else if (s.startsWith("http://") || s.startsWith("https://")) {
+            URL url = null;
+            try {
+                url = new URL(s);
+            } catch (MalformedURLException ex) {
+                Text text = new Text(ex.toString());
+                text.setWrappingWidth(300);
+                root = new FlowPane(text);
+            }
+            try {
+                root = FXMLLoader.load(url);
+            } catch (IOException ex) {
+                Text text = new Text(ex.toString());
+                text.setWrappingWidth(300);
+                root = new FlowPane(text);
+            }
+        } else {
+            if (!s.startsWith("fxml/")) {
+                s = "fxml/".concat(s);
+            }
             if (!s.endsWith(".fxml")) {
                 s = s.concat(".fxml");
             }
-            root = FXMLLoader.load(WaterlooFXJS.class.getResource(s));
+            try {
+                root = FXMLLoader.load(WaterlooFXJS.class.getResource(s));
+            } catch (IOException ex) {
+                Text text = new Text(ex.toString());
+                text.setWrappingWidth(300);
+                root = new FlowPane(text);
+            }
         }
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+        if (css != null && !css.isEmpty()) {
+            scene.getStylesheets().add(css);
+        }
+    }
+
+    /**
+     * Initialises the FX platform: this code is NOT required if launching an
+     * app via the start method and executes on the Swing/AWT EventQueue.
+     *
+     * {@code initFX} needs to be called only once for any instance of the JVM.
+     *
+     * {@code initFX} create a {@code JFXPanel} - which causes the JavaFX
+     * application thread to be initialised. It also calls
+     * {@code Platform.setImplicitExit(false)} so that closing all JavaFX Stages
+     * will not terminate the application thread.
+     *
+     * This method is thread-safe and may be called from any thread.
+     *
+     */
+    public static void initFX() {
+        if (!isFXInitialised.get()) {
+            EventQueue.invokeLater(() -> {
+                Platform.setImplicitExit(false);
+                new JFXPanel();
+                isFXInitialised.set(true);
+            });
+        }
     }
 
     public void setStyle(String id, String style) {
@@ -88,6 +150,15 @@ public class WaterlooFXJS extends Application {
         });
     }
 
+    /**
+     * Used here to simulate a Platform.runAndWait which JavaFX Platform does
+     * not provide.
+     *
+     * @param callable the code to run
+     * @return the output from the code
+     * @throws InterruptedException
+     * @throws ExecutionException
+     */
     private static Object runAndWait(Callable callable) throws InterruptedException, ExecutionException {
         FutureTask<Object> future = new FutureTask(callable);
         Platform.runLater(future);

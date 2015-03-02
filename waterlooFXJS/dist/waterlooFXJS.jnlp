@@ -8,8 +8,8 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="waterlooFXJS.jar" size="14197" download="eager" />
-    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="287220" download="lazy" />
+    <jar href="waterlooFXJS.jar" size="15613" download="eager" />
+    <jar href="lib/waterlooFX-0.8-SNAPSHOT.jar" size="288167" download="lazy" />
   </resources>
 <security>
   <all-permissions/>

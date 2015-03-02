@@ -34,7 +34,8 @@
  <p>
  Requirements:
  <ul>
- <li>JavaFX 8+ browser plugin support (presently available for IE, Firefox and Safari).</li>
+ <li>JavaFX 8+ browser plugin support (presently available for IE, Firefox, Chrome and Opera on Windows
+ and Safari on Mac).</li>
  <li>dtjava.js - Oracle supplied JavaScript file form the Java Deployment Toolkit.
  A copy of this will be generated from your IDE when you create a web deployable jnlp file.</li>
  <li>A compatible jnlp file that supports the methods used herein. waterlooFXJS.jnlp is provided as standard.</li>
@@ -46,6 +47,32 @@ wfxjs = function () {
 
     //var jnlp_content = 'dPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPGpubHAgc3BlYz0iMS4wIiB4bWxuczpqZng9Imh0dHA6Ly9qYXZhZnguY29tIiBocmVmPSJ3YXRlcmxvb0ZYSlMuam5scCI+CiAgPGluZm9ybWF0aW9uPgogICAgPHRpdGxlPndhdGVybG9vRlhKUzwvdGl0bGU+CiAgICA8dmVuZG9yPk1MPC92ZW5kb3I+CiAgICA8ZGVzY3JpcHRpb24+bnVsbDwvZGVzY3JpcHRpb24+CiAgICA8b2ZmbGluZS1hbGxvd2VkLz4KICA8L2luZm9ybWF0aW9uPgogIDxyZXNvdXJjZXM+CiAgICA8amZ4OmphdmFmeC1ydW50aW1lIHZlcnNpb249IjguMCsiIGhyZWY9Imh0dHA6Ly9qYXZhZGwuc3VuLmNvbS93ZWJhcHBzL2Rvd25sb2FkL0dldEZpbGUvamF2YWZ4LWxhdGVzdC93aW5kb3dzLWk1ODYvamF2YWZ4Mi5qbmxwIi8+CiAgPC9yZXNvdXJjZXM+CiAgPHJlc291cmNlcz4KICAgIDxqMnNlIHZlcnNpb249IjEuNisiIGhyZWY9Imh0dHA6Ly9qYXZhLnN1bi5jb20vcHJvZHVjdHMvYXV0b2RsL2oyc2UiLz4KICAgIDxqYXIgaHJlZj0id2F0ZXJsb29GWEpTLmphciIgc2l6ZT0iNzkyNSIgZG93bmxvYWQ9ImVhZ2VyIiAvPgogICAgPGphciBocmVmPSJsaWIvd2F0ZXJsb29GWC0wLjgtU05BUFNIT1QuamFyIiBzaXplPSIyODM2MTAiIGRvd25sb2FkPSJsYXp5IiAvPgogIDwvcmVzb3VyY2VzPgo8c2VjdXJpdHk+CiAgPGFsbC1wZXJtaXNzaW9ucy8+Cjwvc2VjdXJpdHk+CiAgPGFwcGxldC1kZXNjICB3aWR0aD0iODAwIiBoZWlnaHQ9IjYwMCIgbWFpbi1jbGFzcz0iY29tLmphdmFmeC5tYWluLk5vSmF2YUZYRmFsbGJhY2siICBuYW1lPSJ3YXRlcmxvb0ZYSlMiID4KICAgIDxwYXJhbSBuYW1lPSJyZXF1aXJlZEZYVmVyc2lvbiIgdmFsdWU9IjguMCsiLz4KICA8L2FwcGxldC1kZXNjPgogIDxqZng6amF2YWZ4LWRlc2MgIHdpZHRoPSI4MDAiIGhlaWdodD0iNjAwIiBtYWluLWNsYXNzPSJ3YXRlcmxvb2Z4LldhdGVybG9vRlhKUyIgIG5hbWU9IndhdGVybG9vRlhKUyIgLz4KICA8dXBkYXRlIGNoZWNrPSJhbHdheXMiLz4KPC9qbmxwPgo='
 
+    var regexp = new RegExp('[^/]*\.html');
+
+    /**
+     * Converts a String representing a relative URL to an absolute URL.
+     *
+     * Specify the relative URL as:
+     * <ul>
+     *     <li>A path relative to the current document: the input string begins with "."</li>
+     *     <li>A path relative to the server address: the input string begins with "/".</li>
+     * </ul>
+     * If neither of these conditions is met, the input pathname is returned unchanged.
+     *
+     * @param pathname
+     * @returns {String} the absolute path of the resource
+     */
+    function toAbsoluteURL(pathname){
+        if (pathname.lastIndexOf('/', 0) === 0) {
+            var location = document.location;
+            pathname = location.protocol.concat('//').concat(location.host).concat(pathname);
+        } else if (pathname.lastIndexOf('.', 0) === 0) {
+            var location=document.URL;
+            pathname = location.replace(regexp, '').concat(pathname);
+            pathname = pathname.replace('/./', '/')
+        }
+        return pathname;
+    }
 
     return {
 
@@ -56,25 +83,26 @@ wfxjs = function () {
          *       wfxjs.jnlpFile = file_specifier_string
          */
         jnlpFile: './waterlooFXJS/dist/waterlooFXJS.jnlp',
+        cssFile: '',
 
         /**
          * Initialises the system invoking the specified Java jnlp file then scans the document
          * for elements of class chart and embeds the associated FXML.
          *
-         * @param jnlp
          * @returns {{app: null, object: null, fxml: string}[]}
          */
-        init: function (jnlpFile) {
+        init: function (jnlpFile, cssFile) {
             if (jnlpFile) {
                 this.jnlpFile = jnlpFile;
+            }
+            if (cssFile){
+                this.cssFile = cssFile;
             }
             return this.findCharts();
         },
 
         showXML: function (url, onError, onSuccess) {
             var client = new XMLHttpRequest();
-            // Change to asynchronous XMLHttpRequest; otherwise blocked on Windows
-            // Only checked on Mac so far (26.02.2015)
             client.onreadystatechange = function () {
                 if (client.readyState == 4) {
                     if (client.status == 200) {
@@ -211,12 +239,24 @@ wfxjs = function () {
          * This includes in-built error handling to replace charts with an HTML text message
          * when Java/JavaFX is not supported.
          *
+         * Specify the path to the FXML file as:
+         * <ul>
+         *     <li>A full url e.g. "http://....."</li>
+         *     <li>A path relative to the current document if the string begins with "."</li>
+         *     <li>A path relative to the server address if the string begins with "/".</li>
+         *     <li>The name of a file packed within the jnlp file.</li>
+         * </ul>
+         *
          * @param placeholder id for element in the document where content should be added
-         * @param fxmlFile the FXML file to use for the app
-         * @return a reference to the created applet: the document element id will be app_placeholder.
+         * @param pathToFXML the FXML file to use for the app.
+         * @return {} a reference to the created applet: the document element id will be app_placeholder.
          */
-        embed: function (placeholder, fxmlFile) {
+        embed: function (placeholder, pathToFXML, pathToCss) {
+            if (!pathToCss){
+                pathToCss=this.cssFile;
+            }
             var node = document.getElementById(placeholder);
+            pathToFXML=toAbsoluteURL(pathToFXML);
             var w = 0;
             var h = 0;
             if (node && node.style) {
@@ -234,7 +274,8 @@ wfxjs = function () {
                     width: w,
                     height: h,
                     params: {
-                        fxml: fxmlFile
+                        fxml: pathToFXML,
+                        css: toAbsoluteURL(pathToCss)
                     }
                 },
                 {

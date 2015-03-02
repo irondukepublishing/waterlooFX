@@ -26,12 +26,14 @@
         var platform = new dtjava.Platform({'javafx': '8.0+'});
         var model = null;
 
+        var mainApp;
+
         function onLoad() {
             // Set the location of the jnlp file
             wfxjs.jnlpFile = './waterlooFXJS/dist/waterlooFXJS.jnlp';
             // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp.
             // The app is returned in mainApp which has global scope on the page
-            mainApp=wfxjs.embed('myApp', 'Demo');
+            mainApp=wfxjs.embed('myApp', 'Demo', './stylesheets/chart.css');
             //window.alert(mainApp.getURL('http://localhost:63342/web/src/waterloofx/src/fxml/Chart.fxml'));
             //var apps = wfxjs.init('./waterlooFXJS/dist/waterlooFXJS.jnlp');
         }
