@@ -123,9 +123,12 @@ public abstract class AbstractAxisRegion extends Region {
      * @param layer
      */
     public AbstractAxisRegion(Chart layer) {
+        
 
         // Add a reference to the layer
         this.layer = layer;
+        
+        getStyleClass().add("w-axis");
 
         // Generate the line - done on the constructor so we use the Platform thread.
         line = new LineClass(layer);

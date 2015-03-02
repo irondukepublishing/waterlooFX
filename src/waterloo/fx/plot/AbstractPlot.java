@@ -461,7 +461,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
     public AbstractPlot() {
         super();
 
-        getStyleClass().add("plot");
+        getStyleClass().add("w-plot");
         
         setBackground(Background.EMPTY);
 

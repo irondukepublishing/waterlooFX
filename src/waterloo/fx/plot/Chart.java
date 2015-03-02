@@ -35,7 +35,9 @@ import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -64,6 +66,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -1301,8 +1304,11 @@ public final class Chart extends Pane {
                 list.stream().filter((node) -> (node instanceof Chart)).forEach((node) -> {
 
                     // It makes no sense to have a background on the child as it will
-                    // obscure the parent's contents.
-                    ((Chart) node).setStyle("-fx-background-color: transparent");
+                    // obscure the parent's contents. Bind this to prevent css stylesheets 
+                    // changing it. Stylesheets specifying "-fx-background-color" will then
+                    // be ignored except for the highest ancestor chart.
+                    ((Chart) node).backgroundProperty().bind(
+                            new SimpleObjectProperty<>(Background.EMPTY));
 
                     AbstractAxisRegion axis;
                     axis = ((Chart) node).getAxisSet().getLeftAxis();
@@ -1365,6 +1371,10 @@ public final class Chart extends Pane {
         topAxisPaintedProperty().addListener(axisPaintedListener);
         bottomAxisPaintedProperty().addListener(axisPaintedListener);
 
+        getStyleClass().add("w-chart");
+        view.getStyleClass().add("w-view");
+        canvas.getStyleClass().add("w-canvas");
+        axisPane.getStyleClass().add("w-axispane");
         requestLayout();
 
     }
