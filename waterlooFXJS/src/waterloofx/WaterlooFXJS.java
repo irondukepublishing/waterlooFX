@@ -39,6 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -46,6 +48,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import waterloo.fx.plot.AbstractPlot.VisualModel;
 import waterloo.fx.plot.Chart;
 import waterloo.fx.plot.ScatterPlot;
@@ -69,10 +72,12 @@ public class WaterlooFXJS extends Application {
             + "<?import javafx.scene.shape.*?>\n"
             + "<?import javafx.scene.layout.*?>";
 
-    Pane root = null;
+    Pane root;
+    Scene scene;
+    Stage stage;
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage primaryStage) {
         // Optional parameters supplied from dtjava.js
         // Reference to the xml file
         String s = (String) getParameters().getNamed().get("fxml");
@@ -112,9 +117,10 @@ public class WaterlooFXJS extends Application {
                 root = new FlowPane(text);
             }
         }
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        scene = new Scene(root);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        stage=primaryStage;
         if (css != null && !css.isEmpty()) {
             scene.getStylesheets().add(css);
         }
@@ -142,6 +148,20 @@ public class WaterlooFXJS extends Application {
                 isFXInitialised.set(true);
             });
         }
+    }
+
+    public void restage() {
+        Platform.runLater(() -> {
+            Stage secondaryStage = new Stage();
+            secondaryStage.setScene(scene);
+            secondaryStage.setOnCloseRequest((WindowEvent event) -> {
+                stage.setScene(scene);
+                secondaryStage.close();
+            });
+            secondaryStage.setAlwaysOnTop(true);
+            secondaryStage.setTitle("waterlooFX Viewer");
+            secondaryStage.show();
+        });
     }
 
     public void setStyle(String id, String style) {

@@ -86,6 +86,11 @@
             wfxjs.addFXMLFile(mainApp, './FXML/newLine.fxml');
         }
 
+        var restage = function () {
+            // wfxjs.rulesCssForClass('inner');
+            mainApp.restage();
+        }
+
         var clicked3 = function () {
             var chart = mainApp.getChart();
             var flag = chart.isMousePositionDisplayed();
@@ -183,6 +188,7 @@
                 <br>
                 <button onclick="addPlot();">Add Another Plot</button>
                 <button onclick="addChart();">Add Another Chart</button>
+                <!--<button onclick="restage();">Open in Viewer</button>-->
             </div>
 
 
