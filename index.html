@@ -15,7 +15,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>waterlooFX</title>
+    <title>waterlooFX -test</title>
 
 
     <SCRIPT src="./waterlooFXJS/dist/web-files/dtjava.js"></SCRIPT>
@@ -31,7 +31,7 @@
         function onLoad() {
             // Set the location of the jnlp file
             wfxjs.jnlpFile = './waterlooFXJS/dist/waterlooFXJS.jnlp';
-            // Embed the initial chart that uses the Demo.fxml file embedded in the jnlp.
+            // Embed the initial chart that uses the Demo.fxml file contained in the jnlp.
             // The app is returned in mainApp which has global scope on the page
             mainApp=wfxjs.embed('myApp', 'Demo', './stylesheets/chart.css');
             //window.alert(mainApp.getURL('http://localhost:63342/web/src/waterloofx/src/fxml/Chart.fxml'));
@@ -188,7 +188,7 @@
                 <br>
                 <button onclick="addPlot();">Add Another Plot</button>
                 <button onclick="addChart();">Add Another Chart</button>
-                <!--<button onclick="restage();">Open in Viewer</button>-->
+                <button onclick="restage();">Open in Viewer</button>
             </div>
 
 
