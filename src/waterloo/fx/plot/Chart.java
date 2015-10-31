@@ -28,14 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -44,7 +40,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
-import javafx.css.FontCssMetaData;
 import javafx.css.StyleConverter;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
@@ -53,7 +48,6 @@ import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
-import javafx.embed.swing.JFXPanel;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -77,7 +71,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import waterloo.fx.plot.axis.AbstractAxisRegion;
@@ -94,6 +87,11 @@ import waterloo.fx.transforms.NOPTransform;
 /**
  * The {@code Chart} is the basic container for representing charts in
  * waterlooFX.
+ * <p>
+ * For best results, <em>always</em> wrap the {@code Chart} in a simple 
+ * {@code Pane} subclass. That can then be added to
+ * a more complex layout such as the center of a {@code BorderPane}.
+ * </p>
  * <p>
  * The {@code Chart} is a {@code Pane} subclass with an embedded view. The
  * <strong>view</strong> is a {@code StackPane} that contains a {@code Canvas}
@@ -197,7 +195,7 @@ public final class Chart extends Pane {
     /**
      * Base font to use. This is styleable via the "-w-font-" settings.
      */
-    private Font font = Font.getDefault();
+    //private Font font = Font.getDefault();
     /**
      * If clipping is true, this limits painting of added nodes to the limits of
      * the view bounds
@@ -1010,77 +1008,77 @@ public final class Chart extends Pane {
      *
      * innerAxisFontSize represents the size of the font to use.
      */
-    private StyleableDoubleProperty innerAxisFontSize = new StyleableDoubleProperty(
-            font == null ? Font.getDefault().getSize() : font.getSize()) {
-
-                @Override
-                public final Object getBean() {
-                    return Chart.this;
-                }
-
-                @Override
-                public final String getName() {
-                    return "innerAxisFontSize";
-                }
-
-                @Override
-                public final CssMetaData<? extends Styleable, Number> getCssMetaData() {
-                    return (CssMetaData<? extends Styleable, Number>) StyleableProperties.INNERAXISFONTSIZE;
-                }
-
-            };
+//    private StyleableDoubleProperty innerAxisFontSize = new StyleableDoubleProperty(
+//            font == null ? Font.getDefault().getSize() : font.getSize()) {
+//
+//                @Override
+//                public final Object getBean() {
+//                    return Chart.this;
+//                }
+//
+//                @Override
+//                public final String getName() {
+//                    return "innerAxisFontSize";
+//                }
+//
+//                @Override
+//                public final CssMetaData<? extends Styleable, Number> getCssMetaData() {
+//                    return (CssMetaData<? extends Styleable, Number>) StyleableProperties.INNERAXISFONTSIZE;
+//                }
+//
+//            };
     /**
      * {@code axisFontSize} holds the size of the font to be used for rendering
      * tick marks, labels etc in th outer axes (those drawn to the left, right,
      * top etc of the plotting area).
      */
-    private StyleableDoubleProperty axisFontSize = new StyleableDoubleProperty(
-            font == null ? Font.getDefault().getSize() : font.getSize()) {
-
-                @Override
-                public final Object getBean() {
-                    return Chart.this;
-                }
-
-                @Override
-                public final String getName() {
-                    return "axisFontSize";
-                }
-
-                @Override
-                public final CssMetaData<? extends Styleable, Number> getCssMetaData() {
-                    return (CssMetaData<? extends Styleable, Number>) StyleableProperties.INNERAXISFONTSIZE;
-                }
-
-            };
-    private final StyleableObjectProperty<Font> fontProperty = new StyleableObjectProperty<Font>(font) {
-
-        @Override
-        public final void set(Font value) {
-            font = value;
-        }
-
-        @Override
-        public final Font get() {
-            return font;
-        }
-
-        @Override
-        public final FontCssMetaData<Chart> getCssMetaData() {
-            return (FontCssMetaData<Chart>) StyleableProperties.FONT;
-        }
-
-        @Override
-        public final Chart getBean() {
-            return Chart.this;
-        }
-
-        @Override
-        public final String getName() {
-            return "font";
-        }
-
-    };
+//    private StyleableDoubleProperty axisFontSize = new StyleableDoubleProperty(
+//            font == null ? Font.getDefault().getSize() : font.getSize()) {
+//
+//                @Override
+//                public final Object getBean() {
+//                    return Chart.this;
+//                }
+//
+//                @Override
+//                public final String getName() {
+//                    return "axisFontSize";
+//                }
+//
+//                @Override
+//                public final CssMetaData<? extends Styleable, Number> getCssMetaData() {
+//                    return (CssMetaData<? extends Styleable, Number>) StyleableProperties.INNERAXISFONTSIZE;
+//                }
+//
+//            };
+//    private final StyleableObjectProperty<Font> fontProperty = new StyleableObjectProperty<Font>(font) {
+//
+//        @Override
+//        public final void set(Font value) {
+//            font = value;
+//        }
+//
+//        @Override
+//        public final Font get() {
+//            return font;
+//        }
+//
+//        @Override
+//        public final FontCssMetaData<Chart> getCssMetaData() {
+//            return (FontCssMetaData<Chart>) StyleableProperties.FONT;
+//        }
+//
+//        @Override
+//        public final Chart getBean() {
+//            return Chart.this;
+//        }
+//
+//        @Override
+//        public final String getName() {
+//            return "font";
+//        }
+//
+//    };
     /**
      * For alignment of the view within the {@code Chart} area.
      */
@@ -1639,6 +1637,10 @@ public final class Chart extends Pane {
         innerAxisColor.set(color);
     }
 
+    public final void setInnerAxisColor(String color) {
+        setInnerAxisColor(Paint.valueOf(color));
+    }
+
     /**
      * The viewAlignment positions the display of the view on the longest axis
      * of the chart when the viewAspectRatio is a non-zero, non-NaN value.
@@ -1834,46 +1836,44 @@ public final class Chart extends Pane {
         }
     }
 
-    /**
-     *
-     * @return the DoubleProperty wrapping the size of Font used to label the
-     * inner axes
-     */
-    public final StyleableDoubleProperty innerAxisFontSizeProperty() {
-        return innerAxisFontSize;
-    }
-
-    /**
-     *
-     * @return size of Font used to label the inner axes
-     */
-    public final double getInnerAxisFontSize() {
-        return innerAxisFontSize.get();
-    }
-
-    /**
-     * Sets the font size used to label the inner axes.
-     *
-     * @param val size of Font used to label the inner axes
-     */
-    public final void setInnerAxisFontSize(double val) {
-        innerAxisFontSize.set(val);
-    }
-
-    /**
-     * Sets the base font for use in this Chart.
-     *
-     * Font size, posture and weight can be set through CSS.
-     *
-     * Fonts used for labeling axes will be based on this font but their size
-     * and color may be set independently.
-     *
-     * @return the font property
-     */
-    public final StyleableObjectProperty<Font> fontProperty() {
-        return fontProperty;
-    }
-
+//    /**
+//     *
+//     * @return the DoubleProperty wrapping the size of Font used to label the
+//     * inner axes
+//     */
+//    public final StyleableDoubleProperty innerAxisFontSizeProperty() {
+//        return innerAxisFontSize;
+//    }
+//
+//    /**
+//     *
+//     * @return size of Font used to label the inner axes
+//     */
+//    public final double getInnerAxisFontSize() {
+//        return innerAxisFontSize.get();
+//    }
+//
+//    /**
+//     * Sets the font size used to label the inner axes.
+//     *
+//     * @param val size of Font used to label the inner axes
+//     */
+//    public final void setInnerAxisFontSize(double val) {
+//        innerAxisFontSize.set(val);
+//    }
+//    /**
+//     * Sets the base font for use in this Chart.
+//     *
+//     * Font size, posture and weight can be set through CSS.
+//     *
+//     * Fonts used for labeling axes will be based on this font but their size
+//     * and color may be set independently.
+//     *
+//     * @return the font property
+//     */
+//    public final StyleableObjectProperty<Font> fontProperty() {
+//        return fontProperty;
+//    }
     /**
      * Returns the TRANSFORMTYPE for the x-axis.
      *
@@ -3152,6 +3152,10 @@ public final class Chart extends Pane {
         majorGridColor.set(val);
     }
 
+    public final void setMajorGridColor(String color) {
+        setMajorGridColor(Paint.valueOf(color));
+    }
+
     /**
      * Returns a {@code StyleableObjectProperty<Paint>} object for the color of
      * the minor grid lines
@@ -3170,6 +3174,10 @@ public final class Chart extends Pane {
         minorGridColor.set(val);
     }
 
+    public final void setMinorGridColor(String color) {
+        setMinorGridColor(Paint.valueOf(color));
+    }
+
     /**
      * Returns a {@code StyleableObjectProperty<Paint>} object for the color of
      * the axes associated with this {@code Chart}
@@ -3186,6 +3194,10 @@ public final class Chart extends Pane {
 
     public final void setAxisColor(Paint val) {
         axisColor.set(val);
+    }
+
+    public final void setAxisColor(String color) {
+        setAxisColor(Paint.valueOf(color));
     }
 
     /**
@@ -3385,25 +3397,24 @@ public final class Chart extends Pane {
 
     }
 
-    /**
-     * @return the axisFontSize
-     */
-    public final double getAxisFontSize() {
-        return axisFontSize.get();
-    }
-
-    /**
-     * @param value the axisFontSize to set
-     */
-    public final void setAxisFontSize(double value) {
-        this.axisFontSize.set(value);
-    }
-
-    public final StyleableDoubleProperty axisFontSizeProperty() {
-        return axisFontSize;
-
-    }
-
+//    /**
+//     * @return the axisFontSize
+//     */
+//    public final double getAxisFontSize() {
+//        return axisFontSize.get();
+//    }
+//
+//    /**
+//     * @param value the axisFontSize to set
+//     */
+//    public final void setAxisFontSize(double value) {
+//        this.axisFontSize.set(value);
+//    }
+//
+//    public final StyleableDoubleProperty axisFontSizeProperty() {
+//        return axisFontSize;
+//
+//    }
     /**
      * @return the axisPane
      */
@@ -3692,20 +3703,20 @@ public final class Chart extends Pane {
                         return (StyleableProperty<Boolean>) n.innerAxisPainted;
                     }
                 };
-        private static final CssMetaData<Chart, Number> INNERAXISFONTSIZE
-                = new CssMetaData<Chart, Number>("-w-inner-axis-font-size",
-                        StyleConverter.getSizeConverter(), Font.getDefault().getSize()) {
-
-                    @Override
-                    public final boolean isSettable(Chart n) {
-                        return n.innerAxisFontSize != null && !n.innerAxisFontSize.isBound();
-                    }
-
-                    @Override
-                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
-                        return (StyleableProperty<Number>) n.innerAxisFontSize;
-                    }
-                };
+//        private static final CssMetaData<Chart, Number> INNERAXISFONTSIZE
+//                = new CssMetaData<Chart, Number>("-w-inner-axis-font-size",
+//                        StyleConverter.getSizeConverter(), Font.getDefault().getSize()) {
+//
+//                    @Override
+//                    public final boolean isSettable(Chart n) {
+//                        return n.innerAxisFontSize != null && !n.innerAxisFontSize.isBound();
+//                    }
+//
+//                    @Override
+//                    public final StyleableProperty<Number> getStyleableProperty(Chart n) {
+//                        return (StyleableProperty<Number>) n.innerAxisFontSize;
+//                    }
+//                };
         private static final CssMetaData<Chart, Boolean> INNERAXISLABELLED
                 = new CssMetaData<Chart, Boolean>("-w-inner-axis-labelled",
                         StyleConverter.getBooleanConverter(), Boolean.FALSE) {
@@ -3902,19 +3913,19 @@ public final class Chart extends Pane {
                         return (StyleableProperty<Paint>) n.minorGridColor;
                     }
                 };
-        private static final CssMetaData<Chart, Font> FONT
-                = new FontCssMetaData<Chart>("-w-font", Font.getDefault()) {
-
-                    @Override
-                    public final boolean isSettable(Chart n) {
-                        return n.fontProperty != null && !n.fontProperty.isBound();
-                    }
-
-                    @Override
-                    public final StyleableProperty<Font> getStyleableProperty(Chart n) {
-                        return (StyleableProperty<Font>) n.fontProperty;
-                    }
-                };
+//        private static final CssMetaData<Chart, Font> FONT
+//                = new FontCssMetaData<Chart>("-w-font", Font.getDefault()) {
+//
+//                    @Override
+//                    public final boolean isSettable(Chart n) {
+//                        return n.fontProperty != null && !n.fontProperty.isBound();
+//                    }
+//
+//                    @Override
+//                    public final StyleableProperty<Font> getStyleableProperty(Chart n) {
+//                        return (StyleableProperty<Font>) n.fontProperty;
+//                    }
+//                };
         private static final CssMetaData<Chart, Paint> AXISCOLOR
                 = new CssMetaData<Chart, Paint>("-w-axis-color",
                         StyleConverter.getPaintConverter(), Color.BLACK) {
@@ -4050,7 +4061,7 @@ public final class Chart extends Pane {
             final List<CssMetaData<? extends Styleable, ?>> styleables
                     = new ArrayList<>(Pane.getClassCssMetaData());
 
-            styleables.add(FONT);
+//            styleables.add(FONT);
             styleables.add(ASPECTRATIO);
             styleables.add(POLAR);
             styleables.add(XTRANSFORMTYPE);
@@ -4081,7 +4092,7 @@ public final class Chart extends Pane {
             styleables.add(INNERAXISCOLOR);
             styleables.add(INNERAXISPAINTED);
             styleables.add(INNERAXISLABELLED);
-            styleables.add(INNERAXISFONTSIZE);
+//            styleables.add(INNERAXISFONTSIZE);
             styleables.add(INNERAXISSTROKEWIDTH);
 
             styleables.add(LEFTAXISPAINTED);

@@ -2,7 +2,7 @@
 *
  * <http://sigtool.github.io/waterlooFX/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. Copyright Ironduke Publishing Limited, UK 2014-.
  * 
  * @author Malcolm Lidierth <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
@@ -105,10 +105,10 @@ public class LinePlot extends AbstractPlot<ArrayList<Polyline>> implements LineI
             if (Double.isFinite(p0.getX()) && Double.isFinite(p0.getY())) {
                 line.getPoints().addAll(p0.getX(), p0.getY());
             } else {
-                if (line.getPoints().size() > 0) {
-                    line = visualElement.get(k);
-                    line.getPoints().clear();
-                }
+//                if (line.getPoints().size() > 0) {
+//                    line = visualElement.get(k);
+//                    line.getPoints().clear();
+//                }
             }
         }
     }

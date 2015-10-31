@@ -2,7 +2,7 @@
 *
  * <http://sigtool.github.io/waterlooFX/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. Copyright Ironduke Publishing Limited, UK 2014-.
  * 
  * @author Malcolm Lidierth <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
-import javafx.collections.ListChangeListener;
 import javafx.css.CssMetaData;
 import javafx.css.StyleConverter;
 import javafx.css.Styleable;

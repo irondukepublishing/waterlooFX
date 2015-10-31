@@ -2,7 +2,7 @@
  *
  * <http://sigtool.github.io/waterlooFX/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. Copyright Ironduke Publishing Limited, UK 2014-.
  *
  * @author Malcolm Lidierth <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  *
@@ -22,20 +22,27 @@
  */
 package waterloo.fx.plot;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.css.CssMetaData;
@@ -176,7 +183,13 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         public void set(String s) {
             dataModel.getXData().clear();
             if (!s.isEmpty()) {
-                List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
+                if (s.substring(0, 1).matches("[a-zA-Z]")) {
+                    try {
+                        s = decode(s);
+                    } catch (UnsupportedEncodingException ex) {
+                    }
+                }
+                List<String> items = Arrays.asList(s.replaceAll("\\s*", "").split(","));
                 items.forEach(x -> dataModel.getXData().add(Double.valueOf(x)));
             }
         }
@@ -208,7 +221,13 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         public void set(String s) {
             dataModel.getYData().clear();
             if (!s.isEmpty()) {
-                List<String> items = Arrays.asList(s.split("\\s*,\\s*"));
+                if (s.substring(0, 1).matches("[a-zA-Z]")) {
+                    try {
+                        s = decode(s);
+                    } catch (UnsupportedEncodingException ex) {
+                    }
+                }
+                List<String> items = Arrays.asList(s.replaceAll("\\s*", "").split(","));
                 items.forEach(y -> dataModel.getYData().add(Double.valueOf(y)));
             }
         }
@@ -460,9 +479,10 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
      */
     public AbstractPlot() {
         super();
+        
 
         getStyleClass().add("w-plot");
-        
+
         setBackground(Background.EMPTY);
 
         graphicsPane = new Pane();
@@ -591,8 +611,13 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return xData.get();
     }
 
-    public void setXData(String s) {
+    public void setXData(String s) throws UnsupportedEncodingException {
         xData.set(s);
+    }
+
+    public static String decode(String base64) throws UnsupportedEncodingException {
+        ByteBuffer buffer = ByteBuffer.wrap(Base64.getDecoder().decode(base64.getBytes("UTF-8")));
+        return new String(buffer.array()).replaceAll("\\s+", ",");
     }
 
     public StringProperty xDataProperty() {
@@ -603,7 +628,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         return yData.get();
     }
 
-    public void setYData(String s) {
+    public void setYData(String s) throws UnsupportedEncodingException {
         yData.set(s);
     }
 
@@ -887,6 +912,10 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
     public void setEdgeColor(Paint color) {
         visualModel.setEdgeColor(color);
     }
+    
+    public void setEdgeColor(String color) {
+        visualModel.setEdgeColor(Paint.valueOf(color.toUpperCase()));
+    }
 
     public Paint getLineColor() {
         return visualModel.getLineColor();
@@ -894,6 +923,9 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
     public void setLineColor(Paint color) {
         visualModel.setLineColor(color);
+    }
+    public void setLineColor(String color) {
+        visualModel.setLineColor(Color.valueOf(color.toUpperCase()));
     }
 
     public double getLineWidth() {
@@ -910,6 +942,10 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
     public void setFill(Paint color) {
         visualModel.setFill(color);
+    }
+    
+    public void setFill(String color) {
+        visualModel.setFill(Paint.valueOf(color.toUpperCase()));
     }
 
     public double getMarkerRadius() {
@@ -928,31 +964,28 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
         visualModel.setEdgeWidth(val);
     }
 
-    public  MARKERTYPE getMarkerType() {
+    public MARKERTYPE getMarkerType() {
         return visualModel.markerType.get();
     }
-    
-    public void setMarkerType(MARKERTYPE markerType){
-        visualModel.markerType.set((MARKERTYPE)markerType);
+
+    public void setMarkerType(MARKERTYPE markerType) {
+        visualModel.markerType.set((MARKERTYPE) markerType);
     }
-    
-    public String getMarkerTypeAsString(){
+
+    public String getMarkerTypeAsString() {
         return "DO NOT EDIT: JS HACK";
     }
-    
+
     public void setMarkerTypeAsString(String markerType) {
-            visualModel.markerType.set(MARKERTYPE.valueOf(markerType));
+        visualModel.markerType.set(MARKERTYPE.valueOf(markerType));
     }
-    
+
 //    public String getMarkerTypeAsString() {
 //        return visualModel.getMarkerType().toString();
 //    }
-
 //    public void setMarkerTypeAsString(String markerType) {
 //        visualModel.markerType.set(MARKERTYPE.valueOf(markerType));
 //    }
-    
-
     public void setLabels(Text... arr) {
         visualModel.getLabels().forEach(x -> annotationPane.getChildren().remove(x));
         visualModel.getLabels().clear();
@@ -1135,7 +1168,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
                     @Override
                     public boolean isSettable(AbstractPlot node) {
-                        return node instanceof MarkerInterface
+                        return node instanceof LineInterface
                         && node.visualModel.lineWidth != null
                         && !node.visualModel.lineWidth.isBound();
                     }
@@ -1311,7 +1344,7 @@ public abstract class AbstractPlot<T extends List<? extends Node>> extends Stack
 
             @Override
             public String getName() {
-                return "fill";
+                return "lineColor";
             }
 
             @Override

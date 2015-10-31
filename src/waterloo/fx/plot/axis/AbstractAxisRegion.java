@@ -1,7 +1,7 @@
 /* 
  * <http://sigtool.github.io/waterlooFX/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. Copyright Ironduke Publishing Limited, UK 2014-.
  * 
  * @author Malcolm Lidierth, <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
@@ -22,21 +22,23 @@
 package waterloo.fx.plot.axis;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.css.CssMetaData;
+import javafx.css.Styleable;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Polyline;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import waterloo.fx.plot.Chart;
 
@@ -86,7 +88,7 @@ public abstract class AbstractAxisRegion extends Region {
      * bound in the constructor to match the color of the lines drawn for this
      * axis. To customise the color, remove this binding.
      */
-    private final Text axisLabel = new Text("Axis Label");
+    private final Text axisLabel = new Text();
     /**
      * A {@code LinkedHashMap} containing Integer keys and String values. When
      * an axis tick position coincides with the Integer key, the corresponding
@@ -270,9 +272,11 @@ public abstract class AbstractAxisRegion extends Region {
      * @return the Font
      */
     public Font getFont() {
-        return Font.font(getLayer().fontProperty().get().getFamily(),
-                FontPosture.valueOf(getLayer().fontProperty().get().getStyle().toUpperCase()),
-                getLayer().getAxisFontSize());
+        return getAxisLabel().getFont();
+    }
+    
+    public void setFont(Font font){
+        getAxisLabel().setFont(font);
     }
 
     /**
@@ -475,6 +479,24 @@ public abstract class AbstractAxisRegion extends Region {
                 }
             }
             return value;
+        }
+    }
+    
+    /**
+     * @treatAsPrivate implementation detail
+     */
+    private static class StyleableProperties {
+
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+
+        
+        static {
+            final List<CssMetaData<? extends Styleable, ?>> styleables
+                    = new ArrayList<>(Region.getClassCssMetaData());
+
+
+
+            STYLEABLES = Collections.unmodifiableList(styleables);
         }
     }
 

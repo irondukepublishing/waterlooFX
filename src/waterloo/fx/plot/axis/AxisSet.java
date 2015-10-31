@@ -1,7 +1,7 @@
 /* 
  * <http://sigtool.github.io/waterlooFX/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. Copyright Ironduke Publishing Limited, UK 2014-.
  * 
  * @author Malcolm Lidierth, <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
@@ -24,6 +24,7 @@ package waterloo.fx.plot.axis;
 import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Font;
@@ -170,6 +171,9 @@ public class AxisSet {
      * @param g the GraphicsContext retrieved from the canvas instance.
      */
     public void paintGrid(GraphicsContext g) {
+        
+        Font font=layer.getAxisSet().getBottomAxis().getAxisLabel().getFont();
+        g.setFont(Font.font(font.getFamily(), font.getSize()-2));
 
         if (layer.getParent() instanceof Chart) {
             g.clearRect(0, 0, layer.getView().getWidth(), layer.getView().getHeight());
@@ -257,8 +261,6 @@ public class AxisSet {
             }
 
             if (layer.isInnerAxisLabelled()) {
-
-                g.setFont(Font.font(layer.fontProperty().get().getFamily(), layer.getInnerAxisFontSize()));
                 g.setTextAlign(TextAlignment.CENTER);
                 g.setTextBaseline(VPos.CENTER);
                 g.setFill(layer.getInnerAxisColor());
@@ -267,9 +269,9 @@ public class AxisSet {
                  * Labels for the rays
                  */
                 double rx = layer.getView().getWidth() / 2d;
-                rx -= layer.fontProperty().get().getSize();
+                rx -= g.getFont().getSize();
                 double ry = layer.getView().getHeight() / 2d;
-                ry -= layer.fontProperty().get().getSize();
+                ry -= g.getFont().getSize();
                 // Unit circle
                 Ellipse e0 = new Ellipse(0, 0, rx, ry);
                 for (double theta = 0; theta < 2 * Math.PI; theta += Math.PI / 6) {
@@ -350,7 +352,7 @@ public class AxisSet {
                 g.setTextAlign(TextAlignment.CENTER);
                 g.setFill(layer.getInnerAxisColor());
                 g.setTextBaseline(VPos.TOP);
-                g.setFont(Font.font(layer.fontProperty().get().getFamily(), layer.getInnerAxisFontSize()));
+                g.setFont(Font.font(font.getFamily(), font.getSize()-2));
                 xTransform.get().stream().forEach((Double x) -> {
                     Point2D p2 = layer.toPixel(x, layer.getYOrigin());
                     Point2D p3 = layer.toPixel(x, layer.getYOrigin());

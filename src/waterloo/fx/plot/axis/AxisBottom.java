@@ -1,7 +1,7 @@
 /* 
  * <http://sigtool.github.io/waterlooFX/>
  *
- * Copyright King's College London  2014. Copyright Malcolm Lidierth 2014-.
+ * Copyright King's College London  2014. Copyright Ironduke Publishing Limited, UK 2014-.
  * 
  * @author Malcolm Lidierth, <a href="https://github.com/sigtool/waterlooFX/issues"> [Contact]</a>
  * 
@@ -41,7 +41,6 @@ public class AxisBottom extends AbstractAxisRegion {
         getChildren().add(getLine().get());
         getAxisLabel().setTextAlignment(TextAlignment.CENTER);
         setCursor(Cursor.DEFAULT);
-        getAxisLabel().setFont(getFont());
         getAxisLabel().setTextOrigin(VPos.TOP);
         getChildren().add(getAxisLabel());
         prefWidthProperty().bind(layer.getFirstLayer().getView().prefWidthProperty());
