@@ -26,9 +26,12 @@ package waterloo.fx.demo;
 import java.util.Arrays;
 import java.util.List;
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 import waterloo.fx.plot.AbstractPlot;
+import waterloo.fx.plot.Chart;
 import waterloo.fx.plot.LinePlot;
+import waterloo.fx.plot.ScatterPlot;
 
 
 /**
@@ -41,30 +44,10 @@ public class Demo extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         
-        LinePlot l= new LinePlot();
-        System.out.println(l.getLineColor());
-        
-
-        
-//        MathLabel view=new MathLabel();
-//        view.setContent("\\lambda");
-//        Scene scene = new Scene(view, 500, 500);
-//        primaryStage.setTitle("WaterooFX Demo: Scientific charting for JavaFX 8+");
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
 
 //        System.err.println(System.getProperty("java.version"));
-//        Chart g = new Chart();
-//        
-//        Pane p=new Pane();
-//        System.out.println(p.getStyleClass());
-//        //GJChart g1 = new Chart();
-//        
-//        System.out.println(g.getStyleClass());
-//        //g.getChildren().add(g1);
-//
-//        //LinePlot lp = GJLinePlotLine();
-//        
+        Chart g = new Chart();
+
 //        
 //        BarPlot bar0=new BarPlot();
 //        ((BarExtra)bar0.getDataModel().getExtraObject()).setJustification(BarExtra.JUSTIFICATION.CENTERED);
@@ -100,12 +83,12 @@ public class Demo extends Application {
 //        //g.getChildren().add(s1);
 //       
 //
-//        AbstractPlot line = new LinePlot();
-//        AbstractPlot scatter = new ScatterPlot();
-//        line.getChildren().add(scatter);
-//        g.getChildren().add(line);
+        AbstractPlot line = new LinePlot();
+        AbstractPlot scatter = new ScatterPlot();
+        line.getChildren().add(scatter);
+        g.getChildren().add(line);
 //        
-//        System.out.println("*******");
+        System.out.println("*******");
 //
 //        
 //       
@@ -114,15 +97,15 @@ public class Demo extends Application {
 ////        s.getStylesheets().add(StyleSheetManager.getCss());
 //        FlowPane root = new FlowPane(g);
 //
-//        g.setViewAspectRatio(1d);
+        g.setViewAspectRatio(1d);
 //
-//        Scene scene = new Scene(root, 500, 500);
-//        //scene.getStylesheets().add(StyleSheetManager.getCss());
-//
-//        primaryStage.setTitle("WaterooFX Demo: Scientific charting for JavaFX 8+");
-//        primaryStage.setScene(scene);
-//
-//        primaryStage.show();
+        Scene scene = new Scene(g, 500, 500);
+        //scene.getStylesheets().add(StyleSheetManager.getCss());
+
+        primaryStage.setTitle("WaterooFX Demo: Scientific charting for JavaFX 8+");
+        primaryStage.setScene(scene);
+
+        primaryStage.show();
 //        
 //        bar0.getVisualModel().setFill(Color.RED);
 //        bar1.getVisualModel().setFill(Color.GREEN);

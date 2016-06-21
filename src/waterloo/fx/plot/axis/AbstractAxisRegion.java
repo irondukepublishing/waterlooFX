@@ -40,7 +40,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.Polyline;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import waterloo.fx.plot.Chart;
+import waterloo.fx.web.Browsable;
 
 /**
  * {@code AbstractAxisRegion} provides the base class for axes drawn outside of
@@ -62,7 +67,7 @@ public abstract class AbstractAxisRegion extends Region {
     }
 
     /**
-     * A LinClass object that contains the JavaFX nodes that represent the axis
+     * A LineClass object that contains the JavaFX nodes that represent the axis
      * on screen.
      */
     private final LineClass line;
@@ -125,11 +130,10 @@ public abstract class AbstractAxisRegion extends Region {
      * @param layer
      */
     public AbstractAxisRegion(Chart layer) {
-        
 
         // Add a reference to the layer
         this.layer = layer;
-        
+
         getStyleClass().add("w-axis");
 
         // Generate the line - done on the constructor so we use the Platform thread.
@@ -274,8 +278,8 @@ public abstract class AbstractAxisRegion extends Region {
     public Font getFont() {
         return getAxisLabel().getFont();
     }
-    
-    public void setFont(Font font){
+
+    public void setFont(Font font) {
         getAxisLabel().setFont(font);
     }
 
@@ -350,12 +354,13 @@ public abstract class AbstractAxisRegion extends Region {
     /**
      * {@code ObjectBinding<Polyline>} used to represent the axis.
      */
-    public final class LineClass extends ObjectBinding<Polyline> {
+    public final class LineClass extends ObjectBinding<Polyline> implements Browsable {
 
         private final Chart layer;
 
         private final Polyline value = new Polyline();
 
+        DocumentBuilder docBuilder = null;
 
         public LineClass(Chart layer) {
             super();
@@ -379,7 +384,6 @@ public abstract class AbstractAxisRegion extends Region {
                     bind(layer.yBottomProperty());
                     bind(prefHeightProperty());
             }
-            
 
             ChangeListener<Scene> addedToScene = (ObservableValue<? extends Scene> ov, Scene t, Scene t1) -> {
                 value.setOnMouseEntered((MouseEvent m0) -> {
@@ -480,8 +484,35 @@ public abstract class AbstractAxisRegion extends Region {
             }
             return value;
         }
+
+        @Override
+        public Element getElementModel(Element element, StringBuilder strBldr) {
+            strBldr.setLength(0);
+            value.getPoints().stream().forEach((x) -> {
+                strBldr.append(x.toString());
+                strBldr.append(",");
+            });
+            if (element.getTagName().toLowerCase().equals("none")
+                    && element.getOwnerDocument() != null) {
+                element.getOwnerDocument().renameNode(element,
+                        element.getOwnerDocument().getNamespaceURI(),
+                        "AxisLine");
+            }
+            if (strBldr.length() > 0) {
+                strBldr.delete(strBldr.length() - 1, strBldr.length());
+                element.setAttribute("class", value.getClass().toString().replace("class ", ""));
+                element.setAttribute("strokeWidth", Double.toString(value.strokeWidthProperty().get()));
+                element.setAttribute("color", value.strokeProperty().get().toString());
+                element.setAttribute("pixelData", strBldr.toString());
+            }
+            return element;
+        }
+
     }
-    
+
+//    @Override
+//    public void layoutChildren(){
+//    }
     /**
      * @treatAsPrivate implementation detail
      */
@@ -489,12 +520,9 @@ public abstract class AbstractAxisRegion extends Region {
 
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
-        
         static {
             final List<CssMetaData<? extends Styleable, ?>> styleables
                     = new ArrayList<>(Region.getClassCssMetaData());
-
-
 
             STYLEABLES = Collections.unmodifiableList(styleables);
         }
